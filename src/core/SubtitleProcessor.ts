@@ -40,26 +40,29 @@ export default class SubtitleProcessor {
                 utf8Content = this.formattingStripper.stripFormatting(utf8Content, options.strip);
             }
 
-            // 5. Create backup if requested
+            // 5. Ensure proper line breaks for TV display
+            utf8Content = this.ensureProperLineBreaks(utf8Content);
+
+            // 6. Create backup if requested
             if (options.backupOriginal) {
                 const backupPath = `${inputFilePath}.bak`;
 
                 await fs.copyFile(inputFilePath, backupPath);
             }
 
-            // 6. Normalize line endings if specified
+            // 7. Normalize line endings if specified
             if (options.lineEndings) {
                 utf8Content = this.normalizeLineEndings(utf8Content, options.lineEndings);
             }
 
-            // 7. Add BOM if requested
+            // 8. Add BOM if requested
             const finalContent = options.bom
                 ? Buffer.concat([UTF8_BOM, Buffer.from(utf8Content, 'utf8')])
                 : Buffer.from(utf8Content, 'utf8');
 
-            console.log('🔧 BOM status:', options.bom);
+            console.log('📝 BOM status:', options.bom);
 
-            // 8. Check if file exists and handle overwrite
+            // 9. Check if file exists and handle overwrite
             const finalOutputPath = outputFilePath || this.getDefaultOutputPath(inputFilePath);
 
             if (!options.overwriteExisting) {
@@ -73,9 +76,11 @@ export default class SubtitleProcessor {
                         throw error;
                     }
                 }
+            } else {
+                console.log('🔄 Overwrite status:', options.overwriteExisting);
             }
 
-            // 9. Write file
+            // 10. Write file
             await fs.writeFile(finalOutputPath, finalContent);
         } catch (error) {
             throw new Error(`Failed to process file: ${(error as Error).message}`);
@@ -102,5 +107,36 @@ export default class SubtitleProcessor {
         const extension = inputFilePath.substring(dotIndex);
 
         return `${baseName}.utf8${extension}`;
+    }
+
+    private ensureProperLineBreaks(content: string): string {
+        const blocks = content.split(/\n\s*\n/);
+
+        return blocks
+            .map((block) => {
+                const lines = block.split('\n');
+
+                if (lines.length < 2) return block; // Skip invalid blocks
+
+                // First line is the number
+                // Second line is the timestamp
+                // Rest are subtitle text that should be single-spaced
+                const number = lines[0].trim();
+                const timestamp = lines[1].trim();
+
+                // Filter out empty lines and join subtitle text with a single line break
+                // TV/Media players expect exactly one line break between subtitle lines
+                const subtitleText = lines
+                    .slice(2)
+                    .map((line) => line.trim())
+                    .filter((line) => line.length > 0)
+                    .join('\n');
+
+                // Ensure proper spacing:
+                // - One empty line between subtitle blocks (handled by join('\n\n') at the end)
+                // - No empty lines within a subtitle block
+                return `${number}\n${timestamp}\n${subtitleText}`;
+            })
+            .join('\n\n'); // Double line break between subtitle blocks is standard for SRT files
     }
 }
