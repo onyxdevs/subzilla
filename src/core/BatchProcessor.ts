@@ -1,11 +1,12 @@
-import * as path from 'path';
-import * as fs from 'fs/promises';
+import path from 'path';
+import fs from 'fs/promises';
 import { glob } from 'glob';
 import { SingleBar, MultiBar, Presets } from 'cli-progress';
-import { SubtitleProcessor } from './SubtitleProcessor';
-import { IBatchOptions, IBatchStats } from '../types/core/batch';
 
-export class BatchProcessor {
+import { IBatchOptions, IBatchStats } from '@subzilla/types/core/batch';
+import SubtitleProcessor from './SubtitleProcessor';
+
+export default class BatchProcessor {
     private processor: SubtitleProcessor;
     private multiBar: MultiBar;
     private mainProgressBar!: SingleBar;

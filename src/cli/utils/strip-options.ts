@@ -1,6 +1,6 @@
-import { IStripOptions } from '../../types/common/options';
-import { IStripCommandOptions } from '../../types/cli/options';
-import { ISubtitleConfig } from '../../types/core/config';
+import { IStripOptions } from '@subzilla/types/common/options';
+import { IStripCommandOptions } from '@subzilla/types/cli/options';
+import { ISubtitleConfig } from '@subzilla/types/core/config';
 
 export function createStripOptions(
     options: IStripCommandOptions,

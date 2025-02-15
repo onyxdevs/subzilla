@@ -1,6 +1,7 @@
-import { ConfigLoader } from '../../core/ConfigLoader';
-import { ICommandDefinition } from '../../types/cli/command';
-import { BaseCommandCreator } from '../base/command';
+import { ConfigLoader } from '@subzilla/core';
+import { ICommandDefinition } from '@subzilla/types/cli/command';
+
+import { BaseCommandCreator } from './base-command';
 
 export class InitCommandCreator extends BaseCommandCreator {
     protected getDefinition(): ICommandDefinition {

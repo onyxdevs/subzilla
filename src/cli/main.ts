@@ -1,7 +1,10 @@
 #!/usr/bin/env node
 
+import 'module-alias/register';
 import { Command } from 'commander';
-import { ConfigLoader } from '../core/ConfigLoader';
+
+import { ConfigLoader } from '@subzilla/core';
+
 import { DefaultCommandRegistry } from './registry/command-registry';
 import { ConvertCommandCreator } from './commands/convert-command';
 import { BatchCommandCreator } from './commands/batch-command';

@@ -1,6 +1,6 @@
-import { IStripOptions } from '../types/common/options';
+import { IStripOptions } from '@subzilla/types/common/options';
 
-export class FormattingStripper {
+export default class FormattingStripper {
     private htmlTagRegex = /<[^>]+>/g;
     private srtColorRegex = /{\\\c&H[0-9A-Fa-f]{6}&}/g;
     private assColorRegex = /\{\\c&H[0-9A-Fa-f]{6}&\}/g;

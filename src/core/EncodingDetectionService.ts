@@ -1,7 +1,7 @@
-import * as fs from 'fs';
-import * as chardet from 'chardet';
+import fs from 'fs';
+import chardet from 'chardet';
 
-export class EncodingDetectionService {
+export default class EncodingDetectionService {
     public static detectEncoding(filePath: string): Promise<string> {
         return new Promise((resolve, reject) => {
             fs.readFile(filePath, (err: NodeJS.ErrnoException | null, data: Buffer) => {

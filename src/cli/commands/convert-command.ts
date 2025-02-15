@@ -1,9 +1,9 @@
-import { SubtitleProcessor } from '../../core/SubtitleProcessor';
-import { ConfigLoader } from '../../core/ConfigLoader';
-import { IConvertCommandOptions } from '../../types/cli/options';
+import { SubtitleProcessor, ConfigLoader } from '@subzilla/core';
+import { IConvertCommandOptions } from '@subzilla/types/cli/options';
+import { ICommandDefinition } from '@subzilla/types/cli/command';
+
 import { createStripOptions } from '../utils/strip-options';
-import { ICommandDefinition } from '../../types/cli/command';
-import { BaseCommandCreator } from '../base/command';
+import { BaseCommandCreator } from './base-command';
 
 export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOptions> {
     protected getDefinition(): ICommandDefinition<IConvertCommandOptions> {

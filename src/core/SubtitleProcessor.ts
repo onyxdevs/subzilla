@@ -1,10 +1,11 @@
-import * as fs from 'fs/promises';
-import { EncodingDetectionService } from './EncodingDetectionService';
-import { EncodingConversionService } from './EncodingConversionService';
-import { FormattingStripper } from './FormattingStripper';
-import { ISubtitleOptions } from '../types/common/options';
+import fs from 'fs/promises';
 
-export class SubtitleProcessor {
+import { ISubtitleOptions } from '@subzilla/types/common/options';
+import EncodingDetectionService from './EncodingDetectionService';
+import EncodingConversionService from './EncodingConversionService';
+import FormattingStripper from './FormattingStripper';
+
+export default class SubtitleProcessor {
     private formattingStripper: FormattingStripper;
 
     constructor() {

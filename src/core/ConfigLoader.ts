@@ -1,8 +1,9 @@
-import * as fs from 'fs/promises';
-import * as path from 'path';
-import * as yaml from 'yaml';
-import { ISubtitleConfig } from '../types/core/config';
-import { configSchema } from '../types/validation';
+import fs from 'fs/promises';
+import path from 'path';
+import yaml from 'yaml';
+
+import { ISubtitleConfig } from '@subzilla/types/core/config';
+import { configSchema } from '@subzilla/types/validation';
 
 type TRecursiveRecord<T> = {
     [key: string]: T | TRecursiveRecord<T>;
@@ -10,7 +11,7 @@ type TRecursiveRecord<T> = {
 
 type TConfigSegment = TRecursiveRecord<string | number | boolean>;
 
-export class ConfigLoader {
+export default class ConfigLoader {
     private static readonly CONFIG_FILE_NAMES = [
         '.subzillarc',
         '.subzilla.yml',

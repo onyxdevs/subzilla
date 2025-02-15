@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+
 import { ISubtitleConfig } from '../core/config';
 import { IConvertCommandOptions, IBatchCommandOptions } from './options';
 

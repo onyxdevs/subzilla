@@ -1,9 +1,9 @@
-import { BatchProcessor } from '../../core/BatchProcessor';
-import { ConfigLoader } from '../../core/ConfigLoader';
-import { IBatchCommandOptions } from '../../types/cli/options';
+import { BatchProcessor, ConfigLoader } from '@subzilla/core';
+import { IBatchCommandOptions } from '@subzilla/types/cli/options';
+import { ICommandDefinition } from '@subzilla/types/cli/command';
+
 import { createStripOptions } from '../utils/strip-options';
-import { ICommandDefinition } from '../../types/cli/command';
-import { BaseCommandCreator } from '../base/command';
+import { BaseCommandCreator } from './base-command';
 
 export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions> {
     protected getDefinition(): ICommandDefinition<IBatchCommandOptions> {
