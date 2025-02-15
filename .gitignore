@@ -22,5 +22,6 @@ coverage/
 .env*
 
 # Converted subtitle files
+dummy/**/*.bak
 dummy/**/*.utf8.*
 dummy/**/*converted*

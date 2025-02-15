@@ -57,6 +57,8 @@ export default class SubtitleProcessor {
                 ? Buffer.concat([UTF8_BOM, Buffer.from(utf8Content, 'utf8')])
                 : Buffer.from(utf8Content, 'utf8');
 
+            console.log('🔧 BOM status:', options.bom);
+
             // 8. Check if file exists and handle overwrite
             const finalOutputPath = outputFilePath || this.getDefaultOutputPath(inputFilePath);
 

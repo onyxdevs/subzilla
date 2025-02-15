@@ -13,7 +13,7 @@ output:
   encoding: utf8
   bom: true
   lineEndings: auto
-  overwriteExisting: false
+  overwriteExisting: true
 
 strip:
   html: true
