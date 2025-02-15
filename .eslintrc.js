@@ -1,6 +1,6 @@
-import tsconfig from './tsconfig.json';
+const tsconfig = require('./tsconfig.json');
 
-export default {
+module.exports = {
     parser: '@typescript-eslint/parser',
     plugins: ['@typescript-eslint', 'prettier', 'import'],
     extends: [

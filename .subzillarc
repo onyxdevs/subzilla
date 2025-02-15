@@ -1,32 +1,46 @@
+# SubZilla Configuration File
+# Common settings for subtitle conversion
+
 input:
   encoding: auto
   format: auto
   defaultLanguage: en
   detectBOM: true
+
 output:
   preserveStructure: false
   createBackup: false
   encoding: utf8
-  bom: false
+  bom: true
   lineEndings: auto
   overwriteExisting: false
+
+strip:
+  html: true
+  colors: true
+  styles: true
+  urls: false
+
 batch:
-  recursive: false
-  parallel: false
-  skipExisting: false
+  recursive: true
+  parallel: true
+  skipExisting: true
   chunkSize: 5
-  retryCount: 0
+  retryCount: 3
   retryDelay: 1000
   failFast: false
+
 performance:
-  maxConcurrency: 3
-  bufferSize: 8192
-  useStreaming: false
+  maxConcurrency: 4
+  bufferSize: 16384
+  useStreaming: true
+
 logging:
   level: info
   format: text
   colors: true
   timestamp: true
+
 error:
   exitOnError: true
   throwOnWarning: false
