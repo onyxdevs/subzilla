@@ -1,0 +1,63 @@
+# Arabic-Optimized SubZilla Configuration
+# Settings optimized for Arabic subtitle processing
+
+input:
+  encoding: windows1256     # Common encoding for Arabic files
+  format: auto
+  defaultLanguage: ar      # Set Arabic as default
+  fallbackEncoding: utf8   # Fallback to UTF-8 if detection fails
+
+output:
+  directory: ./arabic-converted
+  preserveStructure: true
+  createBackup: true
+  format: srt
+  encoding: utf8          # Convert to UTF-8
+  bom: true              # Add BOM for better compatibility
+  lineEndings: crlf      # Windows line endings for compatibility
+
+strip:
+  html: true
+  colors: true
+  styles: true
+  urls: true
+  timestamps: false      # Preserve timestamps
+  numbers: false        # Keep numbers
+  punctuation: false    # Keep Arabic punctuation
+  emojis: true         # Remove emojis
+  brackets: false      # Keep brackets for timing
+
+batch:
+  recursive: true
+  parallel: true
+  skipExisting: true
+  includeDirectories:
+    - arabic
+    - مسلسلات
+    - أفلام
+  excludeDirectories:
+    - temp
+    - backup
+  chunkSize: 5
+  retryCount: 3        # More retries for encoding issues
+
+performance:
+  maxConcurrency: 4
+  bufferSize: 16384
+  useStreaming: true
+  timeout: 60000      # Longer timeout for encoding conversion
+
+logging:
+  level: info
+  file: arabic-conversion.log
+  format: text
+  colors: true
+  timestamp: true
+
+error:
+  exitOnError: false   # Continue on errors
+  throwOnWarning: false
+  ignoreErrors:
+    - ENOENT
+    - EEXIST
+  errorLogFile: arabic-errors.log 

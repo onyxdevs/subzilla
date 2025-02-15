@@ -1,0 +1,84 @@
+# SubZilla Configuration File
+# All settings are optional with sensible defaults
+
+input:
+  # Input file settings
+  encoding: auto                  # auto, utf8, utf16le, utf16be, ascii, windows1256
+  format: auto                    # auto, srt, sub, ass, ssa, txt
+  defaultLanguage: en            # ISO language code
+  detectBOM: true                # Detect Byte Order Mark
+  fallbackEncoding: windows1256  # Fallback if auto-detection fails
+
+output:
+  # Output file settings
+  directory: ./converted         # Output directory path
+  preserveStructure: true        # Maintain directory structure
+  createBackup: true            # Create backup of original files
+  format: srt                    # Output format
+  encoding: utf8                 # Always UTF-8
+  bom: false                    # Add BOM to output files
+  lineEndings: lf               # lf, crlf, or auto
+  overwriteExisting: false      # Overwrite existing files
+
+strip:
+  # Formatting removal options
+  html: true                    # Remove HTML tags
+  colors: true                  # Remove color codes
+  styles: true                  # Remove style tags
+  urls: true                    # Replace URLs with [URL]
+  timestamps: false            # Replace timestamps with [TIMESTAMP]
+  numbers: false               # Replace numbers with #
+  punctuation: false          # Remove punctuation
+  emojis: true                # Replace emojis with [EMOJI]
+  brackets: false             # Remove brackets
+
+batch:
+  # Batch processing settings
+  recursive: true              # Process subdirectories
+  parallel: true              # Process files in parallel
+  skipExisting: true         # Skip existing UTF-8 files
+  maxDepth: 5                # Maximum directory depth
+  includeDirectories:        # Only process these directories
+    - movies
+    - series
+  excludeDirectories:        # Skip these directories
+    - temp
+    - backup
+  chunkSize: 10             # Files per batch
+  retryCount: 3             # Retry failed conversions
+  retryDelay: 1000         # Delay between retries (ms)
+  failFast: false          # Stop on first error
+
+performance:
+  # Performance tuning
+  maxConcurrency: 4         # Maximum parallel processes
+  bufferSize: 16384        # Buffer size in bytes
+  useStreaming: true       # Use streaming for large files
+  memoryLimit: 512         # Memory limit in MB
+  timeout: 30000          # Operation timeout in ms
+
+logging:
+  # Logging configuration
+  level: info              # error, warn, info, debug
+  file: subzilla.log      # Log file path
+  format: text            # text or json
+  colors: true           # Colorize console output
+  timestamp: true        # Add timestamps to logs
+  maxFiles: 5            # Maximum log files to keep
+  maxSize: 10485760     # Maximum log file size (10MB)
+
+error:
+  # Error handling
+  exitOnError: true       # Exit on critical errors
+  throwOnWarning: false   # Treat warnings as errors
+  ignoreErrors:          # Errors to ignore
+    - ENOENT
+    - EEXIST
+  errorLogFile: errors.log # Separate error log file
+
+hooks:
+  # Script hooks (paths to JavaScript files)
+  beforeConversion: ./scripts/before.js
+  afterConversion: ./scripts/after.js
+  onError: ./scripts/error.js
+  onSuccess: ./scripts/success.js 

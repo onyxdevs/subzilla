@@ -1,0 +1,27 @@
+# Minimal SubZilla Configuration
+# Only commonly used settings
+
+input:
+  encoding: auto
+  format: auto
+  defaultLanguage: en
+
+output:
+  directory: ./converted
+  createBackup: true
+  format: srt
+
+strip:
+  html: true
+  colors: true
+  styles: true
+
+batch:
+  recursive: true
+  parallel: true
+  skipExisting: true
+  chunkSize: 5
+
+logging:
+  level: info
+  colors: true

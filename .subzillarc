@@ -1,0 +1,32 @@
+input:
+  encoding: auto
+  format: auto
+  defaultLanguage: en
+  detectBOM: true
+output:
+  preserveStructure: false
+  createBackup: false
+  encoding: utf8
+  bom: false
+  lineEndings: auto
+  overwriteExisting: false
+batch:
+  recursive: false
+  parallel: false
+  skipExisting: false
+  chunkSize: 5
+  retryCount: 0
+  retryDelay: 1000
+  failFast: false
+performance:
+  maxConcurrency: 3
+  bufferSize: 8192
+  useStreaming: false
+logging:
+  level: info
+  format: text
+  colors: true
+  timestamp: true
+error:
+  exitOnError: true
+  throwOnWarning: false
