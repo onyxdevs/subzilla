@@ -19,5 +19,8 @@ Thumbs.db
 coverage/
 
 # Environment variables
-.env
-.env.local
+.env*
+
+# Converted subtitle files
+dummy/**/*.utf8.*
+dummy/**/*converted*

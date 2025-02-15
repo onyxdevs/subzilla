@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli/main.js",
-    "dev": "ts-node src/cli/main.ts",
+    "dev": "tsc --watch",
     "test": "mocha -r ts-node/register 'test/**/*.spec.ts'",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
