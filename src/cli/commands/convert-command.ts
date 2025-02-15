@@ -1,4 +1,4 @@
-import { SubtitleProcessor, ConfigLoader } from '@subzilla/core';
+import { SubtitleProcessor, ConfigManager } from '@subzilla/core';
 import { IConvertCommandOptions } from '@subzilla/types/cli/options';
 import { ICommandDefinition } from '@subzilla/types/cli/command';
 
@@ -24,6 +24,41 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                 {
                     flags: '-b, --backup',
                     description: 'create backup of original file',
+                    defaultValue: false,
+                },
+                {
+                    flags: '--bom',
+                    description: 'add UTF-8 BOM to output file',
+                    defaultValue: true,
+                },
+                {
+                    flags: '--line-endings <type>',
+                    description: 'line endings type (lf, crlf, auto)',
+                    defaultValue: 'auto',
+                },
+                {
+                    flags: '--overwrite',
+                    description: 'overwrite existing output file',
+                    defaultValue: false,
+                },
+                {
+                    flags: '--retry-count <number>',
+                    description: 'number of retries on failure',
+                    defaultValue: '3',
+                },
+                {
+                    flags: '--retry-delay <ms>',
+                    description: 'delay between retries in milliseconds',
+                    defaultValue: '1000',
+                },
+                {
+                    flags: '--buffer-size <bytes>',
+                    description: 'buffer size for file operations',
+                    defaultValue: '8192',
+                },
+                {
+                    flags: '--streaming',
+                    description: 'use streaming for large files',
                     defaultValue: false,
                 },
                 {
@@ -79,7 +114,7 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
             ],
             action: async (inputFile: string, options: IConvertCommandOptions): Promise<void> => {
                 try {
-                    const config = options.loadedConfig || (await ConfigLoader.loadConfig());
+                    const config = options.loadedConfig || (await ConfigManager.loadConfig());
                     const stripOptions = createStripOptions(options, config);
 
                     const processor = new SubtitleProcessor();
@@ -87,21 +122,27 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                     await processor.processFile(inputFile, options.output, {
                         strip: stripOptions,
                         backupOriginal: options.backup || config.output?.createBackup || false,
+                        bom: options.bom || config.output?.bom || true,
+                        lineEndings: options.lineEndings || config.output?.lineEndings || 'auto',
+                        overwriteExisting:
+                            options.overwrite || config.output?.overwriteExisting || false,
+                        useStreaming:
+                            options.streaming || config.performance?.useStreaming || false,
+                        bufferSize:
+                            parseInt(options.bufferSize || '') ||
+                            config.performance?.bufferSize ||
+                            8192,
+                        retryCount:
+                            parseInt(options.retryCount || '') || config.batch?.retryCount || 3,
+                        retryDelay:
+                            parseInt(options.retryDelay || '') || config.batch?.retryDelay || 1000,
                     });
 
                     console.log('✨ Conversion successful!');
                     console.log(`Input file: ${inputFile}`);
-
-                    // Place the `.utf8` in the file name but before the extension, then add the extension
-                    // Split the input file name into parts
-                    const parts = inputFile.split('.');
-                    const extension = parts.pop();
-                    const fileName = parts.join('.');
-
-                    // Create the new file name with `.utf8` before the extension
-                    const outputFile = `${fileName}.utf8.${extension}`;
-
-                    console.log(`Output file: ${outputFile}`);
+                    console.log(
+                        `Output file: ${options.output || this.getDefaultOutputPath(inputFile)}`
+                    );
 
                     if (options.backup || config.output?.createBackup) {
                         console.log(`Backup file: ${inputFile}.bak`);
@@ -112,5 +153,13 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                 }
             },
         };
+    }
+
+    private getDefaultOutputPath(inputFile: string): string {
+        const parts = inputFile.split('.');
+        const extension = parts.pop();
+        const fileName = parts.join('.');
+
+        return `${fileName}.utf8.${extension}`;
     }
 }

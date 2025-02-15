@@ -16,7 +16,7 @@ export abstract class BaseCommandCreator<TOptions = IConvertCommandOptions | IBa
         command.description(definition.description);
 
         // Add arguments
-        definition.arguments?.forEach(arg => {
+        definition.arguments?.forEach((arg) => {
             if (arg.defaultValue) {
                 command.argument(`[${arg.name}]`, arg.description, arg.defaultValue);
             } else {
@@ -25,7 +25,7 @@ export abstract class BaseCommandCreator<TOptions = IConvertCommandOptions | IBa
         });
 
         // Add options
-        definition.options?.forEach(opt => {
+        definition.options?.forEach((opt) => {
             if (opt.defaultValue !== undefined) {
                 command.option(opt.flags, opt.description, opt.defaultValue);
             } else {

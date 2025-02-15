@@ -16,7 +16,7 @@ export class DefaultCommandRegistry implements ICommandRegistry {
     }
 
     public registerCommands(creators: ICommandCreator[]): void {
-        creators.forEach(creator => this.registerCommand(creator));
+        creators.forEach((creator) => this.registerCommand(creator));
     }
 
     public getProgram(): Command {

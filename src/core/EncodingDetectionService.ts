@@ -1,5 +1,5 @@
 import fs from 'fs';
-import chardet from 'chardet';
+import { detect } from 'chardet';
 
 export default class EncodingDetectionService {
     public static detectEncoding(filePath: string): Promise<string> {
@@ -9,7 +9,7 @@ export default class EncodingDetectionService {
                     return reject(err);
                 }
 
-                const encoding = chardet.detect(data);
+                const encoding = detect(data);
 
                 // If chardet returns null, fallback to utf-8
                 resolve(encoding || 'utf-8');

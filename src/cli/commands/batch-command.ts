@@ -1,4 +1,4 @@
-import { BatchProcessor, ConfigLoader } from '@subzilla/core';
+import { BatchProcessor, ConfigManager } from '@subzilla/core';
 import { IBatchCommandOptions } from '@subzilla/types/cli/options';
 import { ICommandDefinition } from '@subzilla/types/cli/command';
 
@@ -111,7 +111,7 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
             ],
             action: async (pattern: string, options: IBatchCommandOptions): Promise<void> => {
                 try {
-                    const config = options.loadedConfig || (await ConfigLoader.loadConfig());
+                    const config = options.loadedConfig || (await ConfigManager.loadConfig());
                     const stripOptions = createStripOptions(options, config);
 
                     const batchProcessor = new BatchProcessor();

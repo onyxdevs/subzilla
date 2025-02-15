@@ -29,6 +29,13 @@ export interface IBaseCommandOptions extends IStripCommandOptions {
  */
 export interface IConvertCommandOptions extends IBaseCommandOptions {
     output?: string;
+    bom?: boolean;
+    lineEndings?: 'lf' | 'crlf' | 'auto';
+    overwrite?: boolean;
+    streaming?: boolean;
+    bufferSize?: string;
+    retryCount?: string;
+    retryDelay?: string;
 }
 
 /**

@@ -71,10 +71,10 @@ export default class FormattingStripper {
 
     private stripHtmlTags(content: string): string {
         // First, handle specific rich text tags with their content if needed
-        this.richTextTags.forEach(tag => {
+        this.richTextTags.forEach((tag) => {
             const tagRegex = new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gi');
 
-            content = content.replace(tagRegex, match => {
+            content = content.replace(tagRegex, (match) => {
                 // Extract text between tags
                 const text = match.replace(/<[^>]+>/g, '');
 

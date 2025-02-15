@@ -11,10 +11,14 @@ export interface IBatchOptions extends ISubtitleOptions {
     includeDirectories?: string[];
     excludeDirectories?: string[];
     preserveStructure?: boolean;
+    chunkSize?: number;
+    retryCount?: number;
+    retryDelay?: number;
+    failFast?: boolean;
 }
 
 /**
- * Statistics for batch processing operations
+ * Statistics for batch processing
  */
 export interface IBatchStats {
     total: number;
@@ -34,4 +38,6 @@ export interface IBatchStats {
             skipped: number;
         }
     >;
+    startTime: number;
+    endTime: number;
 }

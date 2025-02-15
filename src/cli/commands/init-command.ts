@@ -1,4 +1,4 @@
-import { ConfigLoader } from '@subzilla/core';
+import { ConfigManager } from '@subzilla/core';
 import { ICommandDefinition } from '@subzilla/types/cli/command';
 
 import { BaseCommandCreator } from './base-command';
@@ -18,7 +18,7 @@ export class InitCommandCreator extends BaseCommandCreator {
 
             action: async (path: string): Promise<void> => {
                 try {
-                    await ConfigLoader.createDefaultConfig(path);
+                    await ConfigManager.createDefaultConfig(path);
                     console.log(`✨ Created default config file at: ${path}`);
                 } catch (error) {
                     console.error('❌ Error:', (error as Error).message);

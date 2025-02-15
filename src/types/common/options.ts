@@ -21,4 +21,12 @@ export interface ISubtitleOptions {
     outputDir?: string;
     preserveTimestamps?: boolean;
     backupOriginal?: boolean;
+    bom?: boolean;
+    lineEndings?: 'lf' | 'crlf' | 'auto';
+    overwriteExisting?: boolean;
+    useStreaming?: boolean;
+    bufferSize?: number;
+    retryCount?: number;
+    retryDelay?: number;
+    failFast?: boolean;
 }

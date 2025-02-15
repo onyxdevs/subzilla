@@ -30,5 +30,5 @@ export function createStripOptions(
               brackets: options.stripBrackets || config.strip?.brackets || false,
           };
 
-    return Object.values(stripOptions).some(v => v) ? stripOptions : undefined;
+    return Object.values(stripOptions).some((v) => v) ? stripOptions : undefined;
 }

@@ -1,9 +1,17 @@
 import fs from 'fs/promises';
+import { Buffer } from 'buffer';
 
 import { ISubtitleOptions } from '@subzilla/types/common/options';
 import EncodingDetectionService from './EncodingDetectionService';
 import EncodingConversionService from './EncodingConversionService';
 import FormattingStripper from './FormattingStripper';
+
+const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
+const LINE_ENDINGS = {
+    lf: '\n',
+    crlf: '\r\n',
+    auto: process.platform === 'win32' ? '\r\n' : '\n',
+};
 
 export default class SubtitleProcessor {
     private formattingStripper: FormattingStripper;
@@ -34,19 +42,50 @@ export default class SubtitleProcessor {
 
             // 5. Create backup if requested
             if (options.backupOriginal) {
-                const backupPath = inputFilePath + '.bak';
+                const backupPath = `${inputFilePath}.bak`;
 
                 await fs.copyFile(inputFilePath, backupPath);
             }
 
-            // 6. Determine output path
+            // 6. Normalize line endings if specified
+            if (options.lineEndings) {
+                utf8Content = this.normalizeLineEndings(utf8Content, options.lineEndings);
+            }
+
+            // 7. Add BOM if requested
+            const finalContent = options.bom
+                ? Buffer.concat([UTF8_BOM, Buffer.from(utf8Content, 'utf8')])
+                : Buffer.from(utf8Content, 'utf8');
+
+            // 8. Check if file exists and handle overwrite
             const finalOutputPath = outputFilePath || this.getDefaultOutputPath(inputFilePath);
 
-            // 7. Write file as UTF-8
-            await fs.writeFile(finalOutputPath, utf8Content, { encoding: 'utf8' });
+            if (!options.overwriteExisting) {
+                try {
+                    await fs.access(finalOutputPath);
+                    throw new Error(
+                        `Output file ${finalOutputPath} already exists and overwrite is disabled`
+                    );
+                } catch (error) {
+                    if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
+                        throw error;
+                    }
+                }
+            }
+
+            // 9. Write file
+            await fs.writeFile(finalOutputPath, finalContent);
         } catch (error) {
             throw new Error(`Failed to process file: ${(error as Error).message}`);
         }
+    }
+
+    private normalizeLineEndings(content: string, lineEnding: 'lf' | 'crlf' | 'auto'): string {
+        // First normalize to LF
+        const normalized = content.replace(/\r\n|\r|\n/g, '\n');
+
+        // Then convert to desired line ending
+        return normalized.replace(/\n/g, LINE_ENDINGS[lineEnding]);
     }
 
     private getDefaultOutputPath(inputFilePath: string): string {
