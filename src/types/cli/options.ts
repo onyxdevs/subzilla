@@ -51,3 +51,7 @@ export interface IBatchCommandOptions extends IBaseCommandOptions {
     excludeDirs?: string[];
     preserveStructure: boolean;
 }
+
+export interface IInfoCommandOptions {
+    // Currently no special options needed, but we'll keep the interface for future extensibility
+}

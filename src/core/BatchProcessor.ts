@@ -282,7 +282,7 @@ export default class BatchProcessor {
     private getOutputPath(file: string, dir: string, options: IBatchOptions): string | undefined {
         if (!options.outputDir) return undefined;
 
-        const fileName = path.basename(file, path.extname(file)) + '.utf8' + path.extname(file);
+        const fileName = path.basename(file, path.extname(file)) + '.subzilla' + path.extname(file);
 
         if (options.preserveStructure) {
             const relativePath = path.relative(process.cwd(), dir);

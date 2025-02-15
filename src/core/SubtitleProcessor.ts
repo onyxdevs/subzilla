@@ -89,24 +89,25 @@ export default class SubtitleProcessor {
 
     private normalizeLineEndings(content: string, lineEnding: 'lf' | 'crlf' | 'auto'): string {
         // First normalize to LF
-        const normalized = content.replace(/\r\n|\r|\n/g, '\n');
+        // TODO: Why?!
+        // const normalized = content.replace(/\r\n|\r|\n/g, '\n');
 
         // Then convert to desired line ending
-        return normalized.replace(/\n/g, LINE_ENDINGS[lineEnding]);
+        return content.replace(/\n/g, LINE_ENDINGS[lineEnding]);
     }
 
     private getDefaultOutputPath(inputFilePath: string): string {
-        // Example: 'example.srt' -> 'example.utf8.srt'
+        // Example: 'example.srt' -> 'example.subzilla.srt'
         const dotIndex = inputFilePath.lastIndexOf('.');
 
         if (dotIndex === -1) {
-            return `${inputFilePath}.utf8`;
+            return `${inputFilePath}.subzilla`;
         }
 
         const baseName = inputFilePath.substring(0, dotIndex);
         const extension = inputFilePath.substring(dotIndex);
 
-        return `${baseName}.utf8${extension}`;
+        return `${baseName}.subzilla${extension}`;
     }
 
     private ensureProperLineBreaks(content: string): string {

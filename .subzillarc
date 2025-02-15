@@ -12,7 +12,7 @@ output:
   createBackup: false
   encoding: utf8
   bom: true
-  lineEndings: auto
+  lineEndings: crlf
   overwriteExisting: true
 
 strip:

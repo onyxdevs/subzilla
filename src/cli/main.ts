@@ -10,6 +10,7 @@ import { DefaultCommandRegistry } from './registry/command-registry';
 import { ConvertCommandCreator } from './commands/convert-command';
 import { BatchCommandCreator } from './commands/batch-command';
 import { InitCommandCreator } from './commands/init-command';
+import { InfoCommandCreator } from './commands/info-command';
 
 const program = new Command();
 
@@ -59,6 +60,7 @@ registry.registerCommands([
     new ConvertCommandCreator(),
     new BatchCommandCreator(),
     new InitCommandCreator(),
+    new InfoCommandCreator(),
 ]);
 
 program.parse();

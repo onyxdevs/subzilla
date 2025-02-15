@@ -160,6 +160,6 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
         const extension = parts.pop();
         const fileName = parts.join('.');
 
-        return `${fileName}.utf8.${extension}`;
+        return `${fileName}.subzilla.${extension}`;
     }
 }
