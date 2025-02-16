@@ -1,9 +1,9 @@
-import { ISubtitleOptions } from '../common/options';
+import { IProcessingOptions } from '../options';
 
 /**
  * Options for batch processing of subtitles
  */
-export interface IBatchOptions extends ISubtitleOptions {
+export interface IBatchOptions extends IProcessingOptions {
     recursive: boolean;
     parallel: boolean;
     skipExisting: boolean;

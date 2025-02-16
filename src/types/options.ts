@@ -16,7 +16,7 @@ export interface IStripOptions {
 /**
  * Base options for subtitle processing
  */
-export interface ISubtitleOptions {
+export interface IProcessingOptions {
     strip?: IStripOptions;
     outputDir?: string;
     preserveTimestamps?: boolean;
@@ -24,8 +24,6 @@ export interface ISubtitleOptions {
     bom?: boolean;
     lineEndings?: 'lf' | 'crlf' | 'auto';
     overwriteExisting?: boolean;
-    useStreaming?: boolean;
-    bufferSize?: number;
     retryCount?: number;
     retryDelay?: number;
     failFast?: boolean;

@@ -1,10 +1,10 @@
-import { IStripOptions } from '@subzilla/types/common/options';
+import { IStripOptions } from '@subzilla/types/options';
 import { IStripCommandOptions } from '@subzilla/types/cli/options';
-import { ISubtitleConfig } from '@subzilla/types/core/config';
+import { IConfig } from '@subzilla/types/core/config';
 
 export function createStripOptions(
     options: IStripCommandOptions,
-    config: ISubtitleConfig
+    config: IConfig
 ): IStripOptions | undefined {
     const stripOptions: IStripOptions = options.stripAll
         ? {

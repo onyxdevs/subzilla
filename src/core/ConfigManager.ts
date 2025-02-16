@@ -3,7 +3,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { z } from 'zod';
 
-import { ISubtitleConfig, TConfigSegment } from '@subzilla/types/core/config';
+import { IConfig, TConfigSegment } from '@subzilla/types/core/config';
 import { configSchema } from '@subzilla/types/validation';
 
 /**
@@ -21,13 +21,10 @@ export default class ConfigManager {
 
     private static readonly ENV_PREFIX = 'SUBZILLA_';
 
-    private static readonly DEFAULT_CONFIG: ISubtitleConfig = {
+    private static readonly DEFAULT_CONFIG: IConfig = {
         input: {
             encoding: 'auto',
             format: 'auto',
-            defaultLanguage: 'en',
-            detectBOM: true,
-            fallbackEncoding: 'windows1256',
         },
         output: {
             encoding: 'utf8',
@@ -46,32 +43,24 @@ export default class ConfigManager {
             retryDelay: 1000,
             failFast: false,
         },
-        performance: {
-            maxConcurrency: 3,
-            bufferSize: 8192,
-            useStreaming: false,
-            memoryLimit: 512,
-            timeout: 30000,
-        },
-        logging: {
-            level: 'info',
-            format: 'text',
-            colors: true,
-            timestamp: true,
-            maxFiles: 5,
-            maxSize: 10485760, // 10MB
-        },
         error: {
-            exitOnError: true,
-            throwOnWarning: false,
-            ignoreErrors: [],
+            exitOnError: true, // TODO: Implement
+            throwOnWarning: false, // TODO: Implement
+            ignoreErrors: [], // TODO: Implement
+            errorLogFile: 'error.log', // TODO: Implement
+        },
+        hooks: {
+            beforeConversion: '', // TODO
+            afterConversion: '', // TODO
+            onError: '', // TODO
+            onSuccess: '', // TODO
         },
     };
 
     /**
      * 🔄 Load configuration from all sources and merge them
      */
-    public static async loadConfig(configPath?: string): Promise<ISubtitleConfig> {
+    public static async loadConfig(configPath?: string): Promise<IConfig> {
         try {
             // Load config from different sources in order of precedence
             const envConfig = this.loadFromEnv();
@@ -100,7 +89,7 @@ export default class ConfigManager {
     /**
      * 🌍 Load configuration from environment variables
      */
-    private static loadFromEnv(): Partial<ISubtitleConfig> {
+    private static loadFromEnv(): Partial<IConfig> {
         const config: TConfigSegment = {};
 
         for (const [key, value] of Object.entries(process.env)) {
@@ -111,13 +100,13 @@ export default class ConfigManager {
             this.setNestedValue(config, configPath, this.parseEnvValue(value));
         }
 
-        return config as Partial<ISubtitleConfig>;
+        return config as Partial<IConfig>;
     }
 
     /**
      * 🔍 Find and load the first available config file
      */
-    private static async findAndLoadConfig(): Promise<ISubtitleConfig | null> {
+    private static async findAndLoadConfig(): Promise<IConfig | null> {
         const cwd = process.cwd();
 
         for (const fileName of this.CONFIG_FILE_NAMES) {
@@ -138,7 +127,7 @@ export default class ConfigManager {
     /**
      * 📄 Load configuration from a specific file
      */
-    private static async loadConfigFile(filePath: string): Promise<ISubtitleConfig> {
+    private static async loadConfigFile(filePath: string): Promise<IConfig> {
         try {
             const content = await fs.readFile(filePath, 'utf8');
             const config = yaml.parse(content);
@@ -153,7 +142,7 @@ export default class ConfigManager {
     /**
      * ✅ Validate configuration against schema
      */
-    private static async validateConfig(config: ISubtitleConfig): Promise<ISubtitleConfig> {
+    private static async validateConfig(config: IConfig): Promise<IConfig> {
         try {
             return configSchema.parse(config);
         } catch (error) {
@@ -206,10 +195,10 @@ export default class ConfigManager {
     /**
      * 🔄 Deep merge configuration objects
      */
-    private static mergeConfigs(...configs: Partial<ISubtitleConfig>[]): ISubtitleConfig {
+    private static mergeConfigs(...configs: Partial<IConfig>[]): IConfig {
         return configs.reduce((acc, config) => {
             return this.deepMerge(acc, config);
-        }, {} as ISubtitleConfig);
+        }, {} as IConfig);
     }
 
     /**
@@ -247,7 +236,7 @@ export default class ConfigManager {
     /**
      * 💾 Save configuration to file
      */
-    public static async saveConfig(config: ISubtitleConfig, filePath: string): Promise<void> {
+    public static async saveConfig(config: IConfig, filePath: string): Promise<void> {
         try {
             const validatedConfig = await this.validateConfig(config);
             const yamlContent = yaml.stringify(validatedConfig, { indent: 2 });

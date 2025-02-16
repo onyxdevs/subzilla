@@ -1,12 +1,12 @@
 import { Command } from 'commander';
 
-import { ISubtitleConfig } from '../core/config';
+import { IConfig } from '../core/config';
 import { IConvertCommandOptions, IBatchCommandOptions } from './options';
 
 /**
  * Represents a command line option
  */
-export interface ICommandOption {
+interface ICommandOption {
     flags: string;
     description: string;
     defaultValue?: boolean | string | string[];
@@ -15,7 +15,7 @@ export interface ICommandOption {
 /**
  * Represents a command line argument
  */
-export interface ICommandArgument {
+interface ICommandArgument {
     name: string;
     description: string;
     defaultValue?: string;
@@ -37,7 +37,7 @@ export interface ICommandDefinition<TOptions = IConvertCommandOptions | IBatchCo
  */
 export interface ICommandContext {
     program: Command;
-    config?: ISubtitleConfig;
+    config?: IConfig;
 }
 
 /**

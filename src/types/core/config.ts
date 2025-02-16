@@ -1,15 +1,12 @@
-import { IStripOptions } from '../common/options';
+import { IStripOptions } from '../options';
 
 /**
  * Main configuration interface for the application
  */
-export interface ISubtitleConfig {
+export interface IConfig {
     input?: {
         encoding?: 'auto' | 'utf8' | 'utf16le' | 'utf16be' | 'ascii' | 'windows1256';
         format?: 'auto' | 'srt' | 'sub' | 'ass' | 'ssa' | 'txt';
-        defaultLanguage?: string;
-        detectBOM?: boolean;
-        fallbackEncoding?: string;
     };
     output?: {
         directory?: string;
@@ -34,22 +31,6 @@ export interface ISubtitleConfig {
         retryDelay?: number;
         failFast?: boolean;
     };
-    performance?: {
-        maxConcurrency?: number;
-        bufferSize?: number;
-        useStreaming?: boolean;
-        memoryLimit?: number;
-        timeout?: number;
-    };
-    logging?: {
-        level?: 'error' | 'warn' | 'info' | 'debug';
-        file?: string;
-        format?: 'text' | 'json';
-        colors?: boolean;
-        timestamp?: boolean;
-        maxFiles?: number;
-        maxSize?: number;
-    };
     error?: {
         exitOnError?: boolean;
         throwOnWarning?: boolean;
@@ -67,7 +48,7 @@ export interface ISubtitleConfig {
 /**
  * Type for recursive record structures in config
  */
-export type TRecursiveRecord<T> = {
+type TRecursiveRecord<T> = {
     [key: string]: T | TRecursiveRecord<T>;
 };
 

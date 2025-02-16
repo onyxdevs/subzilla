@@ -4,8 +4,6 @@
 input:
   encoding: windows1256     # Common encoding for Arabic files
   format: auto
-  defaultLanguage: ar      # Set Arabic as default
-  fallbackEncoding: utf8   # Fallback to UTF-8 if detection fails
 
 output:
   directory: ./arabic-converted
@@ -40,19 +38,6 @@ batch:
     - backup
   chunkSize: 5
   retryCount: 3        # More retries for encoding issues
-
-performance:
-  maxConcurrency: 4
-  bufferSize: 16384
-  useStreaming: true
-  timeout: 60000      # Longer timeout for encoding conversion
-
-logging:
-  level: info
-  file: arabic-conversion.log
-  format: text
-  colors: true
-  timestamp: true
 
 error:
   exitOnError: false   # Continue on errors

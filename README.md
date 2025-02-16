@@ -273,8 +273,6 @@ Several example configurations are provided in the `examples/config` directory:
     input:
         encoding: auto # auto, utf8, utf16le, utf16be, ascii, windows1256
         format: auto # auto, srt, sub, ass, ssa, txt
-        defaultLanguage: en # ISO language code
-        detectBOM: true # Detect Byte Order Mark
 
     output:
         directory: ./converted # Output directory path
@@ -294,7 +292,6 @@ Several example configurations are provided in the `examples/config` directory:
     input:
         encoding: auto
         format: auto
-        defaultLanguage: en
 
     output:
         directory: ./converted
@@ -316,9 +313,6 @@ Several example configurations are provided in the `examples/config` directory:
 3. **Performance-Optimized** (`performance.subzillarc`):
 
     ```yaml
-    input:
-        detectBOM: false # Skip BOM detection for speed
-
     output:
         preserveStructure: false # Flat output structure
         createBackup: false # Skip backups
@@ -329,12 +323,6 @@ Several example configurations are provided in the `examples/config` directory:
         chunkSize: 20 # Larger chunks
         retryCount: 0 # No retries
         failFast: true # Stop on first error
-
-    performance:
-        maxConcurrency: 8 # Use more cores
-        bufferSize: 65536 # Larger buffer
-        useStreaming: true # Stream large files
-        memoryLimit: 1024 # More memory
     ```
 
 4. **Arabic-Optimized** (`arabic.subzillarc`):
@@ -342,8 +330,6 @@ Several example configurations are provided in the `examples/config` directory:
     ```yaml
     input:
         encoding: windows1256 # Common Arabic encoding
-        defaultLanguage: ar # Set Arabic as default
-        fallbackEncoding: utf8 # UTF-8 fallback
 
     output:
         bom: true # Add BOM for compatibility
@@ -394,9 +380,6 @@ Settings are merged in the following order (later ones override earlier ones):
 
 - `encoding`: Input file encoding (`auto`, `utf8`, `utf16le`, `utf16be`, `ascii`, `windows1256`).
 - `format`: Input format (`auto`, `srt`, `sub`, `ass`, `ssa`, `txt`).
-- `defaultLanguage`: Default language code.
-- `detectBOM`: Whether to detect Byte Order Mark.
-- `fallbackEncoding`: Fallback encoding if auto-detection fails.
 
 #### Output Options
 
@@ -433,14 +416,6 @@ Settings are merged in the following order (later ones override earlier ones):
 - `retryCount`: Number of retry attempts.
 - `retryDelay`: Delay between retries (ms).
 - `failFast`: Stop on first error.
-
-#### Performance Options
-
-- `maxConcurrency`: Maximum parallel processes.
-- `bufferSize`: Buffer size in bytes.
-- `useStreaming`: Use streaming for large files.
-- `memoryLimit`: Memory limit in MB.
-- `timeout`: Operation timeout in ms.
 
 #### Logging Options
 

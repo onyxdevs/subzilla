@@ -5,9 +5,6 @@ input:
   # Input file settings
   encoding: auto                  # auto, utf8, utf16le, utf16be, ascii, windows1256
   format: auto                    # auto, srt, sub, ass, ssa, txt
-  defaultLanguage: en            # ISO language code
-  detectBOM: true                # Detect Byte Order Mark
-  fallbackEncoding: windows1256  # Fallback if auto-detection fails
 
 output:
   # Output file settings
@@ -48,24 +45,6 @@ batch:
   retryCount: 3             # Retry failed conversions
   retryDelay: 1000         # Delay between retries (ms)
   failFast: false          # Stop on first error
-
-performance:
-  # Performance tuning
-  maxConcurrency: 4         # Maximum parallel processes
-  bufferSize: 16384        # Buffer size in bytes
-  useStreaming: true       # Use streaming for large files
-  memoryLimit: 512         # Memory limit in MB
-  timeout: 30000          # Operation timeout in ms
-
-logging:
-  # Logging configuration
-  level: info              # error, warn, info, debug
-  file: subzilla.log      # Log file path
-  format: text            # text or json
-  colors: true           # Colorize console output
-  timestamp: true        # Add timestamps to logs
-  maxFiles: 5            # Maximum log files to keep
-  maxSize: 10485760     # Maximum log file size (10MB)
 
 error:
   # Error handling

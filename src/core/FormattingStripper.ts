@@ -1,4 +1,4 @@
-import { IStripOptions } from '@subzilla/types/common/options';
+import { IStripOptions } from '@subzilla/types/options';
 
 export default class FormattingStripper {
     private htmlTagRegex = /<[^>]+>/g;

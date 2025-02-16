@@ -4,8 +4,6 @@
 input:
   encoding: auto
   format: auto
-  defaultLanguage: en # TODO: Not used
-  detectBOM: true # TODO: Not used
 
 output:
   preserveStructure: false # Used for batch mode
@@ -30,19 +28,14 @@ batch:
   retryDelay: 1000
   failFast: false
 
-performance:
-  maxConcurrency: 4 # TODO: Not used
-  bufferSize: 16384 # TODO: Not used
-  useStreaming: true # TODO: Not used
+# error:
+#   exitOnError: true
+#   throwOnWarning: false
+#   ignoreErrors: []
+#   errorLogFile: error.log
 
-# TODO: Not used
-logging:
-  level: info
-  format: text
-  colors: true
-  timestamp: true
-
-# TODO: Not used
-error:
-  exitOnError: true
-  throwOnWarning: false
+# hooks:
+#   beforeConversion: ./scripts/before.js
+#   afterConversion: ./scripts/after.js
+#   onError: ./scripts/error.js
+#   onSuccess: ./scripts/success.js

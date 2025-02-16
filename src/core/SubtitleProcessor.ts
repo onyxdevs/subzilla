@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import { Buffer } from 'buffer';
 
-import { ISubtitleOptions } from '@subzilla/types/common/options';
+import { IProcessingOptions } from '@subzilla/types/options';
 import EncodingDetectionService from './EncodingDetectionService';
 import EncodingConversionService from './EncodingConversionService';
 import FormattingStripper from './FormattingStripper';
@@ -23,7 +23,7 @@ export default class SubtitleProcessor {
     public async processFile(
         inputFilePath: string,
         outputFilePath?: string,
-        options: ISubtitleOptions = {}
+        options: IProcessingOptions = {}
     ): Promise<void> {
         try {
             // 1. Detect encoding

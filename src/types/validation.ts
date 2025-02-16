@@ -19,9 +19,6 @@ export const configSchema = z.object({
                 .enum(['auto', 'utf8', 'utf16le', 'utf16be', 'ascii', 'windows1256'])
                 .default('auto'),
             format: z.enum(['auto', 'srt', 'sub', 'ass', 'ssa', 'txt']).default('auto'),
-            defaultLanguage: z.string().min(2).max(5).default('en'),
-            detectBOM: z.boolean().default(true),
-            fallbackEncoding: z.string().optional(),
         })
         .optional(),
 
@@ -52,38 +49,6 @@ export const configSchema = z.object({
             retryCount: z.number().int().min(0).max(5).default(0),
             retryDelay: z.number().int().min(100).max(5000).default(1000),
             failFast: z.boolean().default(false),
-        })
-        .optional(),
-
-    performance: z
-        .object({
-            maxConcurrency: z.number().int().min(1).max(10).default(3),
-            bufferSize: z
-                .number()
-                .int()
-                .min(1024)
-                .max(1024 * 1024)
-                .default(8192),
-            useStreaming: z.boolean().default(false),
-            memoryLimit: z.number().int().min(64).max(1024).optional(),
-            timeout: z.number().int().min(1000).max(300000).optional(),
-        })
-        .optional(),
-
-    logging: z
-        .object({
-            level: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
-            file: z.string().optional(),
-            format: z.enum(['text', 'json']).default('text'),
-            colors: z.boolean().default(true),
-            timestamp: z.boolean().default(true),
-            maxFiles: z.number().int().min(1).max(10).optional(),
-            maxSize: z
-                .number()
-                .int()
-                .min(1024 * 1024)
-                .max(1024 * 1024 * 100)
-                .optional(),
         })
         .optional(),
 

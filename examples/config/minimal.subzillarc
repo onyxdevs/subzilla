@@ -4,7 +4,6 @@
 input:
   encoding: auto
   format: auto
-  defaultLanguage: en
 
 output:
   directory: ./converted
@@ -21,7 +20,3 @@ batch:
   parallel: true
   skipExisting: true
   chunkSize: 5
-
-logging:
-  level: info
-  colors: true

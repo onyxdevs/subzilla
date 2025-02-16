@@ -3,7 +3,6 @@
 
 input:
   encoding: auto
-  detectBOM: false  # Skip BOM detection for speed
 
 output:
   directory: ./converted
@@ -19,16 +18,3 @@ batch:
   chunkSize: 20          # Larger chunks for better throughput
   retryCount: 0         # No retries for speed
   failFast: true       # Stop on first error
-
-performance:
-  maxConcurrency: 8     # Use more cores
-  bufferSize: 65536    # Larger buffer for better I/O
-  useStreaming: true   # Stream large files
-  memoryLimit: 1024    # Allow more memory usage
-  timeout: 60000      # Longer timeout for large files
-
-logging:
-  level: warn         # Minimal logging for speed
-  format: text
-  colors: false      # No color processing
-  timestamp: false   # Skip timestamp generation 

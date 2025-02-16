@@ -104,10 +104,6 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                         bom: options.bom ?? config.output?.bom,
                         lineEndings: options.lineEndings ?? config.output?.lineEndings,
                         overwriteExisting: options.overwrite ?? config.output?.overwriteExisting,
-                        useStreaming: options.streaming ?? config.performance?.useStreaming,
-                        bufferSize: options.bufferSize
-                            ? parseInt(options.bufferSize)
-                            : config.performance?.bufferSize,
                         retryCount: options.retryCount
                             ? parseInt(options.retryCount)
                             : config.batch?.retryCount,

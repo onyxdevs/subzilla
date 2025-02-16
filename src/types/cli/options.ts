@@ -1,4 +1,4 @@
-import { ISubtitleConfig } from '../core/config';
+import { IConfig } from '../core/config';
 
 /**
  * Options for the strip command
@@ -19,9 +19,9 @@ export interface IStripCommandOptions {
 /**
  * Base options for all commands
  */
-export interface IBaseCommandOptions extends IStripCommandOptions {
+interface IBaseCommandOptions extends IStripCommandOptions {
     backup: boolean;
-    loadedConfig?: ISubtitleConfig;
+    loadedConfig?: IConfig;
 }
 
 /**
@@ -33,7 +33,6 @@ export interface IConvertCommandOptions extends IBaseCommandOptions {
     lineEndings?: 'lf' | 'crlf' | 'auto';
     overwrite?: boolean;
     streaming?: boolean;
-    bufferSize?: string;
     retryCount?: string;
     retryDelay?: string;
 }
