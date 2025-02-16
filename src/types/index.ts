@@ -3,6 +3,6 @@ export * from './cli/options';
 
 export * from './core/batch';
 export * from './core/config';
+export * from './core/options';
 
-export * from './options';
 export * from './validation';

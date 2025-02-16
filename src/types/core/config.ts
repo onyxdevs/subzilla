@@ -1,4 +1,4 @@
-import { IStripOptions } from '../options';
+import { IStripOptions } from './options';
 
 /**
  * Main configuration interface for the application

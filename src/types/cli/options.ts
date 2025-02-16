@@ -48,7 +48,7 @@ export interface IBatchCommandOptions extends IConvertCommandOptions {
     includeDirs?: string[];
     excludeDirs?: string[];
     preserveStructure: boolean;
-    chunkSize?: string;
+    chunkSize?: number;
 }
 
 export interface IInfoCommandOptions {
