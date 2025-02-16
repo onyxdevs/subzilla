@@ -16,7 +16,7 @@ export interface IStripOptions {
 /**
  * Base options for subtitle processing
  */
-export interface IProcessingOptions {
+export interface IConvertOptions {
     strip?: IStripOptions;
     outputDir?: string;
     preserveTimestamps?: boolean;
@@ -27,4 +27,21 @@ export interface IProcessingOptions {
     retryCount?: number;
     retryDelay?: number;
     failFast?: boolean;
+}
+
+/**
+ * Options for batch processing of subtitles
+ */
+export interface IBatchOptions {
+    common: IConvertOptions;
+    batch: {
+        recursive: boolean;
+        parallel: boolean;
+        skipExisting: boolean;
+        maxDepth?: number;
+        includeDirectories?: string[];
+        excludeDirectories?: string[];
+        preserveStructure?: boolean;
+        chunkSize?: number;
+    };
 }

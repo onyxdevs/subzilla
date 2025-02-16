@@ -10,7 +10,6 @@ export interface IConfig {
     };
     output?: {
         directory?: string;
-        preserveStructure?: boolean;
         createBackup?: boolean;
         format?: 'srt' | 'sub' | 'ass' | 'ssa' | 'txt';
         encoding?: 'utf8';
@@ -26,6 +25,7 @@ export interface IConfig {
         maxDepth?: number;
         includeDirectories?: string[];
         excludeDirectories?: string[];
+        preserveStructure?: boolean;
         chunkSize?: number;
         retryCount?: number;
         retryDelay?: number;

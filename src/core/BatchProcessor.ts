@@ -3,7 +3,8 @@ import fs from 'fs/promises';
 import { glob } from 'glob';
 import { SingleBar, MultiBar, Presets } from 'cli-progress';
 
-import { IBatchOptions, IBatchStats } from '@subzilla/types/core/batch';
+import { IBatchOptions } from '@subzilla/types/core/options';
+import { IBatchStats } from '@subzilla/types/core/batch';
 import SubtitleProcessor from './SubtitleProcessor';
 
 export default class BatchProcessor {
@@ -65,8 +66,8 @@ export default class BatchProcessor {
             );
 
             // Create output directory if specified
-            if (options.outputDir) {
-                await fs.mkdir(options.outputDir, { recursive: true });
+            if (options.common.outputDir) {
+                await fs.mkdir(options.common.outputDir, { recursive: true });
             }
 
             // Group files by directory
@@ -80,7 +81,7 @@ export default class BatchProcessor {
             });
 
             // Process directories
-            if (options.parallel) {
+            if (options.batch.parallel) {
                 await this.processDirectoriesParallel(filesByDir, options);
             } else {
                 await this.processDirectoriesSequential(filesByDir, options);
@@ -111,22 +112,22 @@ export default class BatchProcessor {
             nodir: true,
             dot: false,
             follow: true,
-            maxDepth: options.maxDepth,
+            maxDepth: options.batch.maxDepth,
         });
 
         return files.filter((file) => {
             const dirPath = path.dirname(file);
 
             // Check include directories
-            if (options.includeDirectories?.length) {
-                if (!options.includeDirectories.some((dir) => dirPath.includes(dir))) {
+            if (options.batch.includeDirectories?.length) {
+                if (!options.batch.includeDirectories.some((dir) => dirPath.includes(dir))) {
                     return false;
                 }
             }
 
             // Check exclude directories
-            if (options.excludeDirectories?.length) {
-                if (options.excludeDirectories.some((dir) => dirPath.includes(dir))) {
+            if (options.batch.excludeDirectories?.length) {
+                if (options.batch.excludeDirectories.some((dir) => dirPath.includes(dir))) {
                     return false;
                 }
             }
@@ -164,7 +165,7 @@ export default class BatchProcessor {
         options: IBatchOptions
     ): Promise<void> {
         const directories = Object.entries(filesByDir);
-        const chunks = this.chunkArray(directories, options.chunkSize || 3); // Use configured chunk size
+        const chunks = this.chunkArray(directories, options.batch.chunkSize || 3); // Use configured chunk size
 
         for (const chunk of chunks) {
             if (this.shouldStop) break;
@@ -198,16 +199,16 @@ export default class BatchProcessor {
         this.directoryBars.set(dir, dirBar);
 
         // Create output directory structure if needed
-        if (options.preserveStructure && options.outputDir) {
+        if (options.batch.preserveStructure && options.common.outputDir) {
             const relativePath = path.relative(process.cwd(), dir);
-            const outputPath = path.join(options.outputDir, relativePath);
+            const outputPath = path.join(options.common.outputDir, relativePath);
 
             await fs.mkdir(outputPath, { recursive: true });
         }
 
         // Process files
-        if (options.parallel) {
-            const chunks = this.chunkArray(files, options.chunkSize || 5);
+        if (options.batch.parallel) {
+            const chunks = this.chunkArray(files, options.batch.chunkSize || 5);
 
             for (const chunk of chunks) {
                 if (this.shouldStop) break;
@@ -231,31 +232,25 @@ export default class BatchProcessor {
         dirStats.total++;
 
         let attempts = 0;
-        const maxAttempts = (options.retryCount || 0) + 1;
-        const retryDelay = options.retryDelay || 1000;
+        const maxAttempts = (options.common.retryCount || 0) + 1;
+        const retryDelay = options.common.retryDelay || 1000;
 
         while (attempts < maxAttempts) {
             if (this.shouldStop) return;
 
             try {
-                if (options.skipExisting && outputPath && (await this.fileExists(outputPath))) {
+                if (
+                    options.batch.skipExisting &&
+                    outputPath &&
+                    (await this.fileExists(outputPath))
+                ) {
                     dirStats.skipped++;
                     this.stats.skipped++;
 
                     return;
                 }
 
-                await this.processor.processFile(file, outputPath, {
-                    strip: options.strip,
-                    preserveTimestamps: options.preserveTimestamps,
-                    backupOriginal: options.backupOriginal,
-                    bom: options.bom,
-                    lineEndings: options.lineEndings,
-                    overwriteExisting: options.overwriteExisting,
-                    retryCount: options.retryCount,
-                    retryDelay: options.retryDelay,
-                    failFast: options.failFast,
-                });
+                await this.processor.processFile(file, outputPath, options.common);
                 dirStats.successful++;
                 this.stats.successful++;
 
@@ -277,7 +272,7 @@ export default class BatchProcessor {
                     error: (error as Error).message,
                 });
 
-                if (options.failFast) {
+                if (options.common.failFast) {
                     this.shouldStop = true;
                     throw new Error(`Failed to process ${file}: ${(error as Error).message}`);
                 }
@@ -289,17 +284,17 @@ export default class BatchProcessor {
     }
 
     private getOutputPath(file: string, dir: string, options: IBatchOptions): string | undefined {
-        if (!options.outputDir) return undefined;
+        if (!options.common.outputDir) return undefined;
 
         const fileName = path.basename(file, path.extname(file)) + '.subzilla' + path.extname(file);
 
-        if (options.preserveStructure) {
+        if (options.batch.preserveStructure) {
             const relativePath = path.relative(process.cwd(), dir);
 
-            return path.join(options.outputDir, relativePath, fileName);
+            return path.join(options.common.outputDir, relativePath, fileName);
         }
 
-        return path.join(options.outputDir, fileName);
+        return path.join(options.common.outputDir, fileName);
     }
 
     private async fileExists(filePath: string): Promise<boolean> {

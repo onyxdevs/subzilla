@@ -32,7 +32,6 @@ export interface IConvertCommandOptions extends IBaseCommandOptions {
     bom?: boolean;
     lineEndings?: 'lf' | 'crlf' | 'auto';
     overwrite?: boolean;
-    streaming?: boolean;
     retryCount?: string;
     retryDelay?: string;
 }
@@ -49,6 +48,7 @@ export interface IBatchCommandOptions extends IConvertCommandOptions {
     includeDirs?: string[];
     excludeDirs?: string[];
     preserveStructure: boolean;
+    chunkSize?: string;
 }
 
 export interface IInfoCommandOptions {

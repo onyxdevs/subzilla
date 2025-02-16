@@ -276,7 +276,6 @@ Several example configurations are provided in the `examples/config` directory:
 
     output:
         directory: ./converted # Output directory path
-        preserveStructure: true # Maintain directory structure
         createBackup: true # Create backup of original files
         format: srt # Output format
         encoding: utf8 # Always UTF-8
@@ -307,6 +306,7 @@ Several example configurations are provided in the `examples/config` directory:
         recursive: true
         parallel: true
         skipExisting: true
+        preserveStructure: true # Maintain directory structure
         chunkSize: 5
     ```
 
@@ -314,12 +314,12 @@ Several example configurations are provided in the `examples/config` directory:
 
     ```yaml
     output:
-        preserveStructure: false # Flat output structure
         createBackup: false # Skip backups
         overwriteExisting: true # Don't check existing files
 
     batch:
         parallel: true
+        preserveStructure: false # Flat output structure
         chunkSize: 20 # Larger chunks
         retryCount: 0 # No retries
         failFast: true # Stop on first error
@@ -384,7 +384,6 @@ Settings are merged in the following order (later ones override earlier ones):
 #### Output Options
 
 - `directory`: Output directory path.
-- `preserveStructure`: Maintain directory structure.
 - `createBackup`: Create backup of original files.
 - `format`: Output format.
 - `encoding`: Output encoding (always `utf8`).
@@ -412,6 +411,7 @@ Settings are merged in the following order (later ones override earlier ones):
 - `maxDepth`: Maximum directory depth.
 - `includeDirectories`: Only process these directories.
 - `excludeDirectories`: Skip these directories.
+- `preserveStructure`: Maintain directory structure.
 - `chunkSize`: Files per batch.
 - `retryCount`: Number of retry attempts.
 - `retryDelay`: Delay between retries (ms).
@@ -517,7 +517,6 @@ Planned improvements and feature additions:
 3. **Performance Optimization**
 
     - [x] Implement parallel processing for batch operations.
-    - [ ] Implement streaming for large files.
     - [ ] Optimize memory usage.
     - [x] Add batch processing progress tracking.
     - [x] Add batch processing statistics and reporting.

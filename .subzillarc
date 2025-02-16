@@ -6,7 +6,6 @@ input:
   format: auto
 
 output:
-  preserveStructure: false # Used for batch mode
   createBackup: false
   encoding: utf8
   bom: true
@@ -23,6 +22,7 @@ batch:
   recursive: true
   parallel: true
   skipExisting: true
+  preserveStructure: false # Used for batch mode
   chunkSize: 5
   retryCount: 3
   retryDelay: 1000

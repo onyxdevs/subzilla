@@ -28,7 +28,6 @@ export default class ConfigManager {
         },
         output: {
             encoding: 'utf8',
-            preserveStructure: false,
             createBackup: false,
             bom: true,
             lineEndings: 'auto',
@@ -38,6 +37,7 @@ export default class ConfigManager {
             recursive: false,
             parallel: false,
             skipExisting: false,
+            preserveStructure: false,
             chunkSize: 5,
             retryCount: 0,
             retryDelay: 1000,

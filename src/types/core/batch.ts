@@ -1,22 +1,3 @@
-import { IProcessingOptions } from '../options';
-
-/**
- * Options for batch processing of subtitles
- */
-export interface IBatchOptions extends IProcessingOptions {
-    recursive: boolean;
-    parallel: boolean;
-    skipExisting: boolean;
-    maxDepth?: number;
-    includeDirectories?: string[];
-    excludeDirectories?: string[];
-    preserveStructure?: boolean;
-    chunkSize?: number;
-    retryCount?: number;
-    retryDelay?: number;
-    failFast?: boolean;
-}
-
 /**
  * Statistics for batch processing
  */

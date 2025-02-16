@@ -1,4 +1,4 @@
-import { IStripOptions } from '@subzilla/types/options';
+import { IStripOptions } from '@subzilla/types/core/options';
 import { IStripCommandOptions } from '@subzilla/types/cli/options';
 import { IConfig } from '@subzilla/types/core/config';
 

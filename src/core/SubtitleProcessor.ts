@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import { Buffer } from 'buffer';
 
-import { IProcessingOptions } from '@subzilla/types/options';
+import { IConvertOptions } from '@subzilla/types/core/options';
 import EncodingDetectionService from './EncodingDetectionService';
 import EncodingConversionService from './EncodingConversionService';
 import FormattingStripper from './FormattingStripper';
@@ -23,7 +23,7 @@ export default class SubtitleProcessor {
     public async processFile(
         inputFilePath: string,
         outputFilePath?: string,
-        options: IProcessingOptions = {}
+        options: IConvertOptions = {}
     ): Promise<void> {
         try {
             // 1. Detect encoding
@@ -76,8 +76,6 @@ export default class SubtitleProcessor {
                         throw error;
                     }
                 }
-            } else {
-                console.log('🔄 Overwrite status:', options.overwriteExisting);
             }
 
             // 10. Write file

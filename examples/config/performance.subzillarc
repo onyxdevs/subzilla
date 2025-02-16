@@ -6,7 +6,6 @@ input:
 
 output:
   directory: ./converted
-  preserveStructure: false  # Flat output structure for speed
   createBackup: false      # Skip backups for speed
   bom: false              # Skip BOM generation
   overwriteExisting: true # Don't check for existing files
@@ -15,6 +14,7 @@ batch:
   recursive: true
   parallel: true
   skipExisting: false     # Skip existence checks for speed
+  preserveStructure: false  # Flat output structure for speed
   chunkSize: 20          # Larger chunks for better throughput
   retryCount: 0         # No retries for speed
   failFast: true       # Stop on first error

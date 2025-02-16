@@ -25,7 +25,6 @@ export const configSchema = z.object({
     output: z
         .object({
             directory: z.string().optional(),
-            preserveStructure: z.boolean().default(false),
             createBackup: z.boolean().default(false),
             format: z.enum(['srt', 'sub', 'ass', 'ssa', 'txt']).optional(),
             encoding: z.literal('utf8').default('utf8'),
@@ -45,6 +44,7 @@ export const configSchema = z.object({
             maxDepth: z.number().int().min(1).optional(),
             includeDirectories: z.array(z.string()).optional(),
             excludeDirectories: z.array(z.string()).optional(),
+            preserveStructure: z.boolean().default(false),
             chunkSize: z.number().int().min(1).max(100).default(5),
             retryCount: z.number().int().min(0).max(5).default(0),
             retryDelay: z.number().int().min(100).max(5000).default(1000),
