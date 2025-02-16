@@ -92,6 +92,8 @@ export default class SubtitleProcessor {
         // TODO: Why?!
         // const normalized = content.replace(/\r\n|\r|\n/g, '\n');
 
+        console.log('🖋️ Line ending:', lineEnding);
+
         // Then convert to desired line ending
         return content.replace(/\n/g, LINE_ENDINGS[lineEnding]);
     }

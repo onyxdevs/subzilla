@@ -2,11 +2,10 @@
 
 import 'module-alias/register';
 import { Command } from 'commander';
-import fs from 'fs';
 
 import { ConfigManager } from '@subzilla/core';
 
-import { DefaultCommandRegistry } from './registry/command-registry';
+import DefaultCommandRegistry from './registry/command-registry';
 import { ConvertCommandCreator } from './commands/convert-command';
 import { BatchCommandCreator } from './commands/batch-command';
 import { InitCommandCreator } from './commands/init-command';
@@ -27,22 +26,7 @@ program
             if (configPath) {
                 console.log('🔧 Using configuration:', configPath);
             } else {
-                const defaultConfigFiles = ['.subzillarc', '.subzilla.yml', '.subzilla.yaml'];
-                const foundConfig = defaultConfigFiles.find((file) => {
-                    try {
-                        fs.accessSync(file);
-
-                        return true;
-                    } catch {
-                        return false;
-                    }
-                });
-
-                if (foundConfig) {
-                    console.log('🔧 Using configuration:', foundConfig);
-                } else {
-                    console.log('ℹ️  Using default configuration');
-                }
+                console.log('ℹ️  Using default configuration');
             }
 
             thisCommand.setOptionValue('loadedConfig', config);

@@ -4,16 +4,16 @@
 input:
   encoding: auto
   format: auto
-  defaultLanguage: en
-  detectBOM: true
+  defaultLanguage: en # TODO: Not used
+  detectBOM: true # TODO: Not used
 
 output:
-  preserveStructure: false
+  preserveStructure: false # Used for batch mode
   createBackup: false
   encoding: utf8
   bom: true
   lineEndings: crlf
-  overwriteExisting: true
+  overwriteExisting: false
 
 strip:
   html: true
@@ -31,16 +31,18 @@ batch:
   failFast: false
 
 performance:
-  maxConcurrency: 4
-  bufferSize: 16384
-  useStreaming: true
+  maxConcurrency: 4 # TODO: Not used
+  bufferSize: 16384 # TODO: Not used
+  useStreaming: true # TODO: Not used
 
+# TODO: Not used
 logging:
   level: info
   format: text
   colors: true
   timestamp: true
 
+# TODO: Not used
 error:
   exitOnError: true
   throwOnWarning: false

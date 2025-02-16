@@ -4,7 +4,7 @@ import { ICommandCreator, ICommandRegistry } from '@subzilla/types/cli/command';
 /**
  * Default implementation of command registry
  */
-export class DefaultCommandRegistry implements ICommandRegistry {
+export default class DefaultCommandRegistry implements ICommandRegistry {
     private program: Command;
 
     constructor(program: Command) {
