@@ -105,6 +105,8 @@ export default class BatchProcessor {
     }
 
     private async findFiles(pattern: string, options: IBatchOptions): Promise<string[]> {
+        console.info(`🔍 Finding files: ${pattern}`);
+
         const files = await glob(pattern, {
             nodir: true,
             dot: false,
@@ -245,7 +247,14 @@ export default class BatchProcessor {
 
                 await this.processor.processFile(file, outputPath, {
                     strip: options.strip,
+                    preserveTimestamps: options.preserveTimestamps,
                     backupOriginal: options.backupOriginal,
+                    bom: options.bom,
+                    lineEndings: options.lineEndings,
+                    overwriteExisting: options.overwriteExisting,
+                    retryCount: options.retryCount,
+                    retryDelay: options.retryDelay,
+                    failFast: options.failFast,
                 });
                 dirStats.successful++;
                 this.stats.successful++;

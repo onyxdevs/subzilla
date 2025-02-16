@@ -40,7 +40,7 @@ export interface IConvertCommandOptions extends IBaseCommandOptions {
 /**
  * Options for the batch command
  */
-export interface IBatchCommandOptions extends IBaseCommandOptions {
+export interface IBatchCommandOptions extends IConvertCommandOptions {
     outputDir?: string;
     recursive: boolean;
     parallel: boolean;

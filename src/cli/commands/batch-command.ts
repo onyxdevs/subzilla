@@ -24,17 +24,14 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
                 {
                     flags: '-r, --recursive',
                     description: 'search for files recursively',
-                    defaultValue: false,
                 },
                 {
                     flags: '-p, --parallel',
                     description: 'process files in parallel',
-                    defaultValue: false,
                 },
                 {
                     flags: '-s, --skip-existing',
                     description: 'skip files that already have a UTF-8 version',
-                    defaultValue: false,
                 },
                 {
                     flags: '-d, --max-depth <depth>',
@@ -51,86 +48,88 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
                 {
                     flags: '--preserve-structure',
                     description: 'preserve directory structure in output',
-                    defaultValue: false,
                 },
                 {
                     flags: '-b, --backup',
                     description: 'create backup of original files',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-html',
                     description: 'strip HTML tags',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-colors',
                     description: 'strip color codes',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-styles',
                     description: 'strip style tags',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-urls',
                     description: 'replace URLs with [URL]',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-timestamps',
                     description: 'replace timestamps with [TIMESTAMP]',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-numbers',
                     description: 'replace numbers with #',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-punctuation',
                     description: 'remove punctuation',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-emojis',
                     description: 'replace emojis with [EMOJI]',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-brackets',
                     description: 'remove brackets',
-                    defaultValue: false,
                 },
                 {
                     flags: '--strip-all',
                     description: 'strip all formatting (equivalent to all strip options)',
-                    defaultValue: false,
                 },
             ],
             action: async (pattern: string, options: IBatchCommandOptions): Promise<void> => {
                 try {
                     const config = options.loadedConfig || (await ConfigManager.loadConfig());
                     const stripOptions = createStripOptions(options, config);
+                    const outputOptions = {
+                        strip: stripOptions,
+                        backupOriginal: options.backup ?? config.output?.createBackup,
 
-                    const batchProcessor = new BatchProcessor();
+                        bom: options.bom ?? config.output?.bom,
+                        lineEndings: options.lineEndings ?? config.output?.lineEndings,
+                        overwriteExisting: options.overwrite ?? config.output?.overwriteExisting,
+                        retryCount: options.retryCount
+                            ? parseInt(options.retryCount, 10)
+                            : config.batch?.retryCount,
+                        retryDelay: options.retryDelay
+                            ? parseInt(options.retryDelay, 10)
+                            : config.batch?.retryDelay,
 
-                    await batchProcessor.processBatch(pattern, {
-                        outputDir: options.outputDir || config.output?.directory,
-                        recursive: options.recursive || config.batch?.recursive || false,
-                        parallel: options.parallel || config.batch?.parallel || false,
-                        skipExisting: options.skipExisting || config.batch?.skipExisting || false,
+                        outputDir: options.outputDir ?? config.output?.directory,
+                        recursive: options.recursive ?? config.batch?.recursive,
+                        parallel: options.parallel ?? config.batch?.parallel,
+                        skipExisting: options.skipExisting ?? config.batch?.skipExisting,
                         maxDepth: options.maxDepth
                             ? parseInt(options.maxDepth, 10)
                             : config.batch?.maxDepth,
-                        includeDirectories: options.includeDirs || config.batch?.includeDirectories,
-                        excludeDirectories: options.excludeDirs || config.batch?.excludeDirectories,
+                        includeDirectories: options.includeDirs ?? config.batch?.includeDirectories,
+                        excludeDirectories: options.excludeDirs ?? config.batch?.excludeDirectories,
                         preserveStructure:
-                            options.preserveStructure || config.output?.preserveStructure || false,
-                        strip: stripOptions,
-                        backupOriginal: options.backup || config.output?.createBackup || false,
-                    });
+                            options.preserveStructure ?? config.output?.preserveStructure,
+                    };
+
+                    console.log('🧬 Output options:', outputOptions);
+
+                    const batchProcessor = new BatchProcessor();
+
+                    await batchProcessor.processBatch(pattern, outputOptions);
                 } catch (error) {
                     console.error('❌ Error:', (error as Error).message);
                     process.exit(1);

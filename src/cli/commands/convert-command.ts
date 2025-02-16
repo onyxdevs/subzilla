@@ -105,10 +105,10 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                         lineEndings: options.lineEndings ?? config.output?.lineEndings,
                         overwriteExisting: options.overwrite ?? config.output?.overwriteExisting,
                         retryCount: options.retryCount
-                            ? parseInt(options.retryCount)
+                            ? parseInt(options.retryCount, 10)
                             : config.batch?.retryCount,
                         retryDelay: options.retryDelay
-                            ? parseInt(options.retryDelay)
+                            ? parseInt(options.retryDelay, 10)
                             : config.batch?.retryDelay,
                     };
 

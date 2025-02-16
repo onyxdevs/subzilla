@@ -11,7 +11,7 @@ output:
   encoding: utf8
   bom: true
   lineEndings: crlf
-  overwriteExisting: false
+  overwriteExisting: true
 
 strip:
   html: true
