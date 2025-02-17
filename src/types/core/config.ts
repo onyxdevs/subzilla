@@ -32,18 +32,18 @@ export interface IConfig {
         retryDelay?: number;
         failFast?: boolean;
     };
-    error?: {
-        exitOnError?: boolean;
-        throwOnWarning?: boolean;
-        ignoreErrors?: string[];
-        errorLogFile?: string;
-    };
-    hooks?: {
-        beforeConversion?: string;
-        afterConversion?: string;
-        onError?: string;
-        onSuccess?: string;
-    };
+    // error?: {
+    //     exitOnError?: boolean;
+    //     throwOnWarning?: boolean;
+    //     ignoreErrors?: string[];
+    //     errorLogFile?: string;
+    // };
+    // hooks?: {
+    //     beforeConversion?: string;
+    //     afterConversion?: string;
+    //     onError?: string;
+    //     onSuccess?: string;
+    // };
 }
 
 /**

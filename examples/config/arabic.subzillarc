@@ -38,11 +38,3 @@ batch:
     - backup
   chunkSize: 5
   retryCount: 3        # More retries for encoding issues
-
-error:
-  exitOnError: false   # Continue on errors
-  throwOnWarning: false
-  ignoreErrors:
-    - ENOENT
-    - EEXIST
-  errorLogFile: arabic-errors.log 

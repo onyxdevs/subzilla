@@ -44,18 +44,18 @@ export default class ConfigManager {
             retryDelay: 1000,
             failFast: false,
         },
-        error: {
-            exitOnError: true, // TODO: Implement
-            throwOnWarning: false, // TODO: Implement
-            ignoreErrors: [], // TODO: Implement
-            errorLogFile: 'error.log', // TODO: Implement
-        },
-        hooks: {
-            beforeConversion: '', // TODO
-            afterConversion: '', // TODO
-            onError: '', // TODO
-            onSuccess: '', // TODO
-        },
+        // error: {
+        //     exitOnError: true,
+        //     throwOnWarning: false,
+        //     ignoreErrors: [],
+        //     errorLogFile: 'error.log',
+        // },
+        // hooks: {
+        //     beforeConversion: '',
+        //     afterConversion: '',
+        //     onError: '',
+        //     onSuccess: '',
+        // },
     };
 
     /**

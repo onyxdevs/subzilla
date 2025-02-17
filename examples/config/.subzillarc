@@ -46,19 +46,3 @@ batch:
   retryCount: 3             # Retry failed conversions
   retryDelay: 1000         # Delay between retries (ms)
   failFast: false          # Stop on first error
-
-error:
-  # Error handling
-  exitOnError: true       # Exit on critical errors
-  throwOnWarning: false   # Treat warnings as errors
-  ignoreErrors:          # Errors to ignore
-    - ENOENT
-    - EEXIST
-  errorLogFile: errors.log # Separate error log file
-
-hooks:
-  # Script hooks (paths to JavaScript files)
-  beforeConversion: ./scripts/before.js
-  afterConversion: ./scripts/after.js
-  onError: ./scripts/error.js
-  onSuccess: ./scripts/success.js 

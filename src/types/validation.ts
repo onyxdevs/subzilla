@@ -53,23 +53,23 @@ export const configSchema = z.object({
         })
         .optional(),
 
-    error: z
-        .object({
-            exitOnError: z.boolean().default(true),
-            throwOnWarning: z.boolean().default(false),
-            ignoreErrors: z.array(z.string()).optional(),
-            errorLogFile: z.string().optional(),
-        })
-        .optional(),
+    // error: z
+    //     .object({
+    //         exitOnError: z.boolean().default(true),
+    //         throwOnWarning: z.boolean().default(false),
+    //         ignoreErrors: z.array(z.string()).optional(),
+    //         errorLogFile: z.string().optional(),
+    //     })
+    //     .optional(),
 
-    hooks: z
-        .object({
-            beforeConversion: z.string().optional(),
-            afterConversion: z.string().optional(),
-            onError: z.string().optional(),
-            onSuccess: z.string().optional(),
-        })
-        .optional(),
+    // hooks: z
+    //     .object({
+    //         beforeConversion: z.string().optional(),
+    //         afterConversion: z.string().optional(),
+    //         onError: z.string().optional(),
+    //         onSuccess: z.string().optional(),
+    //     })
+    //     .optional(),
 });
 
 export type TConfigSchema = z.infer<typeof configSchema>;

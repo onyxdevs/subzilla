@@ -341,10 +341,6 @@ Several example configurations are provided in the `examples/config` directory:
             - arabic
             - مسلسلات
             - أفلام
-
-    error:
-        exitOnError: false # Continue on errors
-        retryCount: 3 # More retries for encoding
     ```
 
 ### Environment Variables
@@ -418,30 +414,6 @@ Settings are merged in the following order (later ones override earlier ones):
 - `retryCount`: Number of retry attempts.
 - `retryDelay`: Delay between retries (ms).
 - `failFast`: Stop on first error.
-
-#### Logging Options
-
-- `level`: Log level (`error`, `warn`, `info`, `debug`).
-- `file`: Log file path.
-- `format`: Log format (`text`, `json`).
-- `colors`: Colorize console output.
-- `timestamp`: Add timestamps to logs.
-- `maxFiles`: Maximum log files to keep.
-- `maxSize`: Maximum log file size.
-
-#### Error Options
-
-- `exitOnError`: Exit on critical errors.
-- `throwOnWarning`: Treat warnings as errors.
-- `ignoreErrors`: Array of error codes to ignore.
-- `errorLogFile`: Separate error log file.
-
-#### Hook Scripts
-
-- `beforeConversion`: Script to run before conversion.
-- `afterConversion`: Script to run after conversion.
-- `onError`: Script to run on error.
-- `onSuccess`: Script to run on success.
 
 ## Development 🛠️
 
