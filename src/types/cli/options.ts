@@ -31,7 +31,8 @@ export interface IConvertCommandOptions extends IBaseCommandOptions {
     output?: string;
     bom?: boolean;
     lineEndings?: 'lf' | 'crlf' | 'auto';
-    overwrite?: boolean;
+    overwriteInput?: boolean;
+    overwriteExisting?: boolean;
     retryCount?: string;
     retryDelay?: string;
 }

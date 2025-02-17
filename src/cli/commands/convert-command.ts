@@ -26,7 +26,9 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                         backupOriginal: options.backup ?? config.output?.createBackup,
                         bom: options.bom ?? config.output?.bom,
                         lineEndings: options.lineEndings ?? config.output?.lineEndings,
-                        overwriteExisting: options.overwrite ?? config.output?.overwriteExisting,
+                        overwriteInput: options.overwriteInput ?? config.output?.overwriteInput,
+                        overwriteExisting:
+                            options.overwriteExisting ?? config.output?.overwriteExisting,
                         retryCount: options.retryCount
                             ? parseInt(options.retryCount, 10)
                             : config.batch?.retryCount,

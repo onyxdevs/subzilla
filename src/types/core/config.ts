@@ -15,6 +15,7 @@ export interface IConfig {
         encoding?: 'utf8';
         bom?: boolean;
         lineEndings?: 'lf' | 'crlf' | 'auto';
+        overwriteInput?: boolean;
         overwriteExisting?: boolean;
     };
     strip?: IStripOptions;

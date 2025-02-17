@@ -23,6 +23,7 @@ export interface IConvertOptions {
     backupOriginal?: boolean;
     bom?: boolean;
     lineEndings?: 'lf' | 'crlf' | 'auto';
+    overwriteInput?: boolean;
     overwriteExisting?: boolean;
     retryCount?: number;
     retryDelay?: number;

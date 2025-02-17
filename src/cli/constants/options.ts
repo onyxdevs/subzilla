@@ -11,9 +11,8 @@ export const BASE_OPTIONS = [
         flags: '--line-endings <type>',
         description: 'line endings type (lf, crlf, auto)',
     },
-    // TODO: This option isn't working.
     {
-        flags: '--overwrite',
+        flags: '--overwrite-existing',
         description: 'overwrite existing output file',
     },
     {

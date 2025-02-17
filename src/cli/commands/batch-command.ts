@@ -27,8 +27,9 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
                             backupOriginal: options.backup ?? config.output?.createBackup,
                             bom: options.bom ?? config.output?.bom,
                             lineEndings: options.lineEndings ?? config.output?.lineEndings,
+                            overwriteInput: options.overwriteInput ?? config.output?.overwriteInput,
                             overwriteExisting:
-                                options.overwrite ?? config.output?.overwriteExisting,
+                                options.overwriteExisting ?? config.output?.overwriteExisting,
                             retryCount: options.retryCount
                                 ? parseInt(options.retryCount, 10)
                                 : config.batch?.retryCount,

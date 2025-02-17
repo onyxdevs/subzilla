@@ -30,6 +30,7 @@ export const configSchema = z.object({
             encoding: z.literal('utf8').default('utf8'),
             bom: z.boolean().default(false),
             lineEndings: z.enum(['lf', 'crlf', 'auto']).default('auto'),
+            overwriteInput: z.boolean().default(false),
             overwriteExisting: z.boolean().default(false),
         })
         .optional(),

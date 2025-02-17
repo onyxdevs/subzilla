@@ -315,6 +315,7 @@ Several example configurations are provided in the `examples/config` directory:
     ```yaml
     output:
         createBackup: false # Skip backups
+        overwriteInput: true # Overwrite input files
         overwriteExisting: true # Don't check existing files
 
     batch:
@@ -389,6 +390,7 @@ Settings are merged in the following order (later ones override earlier ones):
 - `encoding`: Output encoding (always `utf8`).
 - `bom`: Add BOM to output files.
 - `lineEndings`: Line ending style (`lf`, `crlf`, `auto`).
+- `overwriteInput`: Overwrite input files.
 - `overwriteExisting`: Overwrite existing files.
 
 #### Strip Options

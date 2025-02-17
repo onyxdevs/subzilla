@@ -8,22 +8,23 @@ input:
 
 output:
   # Output file settings
-  directory: ./converted         # Output directory path
+  directory: ./converted        # Output directory path
   createBackup: true            # Create backup of original files
-  format: srt                    # Output format
-  encoding: utf8                 # Always UTF-8
+  format: srt                   # Output format
+  encoding: utf8                # Always UTF-8
   bom: false                    # Add BOM to output files
   lineEndings: lf               # lf, crlf, or auto
+  overwriteInput: false         # Overwrite in files
   overwriteExisting: false      # Overwrite existing files
 
 strip:
   # Formatting removal options
-  html: true                    # Remove HTML tags
-  colors: true                  # Remove color codes
-  styles: true                  # Remove style tags
-  urls: true                    # Replace URLs with [URL]
-  timestamps: false            # Replace timestamps with [TIMESTAMP]
-  numbers: false               # Replace numbers with #
+  html: true                  # Remove HTML tags
+  colors: true                # Remove color codes
+  styles: true                # Remove style tags
+  urls: true                  # Replace URLs with [URL]
+  timestamps: false           # Replace timestamps with [TIMESTAMP]
+  numbers: false              # Replace numbers with #
   punctuation: false          # Remove punctuation
   emojis: true                # Replace emojis with [EMOJI]
   brackets: false             # Remove brackets

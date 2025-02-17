@@ -31,6 +31,7 @@ export default class ConfigManager {
             createBackup: false,
             bom: true,
             lineEndings: 'auto',
+            overwriteInput: false,
             overwriteExisting: false,
         },
         batch: {

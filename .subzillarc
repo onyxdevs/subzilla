@@ -10,6 +10,7 @@ output:
   encoding: utf8
   bom: true
   lineEndings: crlf
+  overwriteInput: true
   overwriteExisting: true
 
 strip:

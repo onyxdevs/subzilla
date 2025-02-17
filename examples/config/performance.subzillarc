@@ -6,15 +6,16 @@ input:
 
 output:
   directory: ./converted
-  createBackup: false      # Skip backups for speed
-  bom: false              # Skip BOM generation
-  overwriteExisting: true # Don't check for existing files
+  createBackup: false
+  bom: false
+  overwriteInput: true
+  overwriteExisting: true
 
 batch:
   recursive: true
   parallel: true
-  skipExisting: false     # Skip existence checks for speed
-  preserveStructure: false  # Flat output structure for speed
-  chunkSize: 20          # Larger chunks for better throughput
-  retryCount: 0         # No retries for speed
-  failFast: true       # Stop on first error
+  skipExisting: false
+  preserveStructure: false
+  chunkSize: 20
+  retryCount: 0
+  failFast: true
