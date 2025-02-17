@@ -61,6 +61,8 @@ export default class SubtitleProcessor {
                 utf8Content = this.formattingStripper.stripFormatting(utf8Content, options.strip);
             }
 
+            utf8Content = this.ensureProperLineBreaks(utf8Content);
+
             if (options.lineEndings) {
                 utf8Content = this.normalizeLineEndings(utf8Content, options.lineEndings);
             }
@@ -140,5 +142,36 @@ export default class SubtitleProcessor {
                 throw error;
             }
         }
+    }
+
+    private ensureProperLineBreaks(content: string): string {
+        const blocks = content.split(/\n\s*\n/);
+
+        return blocks
+            .map((block) => {
+                const lines = block.split('\n');
+
+                if (lines.length < 2) return block; // Skip invalid blocks
+
+                // First line is the number
+                // Second line is the timestamp
+                // Rest are subtitle text that should be single-spaced
+                const number = lines[0].trim();
+                const timestamp = lines[1].trim();
+
+                // Filter out empty lines and join subtitle text with a single line break
+                // TV/Media players expect exactly one line break between subtitle lines
+                const subtitleText = lines
+                    .slice(2)
+                    .map((line) => line.trim())
+                    .filter((line) => line.length > 0)
+                    .join('\n');
+
+                // Ensure proper spacing:
+                // - One empty line between subtitle blocks (handled by join('\n\n') at the end)
+                // - No empty lines within a subtitle block
+                return `${number}\n${timestamp}\n${subtitleText}`;
+            })
+            .join('\n\n'); // Double line break between subtitle blocks is standard for SRT files
     }
 }
