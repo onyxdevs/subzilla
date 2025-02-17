@@ -60,6 +60,10 @@ export const BASE_OPTIONS = [
         description: 'remove brackets',
     },
     {
+        flags: '--strip-bidi-control',
+        description: 'remove bidirectional control characters (like U+202B)',
+    },
+    {
         flags: '--strip-all',
         description: 'strip all formatting (equivalent to all strip options)',
     },

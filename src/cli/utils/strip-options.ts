@@ -17,6 +17,7 @@ export function createStripOptions(
               punctuation: true,
               emojis: true,
               brackets: true,
+              bidiControl: true,
           }
         : {
               html: options.stripHtml || config.strip?.html || false,
@@ -28,6 +29,7 @@ export function createStripOptions(
               punctuation: options.stripPunctuation || config.strip?.punctuation || false,
               emojis: options.stripEmojis || config.strip?.emojis || false,
               brackets: options.stripBrackets || config.strip?.brackets || false,
+              bidiControl: options.stripBidiControl || config.strip?.bidiControl || false,
           };
 
     return Object.values(stripOptions).some((v) => v) ? stripOptions : undefined;

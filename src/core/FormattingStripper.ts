@@ -12,6 +12,7 @@ export default class FormattingStripper {
     private punctuationRegex = /[!"#$%&'()*+,-./:;<=>?@[\]^_`{|}~]/g;
     private emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]/gu;
     private bracketsRegex = /[[\](){}⟨⟩<>]/g;
+    private bidiControlRegex = /[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
     private richTextTags = [
         'b',
         'i',
@@ -29,6 +30,10 @@ export default class FormattingStripper {
 
     public stripFormatting(content: string, options: IStripOptions): string {
         let result = content;
+
+        if (options.bidiControl) {
+            result = this.stripBidiControls(result);
+        }
 
         if (options.html) {
             result = this.stripHtmlTags(result);
@@ -67,6 +72,10 @@ export default class FormattingStripper {
         }
 
         return result;
+    }
+
+    private stripBidiControls(content: string): string {
+        return content.replace(this.bidiControlRegex, '');
     }
 
     private stripHtmlTags(content: string): string {

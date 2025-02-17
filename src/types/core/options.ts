@@ -11,6 +11,7 @@ export interface IStripOptions {
     punctuation?: boolean;
     emojis?: boolean;
     brackets?: boolean;
+    bidiControl?: boolean;
 }
 
 /**

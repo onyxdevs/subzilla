@@ -13,6 +13,7 @@ export interface IStripCommandOptions {
     stripPunctuation: boolean;
     stripEmojis: boolean;
     stripBrackets: boolean;
+    stripBidiControl: boolean;
     stripAll: boolean;
 }
 

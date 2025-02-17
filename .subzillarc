@@ -18,6 +18,7 @@ strip:
   colors: true
   styles: true
   urls: false
+  bidiControl: true
 
 batch:
   recursive: true

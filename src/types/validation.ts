@@ -10,6 +10,7 @@ export const stripOptionsSchema = z.object({
     punctuation: z.boolean().optional(),
     emojis: z.boolean().optional(),
     brackets: z.boolean().optional(),
+    bidiControl: z.boolean().optional(),
 });
 
 export const configSchema = z.object({
