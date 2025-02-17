@@ -21,7 +21,5 @@ coverage/
 # Environment variables
 .env*
 
-# Converted subtitle files
-dummy/**/*.bak
-dummy/**/*.utf8.*
-dummy/**/*converted*
+# Development files
+dummy/
