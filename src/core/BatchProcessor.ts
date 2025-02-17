@@ -334,13 +334,13 @@ export default class BatchProcessor {
 
         console.log('\n📂 Directory Statistics:');
         console.log('━━━━━━━━━━━━━━━━━━━━');
-        Object.entries(this.stats.filesByDirectory).forEach(([dir, stats]) => {
-            console.log(`\n${dir}:`);
-            console.log(`  Total: ${stats.total}`);
-            console.log(`  ✅ Success: ${stats.successful}`);
-            console.log(`  ❌ Failed: ${stats.failed}`);
-            console.log(`  ⏭️  Skipped: ${stats.skipped}`);
-        });
+        // Object.entries(this.stats.filesByDirectory).forEach(([dir, stats]) => {
+        //     console.log(`\n${dir}:`);
+        //     console.log(`  Total: ${stats.total}`);
+        //     console.log(`  ✅ Success: ${stats.successful}`);
+        //     console.log(`  ❌ Failed: ${stats.failed}`);
+        //     console.log(`  ⏭️  Skipped: ${stats.skipped}`);
+        // });
 
         if (this.stats.errors.length > 0) {
             console.log('\n❌ Errors:');
