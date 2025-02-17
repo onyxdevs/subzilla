@@ -14,6 +14,7 @@
     "start": "node dist/cli/main.js",
     "dev": "tsc --watch",
     "test": "mocha -r ts-node/register 'test/**/*.spec.ts'",
+    "type-check": "tsc --noEmit",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix",
     "format": "prettier --write \"src/**/*.ts\"",
