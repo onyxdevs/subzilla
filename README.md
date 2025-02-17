@@ -506,6 +506,7 @@ Planned improvements and feature additions:
     - [x] Add batch processing statistics and reporting.
     - [ ] Add JSON output format for statistics.
     - [ ] Add CSV export for batch results.
+    - [ ] AI translation of subtitles.
 
 5. **Developer Experience**
 
