@@ -24,6 +24,7 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                     const outputOptions = {
                         strip: createStripOptions(options, config),
                         backupOriginal: options.backup ?? config.output?.createBackup,
+                        overwriteBackup: options.overwriteBackup ?? config.output?.overwriteBackup,
                         bom: options.bom ?? config.output?.bom,
                         lineEndings: options.lineEndings ?? config.output?.lineEndings,
                         overwriteInput: options.overwriteInput ?? config.output?.overwriteInput,

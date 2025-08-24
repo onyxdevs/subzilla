@@ -7,6 +7,7 @@ input:
 
 output:
   createBackup: false
+  overwriteBackup: true  # When backups are created, overwrite existing ones
   encoding: utf8
   bom: true
   lineEndings: crlf

@@ -22,6 +22,7 @@ export interface IConvertOptions {
     outputDir?: string;
     preserveTimestamps?: boolean;
     backupOriginal?: boolean;
+    overwriteBackup?: boolean;
     bom?: boolean;
     lineEndings?: 'lf' | 'crlf' | 'auto';
     overwriteInput?: boolean;

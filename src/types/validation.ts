@@ -27,6 +27,7 @@ export const configSchema = z.object({
         .object({
             directory: z.string().optional(),
             createBackup: z.boolean().default(false),
+            overwriteBackup: z.boolean().default(true),
             format: z.enum(['srt', 'sub', 'ass', 'ssa', 'txt']).optional(),
             encoding: z.literal('utf8').default('utf8'),
             bom: z.boolean().default(false),

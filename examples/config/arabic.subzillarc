@@ -9,6 +9,7 @@ output:
   directory: ./arabic-converted
   preserveStructure: true
   createBackup: true
+  overwriteBackup: true  # Overwrite existing backup files
   format: srt
   encoding: utf8          # Convert to UTF-8
   bom: true              # Add BOM for better compatibility

@@ -7,6 +7,7 @@ input:
 output:
   directory: ./converted
   createBackup: false
+  overwriteBackup: true  # When backups are created, overwrite existing ones
   bom: false
   overwriteInput: true
   overwriteExisting: true

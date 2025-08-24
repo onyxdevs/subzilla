@@ -22,6 +22,7 @@ export interface IStripCommandOptions {
  */
 interface IBaseCommandOptions extends IStripCommandOptions {
     backup: boolean;
+    overwriteBackup?: boolean;
     loadedConfig?: IConfig;
 }
 

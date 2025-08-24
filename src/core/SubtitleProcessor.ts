@@ -43,10 +43,11 @@ export default class SubtitleProcessor {
             const finalOutputPath = outputFilePath || outputStrategy.getOutputPath(inputFilePath);
 
             // Check if we need to create a backup
-            const shouldBackup = outputStrategy.shouldBackup || options.backupOriginal;
+            // Respect user's createBackup config even when overwriting input
+            const shouldBackup = options.backupOriginal ?? outputStrategy.shouldBackup;
 
             if (shouldBackup) {
-                backupPath = await this.createBackup(inputFilePath);
+                backupPath = await this.createBackup(inputFilePath, options.overwriteBackup);
             }
 
             // Handle existing output file
@@ -101,8 +102,17 @@ export default class SubtitleProcessor {
         return content.replace(/\r\n|\r|\n/g, LINE_ENDINGS[lineEnding]);
     }
 
-    private async createBackup(filePath: string): Promise<string> {
+    private async createBackup(filePath: string, overwriteBackup = true): Promise<string> {
         const backupPath = `${filePath}.bak`;
+
+        if (overwriteBackup) {
+            // Simply overwrite existing backup if it exists
+            await fs.copyFile(filePath, backupPath);
+
+            return backupPath;
+        }
+
+        // Legacy behavior: create numbered backups to avoid overwriting
         let finalBackupPath = backupPath;
         let counter = 1;
 

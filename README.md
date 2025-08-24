@@ -76,6 +76,9 @@ subzilla convert input.srt --strip-all
 # Create backup and strip formatting
 subzilla convert input.srt -b --strip-all
 
+# Create numbered backups instead of overwriting existing backup
+subzilla convert input.srt -b --no-overwrite-backup
+
 # Combine multiple strip options
 subzilla convert input.srt --strip-html --strip-colors
 ```
@@ -133,6 +136,9 @@ subzilla batch "**/*.srt" -r --strip-html --strip-colors
 # Create backups and strip formatting
 subzilla batch "**/*.srt" -r -b --strip-all
 
+# Create numbered backups instead of overwriting existing ones
+subzilla batch "**/*.srt" -r -b --no-overwrite-backup --strip-all
+
 # Complex example with formatting options
 subzilla batch "**/*.{srt,sub,txt}" -r -p -s -o converted/ \
   -d 3 -i "movies" "series" -x "temp" "backup" \
@@ -150,6 +156,7 @@ Options:
 - `-x, --exclude-dirs <dirs...>`: Exclude files in these directories.
 - `--preserve-structure`: Preserve directory structure in output.
 - `-b, --backup`: Create backup of original files.
+- `--no-overwrite-backup`: Create numbered backups instead of overwriting existing backup.
 - `--strip-html`: Strip HTML tags.
 - `--strip-colors`: Strip color codes.
 - `--strip-styles`: Strip style tags.
@@ -233,6 +240,37 @@ extras:
 series/season1/broken.srt: Failed to detect encoding
 ```
 
+### Backup Management
+
+SubZilla provides flexible backup options to protect your original files:
+
+```bash
+# Basic backup creation
+subzilla convert input.srt -b
+
+# By default, subsequent runs overwrite the existing backup
+# First run: creates input.srt.bak
+# Second run: overwrites input.srt.bak (clean, no accumulation)
+
+# Create numbered backups instead (legacy behavior)
+subzilla convert input.srt -b --no-overwrite-backup
+# First run: creates input.srt.bak
+# Second run: creates input.srt.bak.1
+# Third run: creates input.srt.bak.2
+
+# Configure backup behavior in config file
+# .subzillarc:
+# output:
+#   createBackup: true
+#   overwriteBackup: false  # Creates numbered backups
+```
+
+**Backup Behavior Summary:**
+
+- **`overwriteBackup: true`** (default): Clean backup management - always overwrites existing backup
+- **`overwriteBackup: false`**: Legacy behavior - creates numbered backups (`.bak.1`, `.bak.2`, etc.)
+- **CLI override**: Use `--no-overwrite-backup` to temporarily disable backup overwriting
+
 ### Advanced Options
 
 ```bash
@@ -277,6 +315,7 @@ Several example configurations are provided in the `examples/config` directory:
     output:
         directory: ./converted # Output directory path
         createBackup: true # Create backup of original files
+        overwriteBackup: true # Overwrite existing backup files (default: true)
         format: srt # Output format
         encoding: utf8 # Always UTF-8
         bom: false # Add BOM to output files
@@ -295,6 +334,7 @@ Several example configurations are provided in the `examples/config` directory:
     output:
         directory: ./converted
         createBackup: true
+        overwriteBackup: true # Overwrite existing backup files
         format: srt
 
     strip:
@@ -315,6 +355,7 @@ Several example configurations are provided in the `examples/config` directory:
     ```yaml
     output:
         createBackup: false # Skip backups
+        overwriteBackup: true # When backups are created, overwrite existing ones
         overwriteInput: true # Overwrite input files
         overwriteExisting: true # Don't check existing files
 
@@ -382,6 +423,7 @@ Settings are merged in the following order (later ones override earlier ones):
 
 - `directory`: Output directory path.
 - `createBackup`: Create backup of original files.
+- `overwriteBackup`: Overwrite existing backup files (default: `true`).
 - `format`: Output format.
 - `encoding`: Output encoding (always `utf8`).
 - `bom`: Add BOM to output files.

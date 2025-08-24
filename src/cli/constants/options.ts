@@ -4,6 +4,10 @@ export const BASE_OPTIONS = [
         description: 'create backup of original file',
     },
     {
+        flags: '--no-overwrite-backup',
+        description: 'create numbered backups instead of overwriting existing backup',
+    },
+    {
         flags: '--bom',
         description: 'add UTF-8 BOM to output file',
     },

@@ -11,6 +11,7 @@ export interface IConfig {
     output?: {
         directory?: string;
         createBackup?: boolean;
+        overwriteBackup?: boolean;
         format?: 'srt' | 'sub' | 'ass' | 'ssa' | 'txt';
         encoding?: 'utf8';
         bom?: boolean;

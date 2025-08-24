@@ -8,6 +8,7 @@ input:
 output:
   directory: ./converted
   createBackup: true
+  overwriteBackup: true  # Overwrite existing backup files (clean management)
   format: srt
 
 strip:
