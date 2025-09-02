@@ -27,7 +27,11 @@
     "arabic",
     "srt"
   ],
-  "author": "",
+  "author": {
+    "name": "Obada Qawwas",
+    "email": "info@onyxdev.net",
+    "url": "https://onyxdev.net"
+  },
   "license": "ISC",
   "dependencies": {
     "chardet": "^2.0.0",
