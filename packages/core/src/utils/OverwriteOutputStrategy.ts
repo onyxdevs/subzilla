@@ -1,4 +1,4 @@
-import { IOutputStrategy } from '@subzilla/types/core/utils';
+import { IOutputStrategy } from '@subzilla/types';
 
 export default class OverwriteOutputStrategy implements IOutputStrategy {
     getOutputPath(inputPath: string): string {

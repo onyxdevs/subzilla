@@ -1,0 +1,48 @@
+{
+    "name": "@subzilla/cli",
+    "version": "1.0.0",
+    "description": "Command-line interface for Subzilla subtitle converter",
+    "main": "dist/main.js",
+    "bin": {
+        "subzilla": "./dist/main.js"
+    },
+    "scripts": {
+        "build": "tsc",
+        "start": "node dist/main.js",
+        "dev": "tsc --watch",
+        "type-check": "tsc --noEmit",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "format": "prettier --write \"src/**/*.ts\"",
+        "format:check": "prettier --check \"src/**/*.ts\"",
+        "test": "echo \"No tests yet\""
+    },
+    "keywords": [
+        "cli",
+        "subtitle",
+        "converter",
+        "command-line"
+    ],
+    "author": {
+        "name": "Obada Qawwas",
+        "email": "info@onyxdev.net",
+        "url": "https://onyxdev.net"
+    },
+    "license": "ISC",
+    "_moduleAliases": {
+        "@subzilla/core": "../core/dist",
+        "@subzilla/types": "../types/dist"
+    },
+    "dependencies": {
+        "@subzilla/core": "workspace:*",
+        "@subzilla/types": "workspace:*",
+        "commander": "^14.0.0",
+        "module-alias": "^2.2.3"
+    },
+    "devDependencies": {
+        "@types/commander": "^2.12.5",
+        "@types/module-alias": "^2.0.4",
+        "@types/node": "^24.3.0",
+        "typescript": "^5.9.2"
+    }
+}

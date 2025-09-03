@@ -1,6 +1,5 @@
 import { BatchProcessor, ConfigManager } from '@subzilla/core';
-import { IBatchCommandOptions } from '@subzilla/types/cli/options';
-import { ICommandDefinition } from '@subzilla/types/cli/command';
+import { IBatchCommandOptions, ICommandDefinition } from '@subzilla/types';
 
 import { BATCH_OPTIONS } from '../constants/options';
 import { createStripOptions } from '../utils/strip-options';

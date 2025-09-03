@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import { Buffer } from 'buffer';
 
-import { IConvertOptions } from '@subzilla/types/core/options';
+import { IConvertOptions } from '@subzilla/types';
 
 import EncodingDetectionService from './EncodingDetectionService';
 import EncodingConversionService from './EncodingConversionService';

@@ -1,6 +1,5 @@
 import { SubtitleProcessor, ConfigManager } from '@subzilla/core';
-import { IConvertCommandOptions } from '@subzilla/types/cli/options';
-import { ICommandDefinition } from '@subzilla/types/cli/command';
+import { IConvertCommandOptions, ICommandDefinition } from '@subzilla/types';
 
 import { CONVERT_OPTIONS } from '../constants/options';
 import { createStripOptions } from '../utils/strip-options';

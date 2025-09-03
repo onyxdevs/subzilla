@@ -1,5 +1,5 @@
 import { ConfigManager } from '@subzilla/core';
-import { ICommandDefinition } from '@subzilla/types/cli/command';
+import { ICommandDefinition } from '@subzilla/types';
 
 import { BaseCommandCreator } from './base-command';
 

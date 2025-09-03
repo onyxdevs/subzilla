@@ -3,8 +3,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { z } from 'zod';
 
-import { IConfig, TConfigSegment } from '@subzilla/types/core/config';
-import { configSchema } from '@subzilla/types/validation';
+import { IConfig, TConfigSegment, configSchema } from '@subzilla/types';
 
 /**
  * Manages configuration loading, validation, and saving
@@ -149,7 +148,7 @@ export default class ConfigManager {
         } catch (error) {
             if (error instanceof z.ZodError) {
                 console.warn('⚠️ Config validation errors:');
-                error.errors.forEach((err) => {
+                error.issues.forEach((err) => {
                     console.warn(`  - ${err.path.join('.')}: ${err.message}`);
                 });
             }

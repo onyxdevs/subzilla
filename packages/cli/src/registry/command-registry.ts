@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { ICommandCreator, ICommandRegistry } from '@subzilla/types/cli/command';
+import { ICommandCreator, ICommandRegistry } from '@subzilla/types';
 
 /**
  * Default implementation of command registry

@@ -1,5 +1,10 @@
-import { ICommandCreator, ICommandContext, ICommandDefinition } from '@subzilla/types/cli/command';
-import { IConvertCommandOptions, IBatchCommandOptions } from '@subzilla/types/cli/options';
+import {
+    ICommandCreator,
+    ICommandContext,
+    ICommandDefinition,
+    IConvertCommandOptions,
+    IBatchCommandOptions,
+} from '@subzilla/types';
 
 /**
  * Base class for command creators

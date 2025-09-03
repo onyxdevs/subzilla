@@ -38,14 +38,17 @@ npm install -g subzilla
 git clone https://github.com/onyxdevs/subzilla.git
 cd subzilla
 
-# Install dependencies
+# Install dependencies (installs all workspace packages)
 yarn install
 
-# Build the project
+# Build all packages
 yarn build
 
-# Link for local development
-yarn link
+# Run the CLI
+yarn start
+
+# Development mode (watch for changes)
+yarn dev
 ```
 
 ## Usage 💻
@@ -457,40 +460,185 @@ Settings are merged in the following order (later ones override earlier ones):
 - `retryDelay`: Delay between retries (ms).
 - `failFast`: Stop on first error.
 
+## Architecture 🏗️
+
+SubZilla follows a modular monorepo architecture with clear separation of concerns:
+
+### Package Dependencies
+
+```
+@subzilla/cli
+    ├── @subzilla/core
+    │   └── @subzilla/types
+    └── @subzilla/types
+```
+
+- **@subzilla/types**: Foundation package with no dependencies
+- **@subzilla/core**: Depends on types, provides core functionality
+- **@subzilla/cli**: Depends on both core and types, provides user interface
+
+### Key Design Principles
+
+- **SOLID Principles**: Single responsibility, open/closed, Liskov substitution, interface segregation, dependency inversion
+- **YAGNI**: You Aren't Gonna Need It - avoid over-engineering
+- **KISS**: Keep It Simple, Stupid - prioritize simplicity and clarity
+- **DRY**: Don't Repeat Yourself - shared code in appropriate packages
+
+### TypeScript Project References
+
+The monorepo uses TypeScript project references for:
+
+- Faster incremental builds
+- Better IDE support
+- Proper dependency tracking
+- Type-safe cross-package imports
+
 ## Development 🛠️
 
 ### Project Structure
 
+SubZilla is organized as a Yarn Workspaces monorepo with three main packages:
+
 ```
 subzilla/
-├── src/
-│   ├── cli/          # Command-line interface
-│   ├── core/         # Core conversion logic
-│   ├── utils/        # Utility functions
-│   └── types/        # TypeScript type definitions
-├── test/             # Test files
-├── dist/             # Compiled output
-└── package.json      # Project configuration
+├── packages/
+│   ├── cli/              # @subzilla/cli - Command-line interface
+│   │   ├── src/
+│   │   │   ├── commands/ # CLI command implementations
+│   │   │   ├── constants/# Shared CLI options
+│   │   │   ├── registry/ # Command registration system
+│   │   │   ├── utils/    # CLI utilities
+│   │   │   └── main.ts   # CLI entry point
+│   │   └── package.json
+│   ├── core/             # @subzilla/core - Core processing logic
+│   │   ├── src/
+│   │   │   ├── utils/    # Output strategies
+│   │   │   ├── *.ts      # Core services and processors
+│   │   │   └── index.ts  # Package exports
+│   │   └── package.json
+│   └── types/            # @subzilla/types - TypeScript definitions
+│       ├── src/
+│       │   ├── cli/      # CLI-related types
+│       │   ├── core/     # Core functionality types
+│       │   ├── index.ts  # Main exports
+│       │   └── validation.ts # Zod schemas
+│       └── package.json
+├── examples/             # Configuration examples
+├── package.json          # Workspace root configuration
+└── tsconfig.json         # TypeScript project references
 ```
+
+### Package Documentation
+
+Each package has comprehensive documentation:
+
+- **[@subzilla/cli](./packages/cli/README.md)** - Command-line interface with all available commands and options
+- **[@subzilla/core](./packages/core/README.md)** - Core processing services and batch operations
+- **[@subzilla/types](./packages/types/README.md)** - TypeScript interfaces and validation schemas
 
 ### Available Scripts
 
-- `yarn build`: Build the project.
-- `yarn start`: Run the CLI.
-- `yarn dev`: Run in development mode.
-- `yarn test`: Run tests.
-- `yarn lint`: Run linter.
-- `yarn lint:fix`: Fix linting issues.
-- `yarn format`: Format code using Prettier.
-- `yarn format:check`: Check code formatting.
+**Workspace-level scripts:**
+
+- `yarn build`: Build all packages in dependency order
+- `yarn start`: Run the SubZilla CLI
+- `yarn dev`: Development mode with watch for all packages
+- `yarn test`: Run tests across all packages
+- `yarn type-check`: TypeScript type checking for all packages
+- `yarn lint`: Run linter across all packages
+- `yarn lint:fix`: Fix linting issues across all packages
+- `yarn format`: Format code using Prettier across all packages
+- `yarn format:check`: Check code formatting across all packages
+- `yarn clean`: Clean all build artifacts
+
+**Package-specific scripts:**
+
+```bash
+# Build specific package
+yarn workspace @subzilla/core build
+
+# Run CLI directly
+yarn workspace @subzilla/cli start
+
+# Develop specific package
+yarn workspace @subzilla/types dev
+```
+
+### Monorepo Benefits
+
+The workspace structure provides several advantages:
+
+- **Shared Dependencies**: Common dependencies are hoisted to the root, reducing duplication
+- **Type Safety**: Cross-package imports are fully type-checked at compile time
+- **Atomic Changes**: Related changes across packages can be made in a single commit
+- **Consistent Tooling**: Shared linting, formatting, and build configurations
+- **Simplified Development**: Single `yarn install` and `yarn build` for the entire project
 
 ### Contributing
 
-1. Fork the repository.
-2. Create your feature branch (`git checkout -b feature/amazing-feature`).
-3. Commit your changes (`git commit -m 'Add some amazing feature'`).
-4. Push to the branch (`git push origin feature/amazing-feature`).
-5. Open a Pull Request.
+1. **Fork the repository**
+2. **Clone your fork and install dependencies**
+
+    ```bash
+    git clone https://github.com/your-username/subzilla.git
+    cd subzilla
+    yarn install
+    ```
+
+3. **Create your feature branch**
+
+    ```bash
+    git checkout -b feature/amazing-feature
+    ```
+
+4. **Make your changes**
+    - Follow the existing code style and patterns
+    - Add tests for new functionality
+    - Update documentation as needed
+    - Ensure all packages build successfully: `yarn build`
+
+5. **Test your changes**
+
+    ```bash
+    yarn build
+    yarn test
+    yarn lint
+    yarn type-check
+    ```
+
+6. **Commit your changes**
+
+    ```bash
+    git commit -m 'Add some amazing feature'
+    ```
+
+7. **Push to your branch**
+
+    ```bash
+    git push origin feature/amazing-feature
+    ```
+
+8. **Open a Pull Request**
+
+### Development Workflow
+
+```bash
+# Start development mode (watches all packages)
+yarn dev
+
+# Build specific package
+yarn workspace @subzilla/core build
+
+# Test specific package
+yarn workspace @subzilla/cli test
+
+# Run CLI during development
+yarn start --help
+
+# Clean and rebuild everything
+yarn clean
+yarn build
+```
 
 ## License 📝
 
@@ -519,19 +667,17 @@ If you encounter any issues or have questions, please:
 Planned improvements and feature additions:
 
 1. **Enhanced Format Support**
-
     - [ ] Add support for `.ass` and `.ssa` subtitle formats.
     - [x] Handle multiple subtitle files in batch.
     - [ ] Support subtitle format conversion.
 
 2. **User Interface**
-
     - [x] Add interactive CLI mode.
     - [x] Implement progress bars for large files.
     - [ ] Create a web interface.
+    - [ ] Build a native macOS app using Electron.
 
 3. **Performance Optimization**
-
     - [x] Implement parallel processing for batch operations.
     - [ ] Optimize memory usage.
     - [x] Add batch processing progress tracking.
@@ -540,7 +686,6 @@ Planned improvements and feature additions:
     - [ ] Implement retry mechanism for failed conversions.
 
 4. **Additional Features**
-
     - [x] Add subtitle validation.
     - [ ] Implement timing adjustment.
     - [ ] Support subtitle merging.
@@ -551,7 +696,6 @@ Planned improvements and feature additions:
     - [ ] AI translation of subtitles.
 
 5. **Developer Experience**
-
     - [ ] Add comprehensive tests.
     - [ ] Improve error messages.
     - [ ] Create detailed API documentation.

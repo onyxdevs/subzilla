@@ -1,69 +1,50 @@
 {
-  "name": "subzilla",
-  "version": "1.0.0",
-  "description": "A powerful subtitle converter with UTF-8 and Arabic language support",
-  "main": "dist/cli/main.js",
-  "bin": "./dist/cli/main.js",
-  "_moduleAliases": {
-    "@subzilla/cli": "dist/cli",
-    "@subzilla/core": "dist/core",
-    "@subzilla/types": "dist/types"
-  },
-  "scripts": {
-    "build": "tsc",
-    "start": "node dist/cli/main.js",
-    "dev": "tsc --watch",
-    "test": "mocha -r ts-node/register 'test/**/*.spec.ts'",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "format:check": "prettier --check \"src/**/*.ts\""
-  },
-  "keywords": [
-    "subtitle",
-    "converter",
-    "utf8",
-    "arabic",
-    "srt"
-  ],
-  "author": {
-    "name": "Obada Qawwas",
-    "email": "info@onyxdev.net",
-    "url": "https://onyxdev.net"
-  },
-  "license": "ISC",
-  "dependencies": {
-    "chardet": "^2.0.0",
-    "cli-progress": "^3.12.0",
-    "commander": "^13.1.0",
-    "glob": "^11.0.1",
-    "iconv-lite": "^0.6.3",
-    "module-alias": "^2.2.3",
-    "yaml": "^2.7.0",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@types/chai": "^4.3.11",
-    "@types/chardet": "^1.0.0",
-    "@types/cli-progress": "^3.11.6",
-    "@types/commander": "^2.12.5",
-    "@types/glob": "^8.1.0",
-    "@types/iconv-lite": "^0.0.1",
-    "@types/mocha": "^10.0.6",
-    "@types/module-alias": "^2.0.4",
-    "@types/node": "^22.13.4",
-    "@typescript-eslint/eslint-plugin": "^6.12.0",
-    "@typescript-eslint/parser": "^6.12.0",
-    "chai": "^4.3.10",
-    "eslint": "^8.54.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-import-resolver-typescript": "^3.8.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "mocha": "^10.2.0",
-    "prettier": "^3.2.5",
-    "ts-node": "^10.9.1",
-    "typescript": "^5.7.3"
-  }
+    "name": "subzilla",
+    "version": "1.0.0",
+    "description": "A powerful subtitle converter with UTF-8 and Arabic language support",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "scripts": {
+        "build": "tsc --build && yarn workspaces foreach --all run build",
+        "start": "yarn workspace @subzilla/cli start",
+        "dev": "yarn workspaces foreach --all --parallel run dev",
+        "test": "yarn workspaces foreach --all run test",
+        "type-check": "tsc --build --dry && yarn workspaces foreach --all run type-check",
+        "lint": "yarn workspaces foreach --all run lint",
+        "lint:fix": "yarn workspaces foreach --all run lint:fix",
+        "format": "yarn workspaces foreach --all run format",
+        "format:check": "yarn workspaces foreach --all run format:check",
+        "prettify": "prettier --write \"**/*.{ts,js,json,md,yml,yaml}\" --ignore-path .gitignore",
+        "clean": "yarn workspaces foreach --all exec rm -rf dist && rm -rf dist"
+    },
+    "keywords": [
+        "subtitle",
+        "converter",
+        "utf8",
+        "arabic",
+        "srt"
+    ],
+    "author": {
+        "name": "Obada Qawwas",
+        "email": "info@onyxdev.net",
+        "url": "https://onyxdev.net"
+    },
+    "license": "ISC",
+    "devDependencies": {
+        "@eslint/compat": "^1.3.2",
+        "@eslint/eslintrc": "^3.3.1",
+        "@eslint/js": "^9.34.0",
+        "@types/node": "^24.3.0",
+        "@typescript-eslint/eslint-plugin": "^8.42.0",
+        "@typescript-eslint/parser": "^8.42.0",
+        "eslint": "^9.34.0",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-import-resolver-typescript": "^4.4.4",
+        "eslint-plugin-import": "^2.32.0",
+        "eslint-plugin-prettier": "^5.5.4",
+        "prettier": "^3.6.2",
+        "typescript": "^5.9.2"
+    }
 }

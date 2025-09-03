@@ -1,0 +1,36 @@
+{
+    "name": "@subzilla/types",
+    "version": "1.0.0",
+    "description": "TypeScript type definitions for Subzilla subtitle converter",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch",
+        "type-check": "tsc --noEmit",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "format": "prettier --write \"src/**/*.ts\"",
+        "format:check": "prettier --check \"src/**/*.ts\"",
+        "test": "echo \"No tests for types package\""
+    },
+    "keywords": [
+        "typescript",
+        "types",
+        "subtitle",
+        "converter"
+    ],
+    "author": {
+        "name": "Obada Qawwas",
+        "email": "info@onyxdev.net",
+        "url": "https://onyxdev.net"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "zod": "^4.1.5"
+    },
+    "devDependencies": {
+        "@types/node": "^24.3.0",
+        "typescript": "^5.9.2"
+    }
+}

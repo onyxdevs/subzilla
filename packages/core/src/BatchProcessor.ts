@@ -3,8 +3,7 @@ import fs from 'fs/promises';
 import { glob } from 'glob';
 import { SingleBar, MultiBar, Presets } from 'cli-progress';
 
-import { IBatchOptions } from '@subzilla/types/core/options';
-import { IBatchStats } from '@subzilla/types/core/batch';
+import { IBatchOptions, IBatchStats } from '@subzilla/types';
 import SubtitleProcessor from './SubtitleProcessor';
 
 export default class BatchProcessor {

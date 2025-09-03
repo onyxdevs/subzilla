@@ -1,4 +1,4 @@
-import { IOutputStrategy } from '@subzilla/types/core/utils';
+import { IOutputStrategy } from '@subzilla/types';
 
 export default class SuffixOutputStrategy implements IOutputStrategy {
     constructor(private suffix: string = '.subzilla') {
