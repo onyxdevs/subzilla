@@ -1,0 +1,432 @@
+---
+alwaysApply: true
+description: Development workflow, testing patterns, and tooling for SubZilla
+---
+
+# Development Workflow & Testing 🔧
+
+Comprehensive guide for SubZilla development workflow, testing patterns, and tooling setup.
+
+## 🚀 Development Setup
+
+### Initial Setup
+
+```bash
+# Clone and setup
+git clone https://github.com/onyxdevs/subzilla.git
+cd subzilla
+
+# Install dependencies (installs all workspace packages)
+yarn install
+
+# Build all packages
+yarn build
+
+# Start development mode
+yarn dev
+```
+
+### Development Environment
+
+- **Node.js**: v14 or higher
+- **Yarn**: Package manager (no PnP)
+- **TypeScript**: v5.9.2+
+- **ESLint**: Code linting
+- **Prettier**: Code formatting
+
+## 🔄 Development Workflow
+
+### Daily Development
+
+```bash
+# Start development mode (watches all packages)
+yarn dev
+
+# In another terminal, test changes
+yarn start convert --help
+yarn start batch "*.srt" --help
+
+# Build specific package during development
+yarn workspace @subzilla/core build
+yarn workspace @subzilla/cli build
+```
+
+### Making Changes
+
+#### 1. Feature Development Process
+
+```bash
+# 1. Create feature branch
+git checkout -b feature/amazing-feature
+
+# 2. Start development mode
+yarn dev
+
+# 3. Make changes following the established patterns
+# 4. Test changes continuously
+yarn start convert test.srt --strip-all
+
+# 5. Build and validate
+yarn build
+yarn type-check
+yarn lint
+```
+
+#### 2. Adding New Features
+
+1. **Define interfaces** in `@subzilla/types` first
+2. **Implement core logic** in `@subzilla/core`
+3. **Add CLI interface** in `@subzilla/cli`
+4. **Test across packages**
+
+#### 3. Cross-Package Changes
+
+```bash
+# When changing types that affect multiple packages
+yarn workspace @subzilla/types build
+yarn workspace @subzilla/core build
+yarn workspace @subzilla/cli build
+
+# Or use project references (recommended)
+yarn build  # Builds in dependency order
+```
+
+## 🧪 Testing Strategy
+
+### Current Testing Setup
+
+```bash
+# Run tests across all packages
+yarn test
+
+# Test specific package
+yarn workspace @subzilla/core test
+yarn workspace @subzilla/cli test
+```
+
+### Testing Patterns (To Implement)
+
+#### Unit Tests
+
+```typescript
+// Example: EncodingDetectionService.test.ts
+describe('EncodingDetectionService', () => {
+    let service: EncodingDetectionService;
+
+    beforeEach(() => {
+        service = new EncodingDetectionService();
+    });
+
+    describe('detectEncoding', () => {
+        it('should detect UTF-8 encoding', async () => {
+            const buffer = Buffer.from('Hello World', 'utf8');
+            const encoding = await service.detectEncoding(buffer);
+            expect(encoding).toBe('utf8');
+        });
+
+        it('should detect Windows-1256 for Arabic text', async () => {
+            const arabicText = 'مرحبا بالعالم';
+            const buffer = Buffer.from(arabicText, 'windows1256');
+            const encoding = await service.detectEncoding(buffer);
+            expect(encoding).toBe('windows1256');
+        });
+
+        it('should handle empty files gracefully', async () => {
+            const buffer = Buffer.alloc(0);
+            const encoding = await service.detectEncoding(buffer);
+            expect(encoding).toBe('utf8'); // Default fallback
+        });
+    });
+});
+```
+
+#### Integration Tests
+
+```typescript
+// Example: SubtitleProcessor.integration.test.ts
+describe('SubtitleProcessor Integration', () => {
+    let processor: SubtitleProcessor;
+    let tempDir: string;
+
+    beforeEach(async () => {
+        processor = new SubtitleProcessor();
+        tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'subzilla-test-'));
+    });
+
+    afterEach(async () => {
+        await fs.rm(tempDir, { recursive: true, force: true });
+    });
+
+    it('should process Arabic subtitle file end-to-end', async () => {
+        // Create test file with Windows-1256 encoding
+        const inputPath = path.join(tempDir, 'arabic.srt');
+        const arabicContent = '1\n00:00:01,000 --> 00:00:03,000\nمرحبا بالعالم';
+        await fs.writeFile(inputPath, arabicContent, 'windows1256');
+
+        // Process file
+        const result = await processor.processFile(inputPath, {
+            stripOptions: { html: true },
+        });
+
+        // Verify output
+        expect(result.outputPath).toContain('.utf8.srt');
+        const outputContent = await fs.readFile(result.outputPath, 'utf8');
+        expect(outputContent).toContain('مرحبا بالعالم');
+    });
+});
+```
+
+#### CLI Tests
+
+```typescript
+// Example: CLI command testing
+describe('CLI Commands', () => {
+    it('should convert single file via CLI', async () => {
+        const { stdout } = await execAsync('yarn start convert test.srt --strip-html');
+        expect(stdout).toContain('✅ Successfully converted');
+    });
+
+    it('should handle batch processing', async () => {
+        const { stdout } = await execAsync('yarn start batch "*.srt" --parallel');
+        expect(stdout).toContain('📊 Batch Processing Summary');
+    });
+});
+```
+
+## 🔍 Quality Assurance
+
+### Code Quality Tools
+
+#### ESLint Configuration ([eslint.config.js](mdc:eslint.config.js))
+
+```bash
+# Run linting
+yarn lint
+
+# Fix linting issues
+yarn lint:fix
+
+# Lint specific package
+yarn workspace @subzilla/core lint
+```
+
+#### TypeScript Type Checking
+
+```bash
+# Type check all packages
+yarn type-check
+
+# Type check specific package
+yarn workspace @subzilla/types type-check
+```
+
+#### Prettier Formatting
+
+```bash
+# Format all code
+yarn format
+
+# Check formatting
+yarn format:check
+
+# Format specific files
+yarn prettify
+```
+
+### Pre-commit Workflow
+
+```bash
+# Before committing, run full quality check
+yarn build      # Ensure everything builds
+yarn type-check # Validate types
+yarn lint       # Check code quality
+yarn format     # Ensure consistent formatting
+yarn test       # Run test suite (when implemented)
+```
+
+## 🐛 Debugging & Troubleshooting
+
+### Common Development Issues
+
+#### Build Errors
+
+```bash
+# Clean and rebuild
+yarn clean
+yarn build
+
+# Check TypeScript project references
+tsc --build --dry
+
+# Rebuild specific package
+yarn workspace @subzilla/core build
+```
+
+#### Type Errors
+
+```bash
+# Check cross-package type resolution
+yarn workspace @subzilla/cli type-check
+
+# Verify workspace dependencies
+yarn workspaces list
+```
+
+#### Runtime Issues
+
+```bash
+# Test CLI with verbose output
+yarn start convert test.srt --verbose
+
+# Debug specific functionality
+node -e "
+const { SubtitleProcessor } = require('./packages/core/dist');
+const processor = new SubtitleProcessor();
+// Debug code here
+"
+```
+
+### Debugging Techniques
+
+#### Console Debugging
+
+```typescript
+// Use emoji logging for visual debugging
+console.log('🔍 Debug: Processing file:', filePath);
+console.log('📊 Debug: Options:', JSON.stringify(options, null, 2));
+console.log('⚡ Debug: Performance timing:', Date.now() - startTime, 'ms');
+```
+
+#### Error Investigation
+
+```typescript
+// Comprehensive error logging
+try {
+    await this.processFile(filePath, options);
+} catch (error) {
+    console.error('❌ Error details:', {
+        file: filePath,
+        error: (error as Error).message,
+        stack: (error as Error).stack,
+        options: JSON.stringify(options),
+        timestamp: new Date().toISOString(),
+    });
+    throw error;
+}
+```
+
+## 📦 Package Development
+
+### Adding New Packages
+
+```bash
+# Create new package directory
+mkdir packages/new-package
+cd packages/new-package
+
+# Initialize package.json
+yarn init
+
+# Add to workspace (automatic with yarn workspaces)
+# Update root tsconfig.json references
+```
+
+### Package Development Workflow
+
+```typescript
+// 1. Define types in @subzilla/types
+export interface INewFeature {
+    option: string;
+    enabled: boolean;
+}
+
+// 2. Implement in @subzilla/core
+export default class NewFeatureService {
+    public async processFeature(options: INewFeature): Promise<void> {
+        // Implementation
+    }
+}
+
+// 3. Add CLI interface in @subzilla/cli
+export default class NewFeatureCommand implements ICommandCreator {
+    public create(): ICommandDefinition {
+        return {
+            name: 'new-feature',
+            description: 'Process new feature',
+            action: async (options) => {
+                const service = new NewFeatureService();
+                await service.processFeature(options);
+            },
+        };
+    }
+}
+```
+
+## 🚀 Performance Monitoring
+
+### Development Performance
+
+```bash
+# Monitor build times
+time yarn build
+
+# Watch mode performance
+yarn dev  # Should have fast incremental rebuilds
+```
+
+### Runtime Performance
+
+```typescript
+// Performance monitoring in code
+const startTime = process.hrtime.bigint();
+
+await this.processFile(filePath, options);
+
+const endTime = process.hrtime.bigint();
+const duration = Number(endTime - startTime) / 1_000_000; // Convert to ms
+
+console.log(`⚡ Processing took ${duration.toFixed(2)}ms`);
+```
+
+### Batch Processing Metrics
+
+```typescript
+// Built-in performance tracking
+const stats = await batchProcessor.processBatch(pattern, options);
+console.log(`📊 Processed ${stats.successful} files in ${stats.timeTaken}s`);
+console.log(`⚡ Average: ${stats.averageTimePerFile}s per file`);
+```
+
+## 📋 Development Checklist
+
+### Before Starting Development
+
+- [ ] **Environment setup** complete (Node.js, Yarn)
+- [ ] **Dependencies installed** (`yarn install`)
+- [ ] **Initial build** successful (`yarn build`)
+- [ ] **Development mode** working (`yarn dev`)
+
+### During Development
+
+- [ ] **Follow established patterns** and conventions
+- [ ] **Test changes** continuously with `yarn start`
+- [ ] **Check types** with incremental builds
+- [ ] **Use emoji logging** for better debugging
+
+### Before Committing
+
+- [ ] **All packages build** successfully (`yarn build`)
+- [ ] **Type checking** passes (`yarn type-check`)
+- [ ] **Linting** passes (`yarn lint`)
+- [ ] **Formatting** is consistent (`yarn format`)
+- [ ] **Manual testing** of affected functionality
+- [ ] **Cross-package integration** verified
+
+### Code Review Preparation
+
+- [ ] **Clear commit messages** with context
+- [ ] **Documentation** updated if needed
+- [ ] **Breaking changes** documented
+- [ ] **Performance impact** considered
+
+This workflow ensures consistent, high-quality development while maintaining the established patterns and principles of the SubZilla codebase.

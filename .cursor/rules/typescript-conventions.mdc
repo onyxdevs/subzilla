@@ -1,0 +1,300 @@
+---
+globs: *.ts,*.tsx
+description: TypeScript naming conventions and coding patterns for SubZilla
+---
+
+# TypeScript Conventions & Patterns 📝
+
+## 🏷️ Naming Conventions
+
+### Interfaces & Types
+
+- **Interfaces**: Prefix with `I` (e.g., `IConfig`, `IBatchOptions`)
+- **Type Aliases**: Prefix with `T` (e.g., `TEncoding`, `TFormat`)
+- **Use PascalCase** for both interfaces and types
+
+```typescript
+// ✅ Correct
+interface ICommandDefinition<T = any> {
+    name: string;
+    description: string;
+}
+
+type TEncoding = 'auto' | 'utf8' | 'utf16le' | 'utf16be';
+
+// ❌ Incorrect
+interface CommandDefinition {} // Missing I prefix
+type encoding = 'auto' | 'utf8'; // Missing T prefix, wrong case
+```
+
+### Classes & Methods
+
+- **Classes**: PascalCase (e.g., `SubtitleProcessor`, `BatchProcessor`)
+- **Methods**: camelCase with descriptive names
+- **Private members**: Use `private` keyword, prefix with underscore if needed
+
+```typescript
+// ✅ Correct
+export default class SubtitleProcessor {
+    private formattingStripper: FormattingStripper;
+
+    public async processFile(inputPath: string): Promise<void> {
+        // Implementation
+    }
+
+    private async createBackup(filePath: string): Promise<string> {
+        // Implementation
+    }
+}
+```
+
+### Variables & Constants
+
+- **Variables**: camelCase (e.g., `inputFilePath`, `outputDirectory`)
+- **Constants**: SCREAMING_SNAKE_CASE (e.g., `UTF8_BOM`, `LINE_ENDINGS`)
+- **Enum values**: PascalCase
+
+```typescript
+// ✅ Correct
+const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
+const LINE_ENDINGS = {
+    lf: '\n',
+    crlf: '\r\n',
+    auto: process.platform === 'win32' ? '\r\n' : '\n',
+};
+
+let inputFilePath: string;
+const shouldCreateBackup = options.createBackup ?? false;
+```
+
+## 🎯 TypeScript Patterns
+
+### Function Return Types
+
+- **Always specify return types** for public methods
+- **Use Promise<T>** for async functions
+- **Prefer explicit over implicit** typing
+
+```typescript
+// ✅ Correct
+public async processFile(inputPath: string): Promise<{ outputPath: string; backupPath?: string }> {
+    // Implementation
+}
+
+private validateConfig(config: IConfig): IConfig {
+    // Implementation
+}
+
+// ❌ Incorrect - missing return types
+public async processFile(inputPath: string) { }
+private validateConfig(config: IConfig) { }
+```
+
+### Generic Types
+
+- **Use descriptive generic names** beyond T, U, V
+- **Constrain generics** when appropriate
+- **Default generic parameters** when sensible
+
+```typescript
+// ✅ Correct
+interface ICommandDefinition<TOptions = any> {
+    name: string;
+    action: (options: TOptions) => Promise<void>;
+}
+
+interface IOutputStrategy<TOptions extends IConvertOptions = IConvertOptions> {
+    generateOutputPath(inputPath: string, options: TOptions): string;
+}
+```
+
+### Optional vs Required Properties
+
+- **Use `?` for truly optional** properties
+- **Use `| undefined`** when the property can be explicitly undefined
+- **Provide defaults** in implementation, not interface
+
+```typescript
+// ✅ Correct
+interface IConfig {
+    input?: {
+        encoding?: TEncoding; // Optional with default
+        format?: TFormat;
+    };
+    output: {
+        directory: string; // Required
+        createBackup?: boolean; // Optional
+    };
+}
+```
+
+## 📦 Import/Export Patterns
+
+### Default vs Named Exports
+
+- **Classes**: Use default exports
+- **Interfaces/Types**: Use named exports
+- **Utilities**: Use named exports
+- **Barrel exports**: Re-export from index.ts
+
+```typescript
+// ✅ Service class - default export
+export default class SubtitleProcessor {
+    // Implementation
+}
+
+// ✅ Types - named exports
+export interface IConfig {}
+export type TEncoding = 'auto' | 'utf8';
+
+// ✅ Barrel export in index.ts
+export { default as SubtitleProcessor } from './SubtitleProcessor';
+export * from './types';
+```
+
+### Cross-Package Imports
+
+- **Use workspace references** for internal packages
+- **Import types separately** when possible
+- **Avoid circular dependencies**
+
+```typescript
+// ✅ Correct
+import { IConfig, IBatchOptions } from '@subzilla/types';
+import SubtitleProcessor from './SubtitleProcessor';
+
+// ✅ Type-only imports when appropriate
+import type { IOutputStrategy } from '@subzilla/types';
+```
+
+## 🔧 Code Organization
+
+### File Structure
+
+- **One main class per file** (matches filename)
+- **Group related interfaces** in separate files
+- **Use descriptive filenames** (PascalCase for classes)
+
+```
+src/
+├── SubtitleProcessor.ts      # Main class
+├── BatchProcessor.ts         # Main class
+├── types/
+│   ├── config.ts            # Configuration interfaces
+│   └── options.ts           # Option interfaces
+└── utils/
+    ├── SuffixOutputStrategy.ts
+    └── OverwriteOutputStrategy.ts
+```
+
+### Class Organization
+
+```typescript
+export default class ExampleService {
+    // 1. Static properties
+    private static readonly CONSTANTS = {};
+
+    // 2. Instance properties
+    private dependency: DependencyType;
+    private config: IConfig;
+
+    // 3. Constructor
+    constructor(config?: IConfig) {
+        this.config = config ?? DEFAULT_CONFIG;
+    }
+
+    // 4. Public methods
+    public async mainMethod(): Promise<void> {}
+
+    // 5. Private methods
+    private helperMethod(): void {}
+}
+```
+
+## 🎨 Code Style
+
+### Method Signatures
+
+- **Keep parameter lists short** (max 3-4 parameters)
+- **Use options objects** for complex parameters
+- **Destructure options** in implementation
+
+```typescript
+// ✅ Correct - options object
+public async processFile(
+    inputPath: string,
+    options: IConvertOptions = {}
+): Promise<{ outputPath: string; backupPath?: string }> {
+    const {
+        outputPath,
+        createBackup = false,
+        stripOptions = {}
+    } = options;
+}
+
+// ❌ Incorrect - too many parameters
+public async processFile(
+    inputPath: string,
+    outputPath?: string,
+    createBackup?: boolean,
+    stripHtml?: boolean,
+    stripColors?: boolean,
+    encoding?: string
+): Promise<void> { }
+```
+
+### Error Handling
+
+- **Use specific error types** when possible
+- **Provide context** in error messages
+- **Handle errors gracefully** in batch operations
+
+```typescript
+// ✅ Correct
+try {
+    await this.processFile(filePath, options);
+} catch (error) {
+    const message = `Failed to process ${filePath}: ${(error as Error).message}`;
+    this.stats.errors.push({ file: filePath, error: message });
+
+    if (options.failFast) {
+        throw new Error(message);
+    }
+}
+```
+
+## 🚀 Performance Patterns
+
+### Async/Await
+
+- **Use async/await** over Promises
+- **Handle concurrent operations** with Promise.all
+- **Avoid blocking operations** in loops
+
+```typescript
+// ✅ Correct - parallel processing
+const results = await Promise.all(files.map((file) => this.processFile(file, options)));
+
+// ❌ Incorrect - sequential processing
+for (const file of files) {
+    await this.processFile(file, options); // Blocks each iteration
+}
+```
+
+### Memory Management
+
+- **Stream large files** when possible
+- **Clean up resources** in finally blocks
+- **Use appropriate data structures**
+
+```typescript
+// ✅ Correct
+try {
+    const buffer = await fs.readFile(filePath);
+    // Process buffer
+} finally {
+    // Cleanup if needed
+}
+```
+
+Follow these conventions to maintain consistency with the existing SubZilla codebase and ensure type safety throughout the application.

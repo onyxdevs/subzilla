@@ -1,0 +1,144 @@
+---
+alwaysApply: true
+description: SubZilla project structure and architecture guide
+---
+
+# SubZilla Project Structure & Architecture 🏗️
+
+SubZilla is a **monorepo subtitle converter** built with **TypeScript**, **Yarn Workspaces**, and follows **SOLID, YAGNI, KISS, and DRY** principles.
+
+## 📁 Monorepo Structure
+
+```
+subzilla/
+├── packages/
+│   ├── types/            # @subzilla/types - Foundation types & validation
+│   ├── core/             # @subzilla/core - Business logic & processing
+│   └── cli/              # @subzilla/cli - Command-line interface
+├── examples/config/      # Configuration examples
+├── [package.json](mdc:package.json)          # Workspace root
+└── [tsconfig.json](mdc:tsconfig.json)        # TypeScript project references
+```
+
+## 🔗 Package Dependencies
+
+```
+@subzilla/cli
+    ├── @subzilla/core
+    │   └── @subzilla/types
+    └── @subzilla/types
+```
+
+- **@subzilla/types**: Zero-dependency foundation with interfaces and Zod schemas
+- **@subzilla/core**: Core subtitle processing services (depends on types)
+- **@subzilla/cli**: User interface layer (depends on core and types)
+
+## 🎯 Key Architecture Principles
+
+### SOLID Principles
+
+- **Single Responsibility**: Each class has one clear purpose
+- **Open/Closed**: Extensible through interfaces (e.g., `IOutputStrategy`)
+- **Liskov Substitution**: Strategy pattern implementations
+- **Interface Segregation**: Focused, specific interfaces
+- **Dependency Inversion**: Depend on abstractions, not concretions
+
+### Design Patterns
+
+- **Strategy Pattern**: Output strategies ([SuffixOutputStrategy](mdc:packages/core/src/utils/SuffixOutputStrategy.ts), [OverwriteOutputStrategy](mdc:packages/core/src/utils/OverwriteOutputStrategy.ts))
+- **Service Layer**: Core services ([SubtitleProcessor](mdc:packages/core/src/SubtitleProcessor.ts), [BatchProcessor](mdc:packages/core/src/BatchProcessor.ts))
+- **Configuration Management**: [ConfigManager](mdc:packages/core/src/ConfigManager.ts) with multiple sources
+
+## 📦 Package Structure
+
+### Types Package ([packages/types/](mdc:packages/types/))
+
+```
+src/
+├── cli/          # CLI-related interfaces
+├── core/         # Core functionality types
+├── index.ts      # Main exports
+└── validation.ts # Zod schemas
+```
+
+### Core Package ([packages/core/](mdc:packages/core/))
+
+```
+src/
+├── *.ts          # Main services (SubtitleProcessor, BatchProcessor, etc.)
+├── utils/        # Output strategies and utilities
+└── index.ts      # Package exports
+```
+
+### CLI Package ([packages/cli/](mdc:packages/cli/))
+
+```
+src/
+├── commands/     # Command implementations
+├── constants/    # Shared CLI options
+├── registry/     # Command registration
+├── utils/        # CLI utilities
+└── main.ts       # Entry point
+```
+
+## 🔧 Development Workflow
+
+### Build System
+
+- **TypeScript Project References**: Fast incremental builds
+- **Workspace Scripts**: `yarn build`, `yarn dev`, `yarn start`
+- **Dependency Order**: Types → Core → CLI
+
+### File Organization
+
+- **Default Exports**: Classes use default exports
+- **Named Exports**: Interfaces and types use named exports
+- **Barrel Exports**: Each package has `index.ts` for clean imports
+- **Cross-Package Imports**: Use workspace references (`@subzilla/types`)
+
+## 🎨 Code Organization Patterns
+
+### Service Classes
+
+```typescript
+export default class ServiceName {
+    private dependency: DependencyType;
+
+    constructor() {
+        this.dependency = new DependencyType();
+    }
+
+    public async mainMethod(): Promise<ReturnType> {
+        // Implementation
+    }
+}
+```
+
+### Configuration Management
+
+- **YAML Configuration**: `.subzillarc`, `.subzilla.yml`
+- **Environment Variables**: `SUBZILLA_*` prefix
+- **Precedence**: CLI args > Env vars > Config file > Defaults
+- **Validation**: Zod schemas for runtime validation
+
+### Error Handling
+
+- **Graceful Degradation**: Continue processing on non-critical errors
+- **Progress Tracking**: Real-time progress bars for batch operations
+- **Comprehensive Logging**: Emoji-rich console output with detailed statistics
+
+## 🚀 Performance Considerations
+
+- **Parallel Processing**: Batch operations support parallel execution
+- **Streaming**: Large file handling with proper memory management
+- **Chunked Processing**: Configurable batch sizes
+- **Progress Tracking**: Multi-bar progress display for user feedback
+
+When working with this codebase:
+
+1. **Follow the dependency hierarchy** - types → core → cli
+2. **Use TypeScript project references** for cross-package imports
+3. **Implement new features as services** in the core package
+4. **Add CLI commands** in the cli package with proper registration
+5. **Define interfaces first** in the types package
+6. **Follow the established patterns** for consistency and maintainability
