@@ -1,4 +1,5 @@
 import fs from 'fs';
+
 import { detect } from 'chardet';
 
 export default class EncodingDetectionService {

@@ -4,24 +4,24 @@ import { IConfig } from '../core/config';
  * Options for the strip command
  */
 export interface IStripCommandOptions {
-    stripHtml: boolean;
-    stripColors: boolean;
-    stripStyles: boolean;
-    stripUrls: boolean;
-    stripTimestamps: boolean;
-    stripNumbers: boolean;
-    stripPunctuation: boolean;
-    stripEmojis: boolean;
-    stripBrackets: boolean;
-    stripBidiControl: boolean;
-    stripAll: boolean;
+    stripHtml?: boolean;
+    stripColors?: boolean;
+    stripStyles?: boolean;
+    stripUrls?: boolean;
+    stripTimestamps?: boolean;
+    stripNumbers?: boolean;
+    stripPunctuation?: boolean;
+    stripEmojis?: boolean;
+    stripBrackets?: boolean;
+    stripBidiControl?: boolean;
+    stripAll?: boolean;
 }
 
 /**
  * Base options for all commands
  */
 interface IBaseCommandOptions extends IStripCommandOptions {
-    backup: boolean;
+    backup?: boolean;
     overwriteBackup?: boolean;
     loadedConfig?: IConfig;
 }
@@ -44,13 +44,13 @@ export interface IConvertCommandOptions extends IBaseCommandOptions {
  */
 export interface IBatchCommandOptions extends IConvertCommandOptions {
     outputDir?: string;
-    recursive: boolean;
-    parallel: boolean;
-    skipExisting: boolean;
+    recursive?: boolean;
+    parallel?: boolean;
+    skipExisting?: boolean;
     maxDepth?: string;
     includeDirs?: string[];
     excludeDirs?: string[];
-    preserveStructure: boolean;
+    preserveStructure?: boolean;
     chunkSize?: number;
 }
 

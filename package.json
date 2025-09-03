@@ -10,7 +10,10 @@
         "build": "tsc --build && yarn workspaces foreach --all run build",
         "start": "yarn workspace @subzilla/cli start",
         "dev": "yarn workspaces foreach --all --parallel run dev",
-        "test": "yarn workspaces foreach --all run test",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "test:coverage": "jest --coverage",
+        "test:ci": "jest --ci --coverage --watchAll=false",
         "type-check": "tsc --build --dry && yarn workspaces foreach --all run type-check",
         "lint": "yarn workspaces foreach --all run lint",
         "lint:fix": "yarn workspaces foreach --all run lint:fix",
@@ -36,6 +39,8 @@
         "@eslint/compat": "^1.3.2",
         "@eslint/eslintrc": "^3.3.1",
         "@eslint/js": "^9.34.0",
+        "@jest/globals": "^30.1.2",
+        "@types/jest": "^30.0.0",
         "@types/node": "^24.3.0",
         "@typescript-eslint/eslint-plugin": "^8.42.0",
         "@typescript-eslint/parser": "^8.42.0",
@@ -44,7 +49,10 @@
         "eslint-import-resolver-typescript": "^4.4.4",
         "eslint-plugin-import": "^2.32.0",
         "eslint-plugin-prettier": "^5.5.4",
+        "jest": "^30.1.3",
+        "jest-environment-node": "^30.1.2",
         "prettier": "^3.6.2",
+        "ts-jest": "^29.4.1",
         "typescript": "^5.9.2"
     }
 }

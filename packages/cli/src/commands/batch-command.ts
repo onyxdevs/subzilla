@@ -41,9 +41,10 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
 
                         batch: {
                             outputDir: options.outputDir ?? config.output?.directory,
-                            recursive: options.recursive ?? config.batch?.recursive,
-                            parallel: options.parallel ?? config.batch?.parallel,
-                            skipExisting: options.skipExisting ?? config.batch?.skipExisting,
+                            recursive: options.recursive ?? config.batch?.recursive ?? false,
+                            parallel: options.parallel ?? config.batch?.parallel ?? false,
+                            skipExisting:
+                                options.skipExisting ?? config.batch?.skipExisting ?? false,
                             maxDepth: options.maxDepth
                                 ? parseInt(options.maxDepth, 10)
                                 : config.batch?.maxDepth,
@@ -52,7 +53,9 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
                             excludeDirectories:
                                 options.excludeDirs ?? config.batch?.excludeDirectories,
                             preserveStructure:
-                                options.preserveStructure ?? config.batch?.preserveStructure,
+                                options.preserveStructure ??
+                                config.batch?.preserveStructure ??
+                                false,
                             chunkSize: options.chunkSize ?? config.batch?.chunkSize,
                         },
                     };

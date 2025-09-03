@@ -1,4 +1,5 @@
 import { Command } from 'commander';
+
 import { ICommandCreator, ICommandRegistry } from '@subzilla/types';
 
 /**

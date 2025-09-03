@@ -1,9 +1,11 @@
-import path from 'path';
 import fs from 'fs/promises';
-import { glob } from 'glob';
+import path from 'path';
+
 import { SingleBar, MultiBar, Presets } from 'cli-progress';
+import { glob } from 'glob';
 
 import { IBatchOptions, IBatchStats } from '@subzilla/types';
+
 import SubtitleProcessor from './SubtitleProcessor';
 
 export default class BatchProcessor {

@@ -2,10 +2,10 @@
  * Base options for stripping content from subtitles
  */
 export interface IStripOptions {
-    html: boolean;
-    colors: boolean;
-    styles: boolean;
-    urls: boolean;
+    html?: boolean;
+    colors?: boolean;
+    styles?: boolean;
+    urls?: boolean;
     timestamps?: boolean;
     numbers?: boolean;
     punctuation?: boolean;

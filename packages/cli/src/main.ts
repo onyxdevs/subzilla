@@ -5,11 +5,11 @@ import { Command } from 'commander';
 
 import { ConfigManager } from '@subzilla/core';
 
-import DefaultCommandRegistry from './registry/command-registry';
-import { ConvertCommandCreator } from './commands/convert-command';
 import { BatchCommandCreator } from './commands/batch-command';
-import { InitCommandCreator } from './commands/init-command';
+import { ConvertCommandCreator } from './commands/convert-command';
 import { InfoCommandCreator } from './commands/info-command';
+import { InitCommandCreator } from './commands/init-command';
+import DefaultCommandRegistry from './registry/command-registry';
 
 const program = new Command();
 

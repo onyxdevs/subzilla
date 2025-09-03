@@ -10,7 +10,12 @@ module.exports = [
         ignores: ['**/dist/**', '**/node_modules/**', '**/*.d.ts', '**/coverage/**', '**/.yarn/**'],
     },
     {
-        files: ['packages/*/src/**/*.ts', 'packages/*/src/**/*.tsx'],
+        files: [
+            'packages/*/src/**/*.ts',
+            'packages/*/src/**/*.tsx',
+            'packages/*/__tests__/**/*.ts',
+            'packages/*/jest.setup.ts',
+        ],
         languageOptions: {
             parser: tsParser,
             ecmaVersion: 2020,
@@ -24,6 +29,21 @@ module.exports = [
                 clearTimeout: 'readonly',
                 setInterval: 'readonly',
                 clearInterval: 'readonly',
+                // Jest globals for test files
+                describe: 'readonly',
+                it: 'readonly',
+                test: 'readonly',
+                expect: 'readonly',
+                beforeEach: 'readonly',
+                afterEach: 'readonly',
+                beforeAll: 'readonly',
+                afterAll: 'readonly',
+                jest: 'readonly',
+                // Node.js globals for test files
+                __dirname: 'readonly',
+                __filename: 'readonly',
+                require: 'readonly',
+                global: 'readonly',
             },
         },
         plugins: {
@@ -42,10 +62,44 @@ module.exports = [
         rules: {
             ...typescriptEslint.configs.recommended.rules,
             'import/no-unresolved': 'off', // Disable for workspace packages
+            // 🚀 Comprehensive import ordering
+            'import/order': [
+                'error',
+                {
+                    groups: ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+                    pathGroups: [
+                        {
+                            pattern: '@subzilla/**',
+                            group: 'internal',
+                            position: 'before',
+                        },
+                        // Treat all parent imports as one subgroup
+                        {
+                            pattern: '../**',
+                            group: 'parent',
+                            position: 'before',
+                        },
+                        // Treat all sibling imports as separate subgroup after parent
+                        {
+                            pattern: './**',
+                            group: 'parent', // Same group as parent to avoid line break
+                            position: 'after',
+                        },
+                    ],
+                    pathGroupsExcludedImportTypes: ['@subzilla'],
+                    'newlines-between': 'always',
+                    alphabetize: {
+                        order: 'asc',
+                        caseInsensitive: true,
+                    },
+                    distinctGroup: false,
+                },
+            ],
             '@typescript-eslint/explicit-function-return-type': 'warn',
             '@typescript-eslint/no-explicit-any': 'warn',
             '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
             '@typescript-eslint/no-empty-object-type': 'off',
+            '@typescript-eslint/no-require-imports': 'off', // Allow require() in test files
             'prettier/prettier': [
                 'error',
                 {

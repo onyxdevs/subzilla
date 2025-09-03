@@ -104,12 +104,55 @@ yarn workspace @subzilla/core test
 yarn workspace @subzilla/cli test
 ```
 
-### Testing Patterns (To Implement)
+### Jest Testing Framework
 
-#### Unit Tests
+SubZilla uses **Jest** with **TypeScript** for comprehensive testing across all packages. The testing framework was chosen specifically for **Electron compatibility** and provides robust mocking capabilities.
+
+#### Test Configuration
+
+- **Multi-project Jest setup** with TypeScript support
+- **Package-specific configurations** with proper module resolution
+- **Shared test fixtures** in `__tests__/fixtures/`
+- **CI/CD integration** with GitHub Actions
+
+#### Current Test Coverage
+
+```bash
+# Run all tests across packages
+yarn test
+
+# Results: 83 tests passing across 7 test suites
+Test Suites: 7 passed, 7 total
+Tests:       83 passed, 83 total
+```
+
+#### Test Structure by Package
+
+**@subzilla/types** (13 tests):
+
+- Zod schema validation for configuration
+- Strip options validation
+- Type safety verification
+
+**@subzilla/core** (57 tests):
+
+- `EncodingDetectionService`: UTF-8, Windows-1256, binary handling
+- `EncodingConversionService`: Multi-encoding conversion
+- `FormattingStripper`: HTML, colors, styles, emojis removal
+- `SubtitleProcessor`: End-to-end integration tests
+
+**@subzilla/cli** (13 tests):
+
+- Command registration and help text
+- CLI option parsing and validation
+- Error handling and graceful degradation
+- Mock-based testing with proper TypeScript types
+
+#### Key Testing Patterns
+
+**Unit Tests with Proper Setup:**
 
 ```typescript
-// Example: EncodingDetectionService.test.ts
 describe('EncodingDetectionService', () => {
     let service: EncodingDetectionService;
 
@@ -117,81 +160,77 @@ describe('EncodingDetectionService', () => {
         service = new EncodingDetectionService();
     });
 
-    describe('detectEncoding', () => {
-        it('should detect UTF-8 encoding', async () => {
-            const buffer = Buffer.from('Hello World', 'utf8');
-            const encoding = await service.detectEncoding(buffer);
-            expect(encoding).toBe('utf8');
-        });
-
-        it('should detect Windows-1256 for Arabic text', async () => {
-            const arabicText = 'مرحبا بالعالم';
-            const buffer = Buffer.from(arabicText, 'windows1256');
-            const encoding = await service.detectEncoding(buffer);
-            expect(encoding).toBe('windows1256');
-        });
-
-        it('should handle empty files gracefully', async () => {
-            const buffer = Buffer.alloc(0);
-            const encoding = await service.detectEncoding(buffer);
-            expect(encoding).toBe('utf8'); // Default fallback
-        });
+    it('should detect Windows-1256 for Arabic content', async () => {
+        const arabicText = 'مرحبا بالعالم';
+        const buffer = Buffer.from(arabicText, 'windows1256');
+        const encoding = await service.detectEncoding(buffer);
+        expect(encoding).toBe('windows1256');
     });
 });
 ```
 
-#### Integration Tests
+**Integration Tests with Temp Files:**
 
 ```typescript
-// Example: SubtitleProcessor.integration.test.ts
 describe('SubtitleProcessor Integration', () => {
     let processor: SubtitleProcessor;
     let tempDir: string;
 
     beforeEach(async () => {
         processor = new SubtitleProcessor();
-        tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'subzilla-test-'));
+        tempDir = await fs.promises.mkdtemp(path.join(os.tmpdir(), 'subzilla-test-'));
     });
 
     afterEach(async () => {
-        await fs.rm(tempDir, { recursive: true, force: true });
+        await fs.promises.rm(tempDir, { recursive: true, force: true });
     });
 
     it('should process Arabic subtitle file end-to-end', async () => {
-        // Create test file with Windows-1256 encoding
         const inputPath = path.join(tempDir, 'arabic.srt');
         const arabicContent = '1\n00:00:01,000 --> 00:00:03,000\nمرحبا بالعالم';
-        await fs.writeFile(inputPath, arabicContent, 'windows1256');
+        await fs.promises.writeFile(inputPath, arabicContent, 'windows1256');
 
-        // Process file
         const result = await processor.processFile(inputPath, {
             stripOptions: { html: true },
         });
 
-        // Verify output
-        expect(result.outputPath).toContain('.utf8.srt');
-        const outputContent = await fs.readFile(result.outputPath, 'utf8');
+        expect(result.outputPath).toContain('.subzilla.srt');
+        const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
         expect(outputContent).toContain('مرحبا بالعالم');
     });
 });
 ```
 
-#### CLI Tests
+**CLI Tests with TypeScript Mocks:**
 
 ```typescript
-// Example: CLI command testing
-describe('CLI Commands', () => {
-    it('should convert single file via CLI', async () => {
-        const { stdout } = await execAsync('yarn start convert test.srt --strip-html');
-        expect(stdout).toContain('✅ Successfully converted');
-    });
+// Proper TypeScript mock typing to avoid 'never' type issues
+const mockProcessFile = jest.fn<() => Promise<{ outputPath: string }>>().mockResolvedValue({
+    outputPath: '/mock/output.srt',
+});
 
-    it('should handle batch processing', async () => {
-        const { stdout } = await execAsync('yarn start batch "*.srt" --parallel');
-        expect(stdout).toContain('📊 Batch Processing Summary');
+describe('CLI Commands', () => {
+    it('should execute convert command successfully', async () => {
+        const output = execSync('node dist/main.js convert --help', { encoding: 'utf8' });
+        expect(output).toContain('Convert a single subtitle file to UTF-8');
     });
 });
 ```
+
+#### Test Fixtures
+
+Shared test data in `__tests__/fixtures/`:
+
+- `sample.srt`: Basic SRT file for testing
+- `arabic.srt`: Arabic content with Windows-1256 encoding
+- `empty.srt`: Empty file edge case testing
+
+#### Critical Testing Insights
+
+1. **TypeScript + Jest Mocking**: Use explicit generic types `jest.fn<() => Promise<ReturnType>>()` to avoid `never` type inference
+2. **Module Resolution**: Use `moduleNameMapper` (not `moduleNameMapping`) for workspace package resolution
+3. **Async Testing**: Proper cleanup with `beforeEach`/`afterEach` for temp files and mocks
+4. **Real CLI Testing**: Use `execSync` for actual CLI command validation
 
 ## 🔍 Quality Assurance
 

@@ -536,6 +536,35 @@ Each package has comprehensive documentation:
 - **[@subzilla/core](./packages/core/README.md)** - Core processing services and batch operations
 - **[@subzilla/types](./packages/types/README.md)** - TypeScript interfaces and validation schemas
 
+### Testing 🧪
+
+SubZilla includes a comprehensive **Jest testing framework** with **83 passing tests** across all packages:
+
+```bash
+# Run all tests
+yarn test
+
+# Test specific package
+yarn workspace @subzilla/core test
+yarn workspace @subzilla/cli test
+yarn workspace @subzilla/types test
+```
+
+**Test Coverage:**
+
+- **@subzilla/types** (13 tests): Zod schema validation, configuration validation
+- **@subzilla/core** (57 tests): Encoding detection/conversion, formatting stripping, end-to-end processing
+- **@subzilla/cli** (13 tests): Command registration, CLI parsing, error handling
+
+**Key Features:**
+
+- **Multi-project Jest setup** with TypeScript support
+- **Real file system testing** with temporary directories
+- **CLI integration tests** using `execSync`
+- **Proper TypeScript mocking** with generic type annotations
+- **Arabic text encoding tests** for Windows-1256 support
+- **CI/CD integration** with GitHub Actions
+
 ### Available Scripts
 
 **Workspace-level scripts:**
@@ -667,41 +696,58 @@ If you encounter any issues or have questions, please:
 Planned improvements and feature additions:
 
 1. **Enhanced Format Support**
-    - [ ] Add support for `.ass` and `.ssa` subtitle formats.
-    - [x] Handle multiple subtitle files in batch.
-    - [ ] Support subtitle format conversion.
+    - [ ] Add support for `.ass` and `.ssa` subtitle formats
+    - [x] Handle multiple subtitle files in batch
+    - [ ] Support subtitle format conversion (SRT ↔ ASS ↔ SSA)
+    - [ ] Add WebVTT format support
+    - [ ] Support subtitle timing synchronization
 
-2. **User Interface**
-    - [x] Add interactive CLI mode.
-    - [x] Implement progress bars for large files.
-    - [ ] Create a web interface.
-    - [ ] Build a native macOS app using Electron.
+2. **User Interface & Experience**
+    - [x] Interactive CLI mode with comprehensive commands
+    - [x] Progress bars for batch operations
+    - [ ] Create a web interface for browser-based conversion
+    - [ ] Build a native macOS app using Electron
+    - [ ] Add drag-and-drop GUI interface
+    - [ ] Implement real-time encoding preview
 
-3. **Performance Optimization**
-    - [x] Implement parallel processing for batch operations.
-    - [ ] Optimize memory usage.
-    - [x] Add batch processing progress tracking.
-    - [x] Add batch processing statistics and reporting.
-    - [ ] Add configurable chunk size for parallel processing.
-    - [ ] Implement retry mechanism for failed conversions.
+3. **Performance & Reliability**
+    - [x] Parallel processing for batch operations
+    - [x] Configurable chunk size for parallel processing
+    - [x] Retry mechanism for failed conversions
+    - [x] Batch processing progress tracking and statistics
+    - [ ] Memory usage optimization for large files
+    - [ ] Streaming processing for very large subtitle files
+    - [ ] Performance benchmarking and profiling tools
+    - [ ] Caching mechanism for repeated operations
 
-4. **Additional Features**
-    - [x] Add subtitle validation.
-    - [ ] Implement timing adjustment.
-    - [ ] Support subtitle merging.
-    - [ ] Add character encoding preview.
-    - [x] Add batch processing statistics and reporting.
-    - [ ] Add JSON output format for statistics.
-    - [ ] Add CSV export for batch results.
-    - [ ] AI translation of subtitles.
+4. **Advanced Features**
+    - [x] Comprehensive subtitle validation with Zod schemas
+    - [x] Extensive formatting stripping (HTML, colors, styles, emojis)
+    - [ ] Subtitle timing adjustment and synchronization
+    - [ ] Subtitle merging and splitting
+    - [ ] Character encoding preview and detection confidence
+    - [ ] JSON/CSV export for batch processing results
+    - [ ] AI-powered subtitle translation integration
+    - [ ] Subtitle quality analysis and scoring
 
-5. **Developer Experience**
-    - [ ] Add comprehensive tests.
-    - [ ] Improve error messages.
-    - [ ] Create detailed API documentation.
-    - [ ] Add GitHub Actions workflow.
-    - [x] Add batch processing examples and test cases.
-    - [ ] Add performance benchmarking tools.
-    - [x] Create batch processing configuration files.
+5. **Developer Experience & Infrastructure**
+    - [x] Comprehensive test suite (83 tests across all packages)
+    - [x] TypeScript monorepo with project references
+    - [x] Detailed API documentation for all packages
+    - [x] Configuration examples and templates
+    - [ ] GitHub Actions CI/CD workflow
+    - [ ] Automated release management
+    - [ ] Performance regression testing
+    - [ ] Docker containerization
+    - [ ] Plugin system for custom processors
+    - [ ] Webhook integration for automated workflows
+
+6. **Integration & Ecosystem**
+    - [ ] VS Code extension for subtitle editing
+    - [ ] API server mode for remote processing
+    - [ ] Integration with popular media players
+    - [ ] Cloud storage integration (S3, Google Drive, Dropbox)
+    - [ ] Batch processing via file watching
+    - [ ] Integration with subtitle databases (OpenSubtitles, etc.)
 
 Want to contribute to these enhancements? Check our [Contributing](#contributing) section!

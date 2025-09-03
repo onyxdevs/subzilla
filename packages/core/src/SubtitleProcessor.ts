@@ -1,13 +1,13 @@
-import fs from 'fs/promises';
 import { Buffer } from 'buffer';
+import fs from 'fs/promises';
 
 import { IConvertOptions } from '@subzilla/types';
 
-import EncodingDetectionService from './EncodingDetectionService';
 import EncodingConversionService from './EncodingConversionService';
+import EncodingDetectionService from './EncodingDetectionService';
 import FormattingStripper from './FormattingStripper';
-import SuffixOutputStrategy from './utils/SuffixOutputStrategy';
 import OverwriteOutputStrategy from './utils/OverwriteOutputStrategy';
+import SuffixOutputStrategy from './utils/SuffixOutputStrategy';
 
 const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
 const LINE_ENDINGS = {

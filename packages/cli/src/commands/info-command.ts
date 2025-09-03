@@ -1,12 +1,12 @@
-import chalk from 'chalk';
-import fs from 'fs/promises';
 import { Buffer } from 'buffer';
+import fs from 'fs/promises';
 
+import chalk from 'chalk';
+
+import { EncodingDetectionService } from '@subzilla/core';
 import { IInfoCommandOptions, ICommandDefinition } from '@subzilla/types';
 
 import { BaseCommandCreator } from './base-command';
-
-import { EncodingDetectionService } from '@subzilla/core';
 
 export class InfoCommandCreator extends BaseCommandCreator<IInfoCommandOptions> {
     protected getDefinition(): ICommandDefinition<IInfoCommandOptions> {
