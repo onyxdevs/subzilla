@@ -1,0 +1,71 @@
+---
+description: Essential SubZilla development rules - consolidated and focused
+globs: ['**/*.ts', '**/*.tsx']
+alwaysApply: false
+---
+
+# SubZilla Essential Rules
+
+## 🎯 Core Execution (MUST FOLLOW)
+
+1. **SEARCH FIRST** - Use codebase_search/grep before implementing
+2. **REUSE PATTERNS** - Extend existing code, minimal changes
+3. **CHALLENGE IDEAS** - Question assumptions, suggest better approaches
+4. **NO SKELETONS** - Complete, production-ready code only
+
+## 🏗️ Architecture
+
+**Monorepo Structure:**
+
+- Dependencies: `@subzilla/types` → `@subzilla/core` → `@subzilla/cli`
+- Use workspace imports: `import { IConfig } from '@subzilla/types'`
+- TypeScript project references for builds
+
+**Key Patterns:**
+
+- Strategy pattern for output handling (see `SuffixOutputStrategy.ts`)
+- Service layer for business logic
+- Options objects for >3 parameters
+
+## 📝 Code Conventions
+
+**TypeScript:**
+
+- Interfaces: `IConfig`, Types: `TEncoding`
+- Default exports for classes, named for interfaces
+- Explicit return types on public methods
+- Strict mode always enabled
+
+**Quality Standards:**
+
+- Emoji logging: 🔍 (searching), ✅ (success), ❌ (error), ⚠️ (warning)
+- Comprehensive error handling with context
+- Files under 300 lines (split when needed)
+- Self-documenting code > excessive comments
+
+## 🛠️ Development
+
+**Commands:**
+
+```bash
+yarn install          # Setup
+yarn dev             # Watch mode
+yarn build           # Build all
+yarn start           # Run CLI
+yarn test            # Run tests
+```
+
+**Package Development:**
+
+1. Define types in `@subzilla/types`
+2. Implement in `@subzilla/core`
+3. Add CLI in `@subzilla/cli`
+4. Test integration
+
+## ⚡ Common Pitfalls to Avoid
+
+- Creating new files unnecessarily (extend existing)
+- Sequential processing in loops (use Promise.all)
+- Missing error context in catch blocks
+- Forgetting emoji logging for user feedback
+- Over-engineering simple features

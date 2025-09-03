@@ -1,0 +1,63 @@
+---
+description: Quick reference for SubZilla patterns and examples
+globs: ['**/*.ts']
+alwaysApply: false
+---
+
+# Quick Reference
+
+## 📚 Import Examples
+
+```typescript
+// Cross-package imports
+import { IConfig, IBatchOptions } from '@subzilla/types';
+import SubtitleProcessor from '@subzilla/core';
+
+// Internal imports
+import type { IOutputStrategy } from './types';
+```
+
+## 🎨 Pattern Examples
+
+### Service Class
+
+```typescript
+export default class ExampleService {
+    private config: IConfig;
+
+    constructor(config?: IConfig) {
+        this.config = { ...DEFAULT_CONFIG, ...config };
+    }
+
+    public async process(path: string, options: IOptions = {}): Promise<IResult> {
+        try {
+            console.log(`🔍 Processing ${path}...`);
+            // Implementation
+            console.log(`✅ Completed ${path}`);
+            return result;
+        } catch (error) {
+            const message = `❌ Failed: ${(error as Error).message}`;
+            console.error(message);
+            throw new Error(message);
+        }
+    }
+}
+```
+
+### CLI Command
+
+```typescript
+export default class ExampleCommand implements ICommandCreator {
+    public create(): ICommandDefinition {
+        return {
+            name: 'example',
+            description: '📝 Example command',
+            options: [{ flags: '-o, --output <path>', description: 'Output path' }],
+            action: async (options) => {
+                const processor = new ExampleService();
+                await processor.process(options.input, options);
+            },
+        };
+    }
+}
+```
