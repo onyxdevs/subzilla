@@ -1,0 +1,14 @@
+# DMG Background Placeholder
+
+The DMG installer requires a background image.
+
+## Creating the Background
+
+1. **Size**: 540x380 pixels
+2. **Design**: Clean background with Subzilla branding
+3. **Format**: PNG with transparency support
+4. **Save**: As `dmg-background.png` in this directory
+
+## Temporary Solution
+
+For testing, you can skip the background by commenting out the `background` line in electron-builder.yml

@@ -1,0 +1,21 @@
+# App Icon Placeholder
+
+The app requires an icon.icns file in this directory.
+
+## Creating the Icon
+
+1. **Design**: Create a 1024x1024 PNG with the Subzilla logo (🦎)
+2. **Convert**: Use iconutil or online converter to create .icns
+3. **Place**: Save as `icon.icns` in this directory
+
+## Temporary Solution
+
+For testing, you can:
+1. Find any .icns file from another Mac app
+2. Copy it as `icon.icns` in this directory
+3. The app will use it as placeholder until proper icon is created
+
+The icon should represent:
+- Subzilla branding (lizard/gecko theme)
+- Subtitle/text processing concept  
+- Clean, modern macOS design language
