@@ -25,7 +25,7 @@ export default class BatchProcessor {
                 hideCursor: true,
                 clearOnComplete: false,
             },
-            Presets.shades_classic
+            Presets.shades_classic,
         );
 
         this.directoryBars = new Map();
@@ -62,9 +62,7 @@ export default class BatchProcessor {
             }
 
             this.stats.total = files.length;
-            console.log(
-                `🔍 Found ${files.length} files in ${this.countDirectories(files)} directories...`
-            );
+            console.log(`🔍 Found ${files.length} files in ${this.countDirectories(files)} directories...`);
 
             // Create output directory if specified
             if (options.common.outputDir) {
@@ -90,8 +88,7 @@ export default class BatchProcessor {
 
             // Finalize statistics
             this.stats.timeTaken = (Date.now() - this.startTime) / 1000;
-            this.stats.averageTimePerFile =
-                this.stats.timeTaken / (this.stats.successful + this.stats.failed);
+            this.stats.averageTimePerFile = this.stats.timeTaken / (this.stats.successful + this.stats.failed);
 
             // Stop progress bars
             this.multiBar.stop();
@@ -157,39 +154,33 @@ export default class BatchProcessor {
 
                 return acc;
             },
-            {} as Record<string, string[]>
+            {} as Record<string, string[]>,
         );
     }
 
     private async processDirectoriesParallel(
         filesByDir: Record<string, string[]>,
-        options: IBatchOptions
+        options: IBatchOptions,
     ): Promise<void> {
         const directories = Object.entries(filesByDir);
         const chunks = this.chunkArray(directories, options.batch.chunkSize || 3); // Use configured chunk size
 
         for (const chunk of chunks) {
             if (this.shouldStop) break;
-            await Promise.all(
-                chunk.map(([dir, files]) => this.processDirectory(dir, files, options))
-            );
+            await Promise.all(chunk.map(([dir, files]) => this.processDirectory(dir, files, options)));
         }
     }
 
     private async processDirectoriesSequential(
         filesByDir: Record<string, string[]>,
-        options: IBatchOptions
+        options: IBatchOptions,
     ): Promise<void> {
         for (const [dir, files] of Object.entries(filesByDir)) {
             await this.processDirectory(dir, files, options);
         }
     }
 
-    private async processDirectory(
-        dir: string,
-        files: string[],
-        options: IBatchOptions
-    ): Promise<void> {
+    private async processDirectory(dir: string, files: string[], options: IBatchOptions): Promise<void> {
         if (this.shouldStop) return;
 
         // Create directory progress bar
@@ -240,11 +231,7 @@ export default class BatchProcessor {
             if (this.shouldStop) return;
 
             try {
-                if (
-                    options.batch.skipExisting &&
-                    outputPath &&
-                    (await this.fileExists(outputPath))
-                ) {
+                if (options.batch.skipExisting && outputPath && (await this.fileExists(outputPath))) {
                     dirStats.skipped++;
                     this.stats.skipped++;
 

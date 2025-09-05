@@ -37,12 +37,10 @@ describe('ConvertCommandCreator', () => {
 
         // Setup mocks
         const { SubtitleProcessor, ConfigManager } = require('@subzilla/core');
-        const mockProcessFile = jest
-            .fn<() => Promise<{ outputPath: string; backupPath: string }>>()
-            .mockResolvedValue({
-                outputPath: '/mock/output.srt',
-                backupPath: '/mock/backup.srt',
-            });
+        const mockProcessFile = jest.fn<() => Promise<{ outputPath: string; backupPath: string }>>().mockResolvedValue({
+            outputPath: '/mock/output.srt',
+            backupPath: '/mock/backup.srt',
+        });
 
         (SubtitleProcessor as any).mockImplementation(() => ({
             processFile: mockProcessFile,
@@ -152,7 +150,7 @@ describe('ConvertCommandCreator', () => {
                         html: true,
                         colors: true,
                     }),
-                })
+                }),
             );
         });
 
@@ -169,7 +167,7 @@ describe('ConvertCommandCreator', () => {
                 expect.objectContaining({
                     retryCount: 3,
                     retryDelay: 2000,
-                })
+                }),
             );
         });
 
@@ -190,7 +188,7 @@ describe('ConvertCommandCreator', () => {
                     overwriteInput: true,
                     overwriteExisting: true,
                     overwriteBackup: false,
-                })
+                }),
             );
         });
 
@@ -213,7 +211,7 @@ describe('ConvertCommandCreator', () => {
                 expect.objectContaining({
                     backupOriginal: true,
                     bom: false,
-                })
+                }),
             );
         });
 
@@ -242,7 +240,7 @@ describe('ConvertCommandCreator', () => {
                 '🧬 Output options:',
                 expect.objectContaining({
                     lineEndings: 'lf',
-                })
+                }),
             );
         });
     });

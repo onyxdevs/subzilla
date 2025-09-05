@@ -4,9 +4,10 @@
     "description": "Mac desktop application for Subzilla subtitle converter",
     "main": "dist/main/index.js",
     "scripts": {
-        "build": "tsc && electron-builder",
-        "dev": "tsc && electron .",
+        "build": "tsc && npm run copy-renderer && electron-builder",
+        "dev": "tsc && npm run copy-renderer && electron .",
         "start": "electron dist/main/index.js",
+        "copy-renderer": "mkdir -p dist/renderer && cp -r src/renderer/* dist/renderer/",
         "dist": "electron-builder",
         "type-check": "tsc --noEmit",
         "lint": "eslint . --ext .ts",

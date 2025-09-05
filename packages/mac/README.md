@@ -37,6 +37,7 @@ yarn dist
 ## Architecture
 
 ### Main Process (`src/main/`)
+
 - `index.ts` - Application entry point and window management
 - `ipc.ts` - IPC handlers for renderer communication
 - `menu.ts` - Native macOS menu bar
@@ -44,6 +45,7 @@ yarn dist
 - `updater.ts` - Auto-update functionality
 
 ### Renderer Process (`src/renderer/`)
+
 - `index.html` - Main window interface
 - `preferences.html` - Preferences window
 - `js/app.js` - Main application logic and drag-drop
@@ -51,11 +53,13 @@ yarn dist
 - `styles/` - CSS styling for both windows
 
 ### Preload (`src/preload/`)
+
 - `index.ts` - Secure context bridge for IPC communication
 
 ## Integration
 
 The Mac app directly uses:
+
 - `@subzilla/core` - All processing logic
 - `@subzilla/types` - TypeScript interfaces and types
 
@@ -64,6 +68,7 @@ No subprocess calls or CLI wrapping - direct integration for maximum performance
 ## Distribution
 
 Built with `electron-builder` for:
+
 - **DMG**: Drag-and-drop installer
 - **ZIP**: Portable application bundle
 - **Auto-updates**: GitHub releases integration

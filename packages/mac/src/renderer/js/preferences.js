@@ -2,11 +2,11 @@
 class PreferencesApp {
     constructor() {
         console.log('⚙️ Initializing Preferences...');
-        
+
         this.config = null;
         this.originalConfig = null;
         this.hasChanges = false;
-        
+
         this.initializeElements();
         this.setupEventListeners();
         this.loadConfiguration();
@@ -18,7 +18,7 @@ class PreferencesApp {
         // Tab navigation
         this.tabButtons = document.querySelectorAll('.tab-button');
         this.tabPanes = document.querySelectorAll('.tab-pane');
-        
+
         // General tab
         this.notifications = document.getElementById('notifications');
         this.sounds = document.getElementById('sounds');
@@ -27,7 +27,7 @@ class PreferencesApp {
         this.createBackup = document.getElementById('create-backup');
         this.overwriteBackup = document.getElementById('overwrite-backup');
         this.overwriteInput = document.getElementById('overwrite-input');
-        
+
         // Formatting tab
         this.presetButtons = document.querySelectorAll('.preset-button');
         this.stripHtml = document.getElementById('strip-html');
@@ -40,21 +40,21 @@ class PreferencesApp {
         this.stripEmojis = document.getElementById('strip-emojis');
         this.stripBrackets = document.getElementById('strip-brackets');
         this.stripBidiControl = document.getElementById('strip-bidi-control');
-        
+
         // Output tab
         this.outputEncoding = document.getElementById('output-encoding');
         this.outputBom = document.getElementById('output-bom');
         this.lineEndings = document.getElementById('line-endings');
         this.outputFormat = document.getElementById('output-format');
         this.overwriteExisting = document.getElementById('overwrite-existing');
-        
+
         // Processing tab
         this.parallelProcessing = document.getElementById('parallel-processing');
         this.chunkSize = document.getElementById('chunk-size');
         this.skipExisting = document.getElementById('skip-existing');
         this.failFast = document.getElementById('fail-fast');
         this.retryCount = document.getElementById('retry-count');
-        
+
         // Advanced tab
         this.configPath = document.getElementById('config-path');
         this.showConfigButton = document.getElementById('show-config-button');
@@ -63,7 +63,7 @@ class PreferencesApp {
         this.appVersion = document.getElementById('app-version');
         this.githubLink = document.getElementById('github-link');
         this.reportIssueLink = document.getElementById('report-issue-link');
-        
+
         // Actions
         this.restoreDefaults = document.getElementById('restore-defaults');
         this.cancelButton = document.getElementById('cancel-button');
@@ -72,28 +72,47 @@ class PreferencesApp {
 
     setupEventListeners() {
         // Tab navigation
-        this.tabButtons.forEach(button => {
+        this.tabButtons.forEach((button) => {
             button.addEventListener('click', () => this.switchTab(button.dataset.tab));
         });
 
         // Preset buttons
-        this.presetButtons.forEach(button => {
+        this.presetButtons.forEach((button) => {
             button.addEventListener('click', () => this.applyPreset(button.dataset.preset));
         });
 
         // Form change detection
         const formElements = [
-            this.notifications, this.sounds, this.autoUpdate, this.showInDock,
-            this.createBackup, this.overwriteBackup, this.overwriteInput,
-            this.stripHtml, this.stripColors, this.stripStyles, this.stripUrls,
-            this.stripTimestamps, this.stripNumbers, this.stripPunctuation,
-            this.stripEmojis, this.stripBrackets, this.stripBidiControl,
-            this.outputEncoding, this.outputBom, this.lineEndings, this.outputFormat,
-            this.overwriteExisting, this.parallelProcessing, this.chunkSize,
-            this.skipExisting, this.failFast, this.retryCount
+            this.notifications,
+            this.sounds,
+            this.autoUpdate,
+            this.showInDock,
+            this.createBackup,
+            this.overwriteBackup,
+            this.overwriteInput,
+            this.stripHtml,
+            this.stripColors,
+            this.stripStyles,
+            this.stripUrls,
+            this.stripTimestamps,
+            this.stripNumbers,
+            this.stripPunctuation,
+            this.stripEmojis,
+            this.stripBrackets,
+            this.stripBidiControl,
+            this.outputEncoding,
+            this.outputBom,
+            this.lineEndings,
+            this.outputFormat,
+            this.overwriteExisting,
+            this.parallelProcessing,
+            this.chunkSize,
+            this.skipExisting,
+            this.failFast,
+            this.retryCount,
         ];
 
-        formElements.forEach(element => {
+        formElements.forEach((element) => {
             if (element) {
                 element.addEventListener('change', () => this.markChanged());
             }
@@ -114,12 +133,12 @@ class PreferencesApp {
 
     switchTab(tabName) {
         // Update tab buttons
-        this.tabButtons.forEach(button => {
+        this.tabButtons.forEach((button) => {
             button.classList.toggle('active', button.dataset.tab === tabName);
         });
 
         // Update tab panes
-        this.tabPanes.forEach(pane => {
+        this.tabPanes.forEach((pane) => {
             pane.classList.toggle('active', pane.id === `${tabName}-tab`);
         });
 
@@ -131,7 +150,7 @@ class PreferencesApp {
             console.log('📖 Loading configuration...');
             this.config = await window.subzilla.getConfig();
             this.originalConfig = JSON.parse(JSON.stringify(this.config));
-            
+
             this.populateForm();
             console.log('✅ Configuration loaded');
         } catch (error) {
@@ -143,7 +162,7 @@ class PreferencesApp {
         try {
             const name = await window.subzilla.getAppName();
             const version = await window.subzilla.getAppVersion();
-            
+
             this.appName.textContent = name;
             this.appVersion.textContent = `v${version}`;
         } catch (error) {
@@ -204,7 +223,7 @@ class PreferencesApp {
         const config = {
             input: {
                 encoding: 'auto',
-                format: 'auto'
+                format: 'auto',
             },
             output: {
                 encoding: this.outputEncoding.value,
@@ -214,7 +233,7 @@ class PreferencesApp {
                 lineEndings: this.lineEndings.value,
                 format: this.outputFormat.value,
                 overwriteInput: this.overwriteInput.checked,
-                overwriteExisting: this.overwriteExisting.checked
+                overwriteExisting: this.overwriteExisting.checked,
             },
             strip: {
                 html: this.stripHtml.checked,
@@ -226,7 +245,7 @@ class PreferencesApp {
                 punctuation: this.stripPunctuation.checked,
                 emojis: this.stripEmojis.checked,
                 brackets: this.stripBrackets.checked,
-                bidiControl: this.stripBidiControl.checked
+                bidiControl: this.stripBidiControl.checked,
             },
             batch: {
                 recursive: false,
@@ -236,8 +255,8 @@ class PreferencesApp {
                 chunkSize: parseInt(this.chunkSize.value, 10),
                 retryCount: parseInt(this.retryCount.value, 10),
                 retryDelay: 1000,
-                failFast: this.failFast.checked
-            }
+                failFast: this.failFast.checked,
+            },
         };
 
         return config;
@@ -245,33 +264,68 @@ class PreferencesApp {
 
     applyPreset(presetName) {
         console.log(`🎛️ Applying preset: ${presetName}`);
-        
+
         const presets = {
-            'None': {
-                html: false, colors: false, styles: false, urls: false,
-                timestamps: false, numbers: false, punctuation: false,
-                emojis: false, brackets: false, bidiControl: false
+            None: {
+                html: false,
+                colors: false,
+                styles: false,
+                urls: false,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
+                emojis: false,
+                brackets: false,
+                bidiControl: false,
             },
             'Basic Clean': {
-                html: true, colors: true, styles: true, urls: false,
-                timestamps: false, numbers: false, punctuation: false,
-                emojis: false, brackets: false, bidiControl: true
+                html: true,
+                colors: true,
+                styles: true,
+                urls: false,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
+                emojis: false,
+                brackets: false,
+                bidiControl: true,
             },
             'Deep Clean': {
-                html: true, colors: true, styles: true, urls: true,
-                timestamps: false, numbers: false, punctuation: true,
-                emojis: false, brackets: true, bidiControl: true
+                html: true,
+                colors: true,
+                styles: true,
+                urls: true,
+                timestamps: false,
+                numbers: false,
+                punctuation: true,
+                emojis: false,
+                brackets: true,
+                bidiControl: true,
             },
             'Arabic Optimized': {
-                html: true, colors: true, styles: true, urls: true,
-                timestamps: false, numbers: false, punctuation: false,
-                emojis: false, brackets: false, bidiControl: true
+                html: true,
+                colors: true,
+                styles: true,
+                urls: true,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
+                emojis: false,
+                brackets: false,
+                bidiControl: true,
             },
             'Maximum Clean': {
-                html: true, colors: true, styles: true, urls: true,
-                timestamps: true, numbers: true, punctuation: true,
-                emojis: true, brackets: true, bidiControl: true
-            }
+                html: true,
+                colors: true,
+                styles: true,
+                urls: true,
+                timestamps: true,
+                numbers: true,
+                punctuation: true,
+                emojis: true,
+                brackets: true,
+                bidiControl: true,
+            },
         };
 
         const preset = presets[presetName];
@@ -287,7 +341,7 @@ class PreferencesApp {
             this.stripEmojis.checked = preset.emojis;
             this.stripBrackets.checked = preset.brackets;
             this.stripBidiControl.checked = preset.bidiControl;
-            
+
             this.updatePresetButtons();
             this.markChanged();
         }
@@ -304,21 +358,76 @@ class PreferencesApp {
             punctuation: this.stripPunctuation.checked,
             emojis: this.stripEmojis.checked,
             brackets: this.stripBrackets.checked,
-            bidiControl: this.stripBidiControl.checked
+            bidiControl: this.stripBidiControl.checked,
         };
 
         // Check which preset matches current settings
-        this.presetButtons.forEach(button => {
+        this.presetButtons.forEach((button) => {
             button.classList.remove('active');
         });
 
         // Find matching preset
         const presets = {
-            'None': { html: false, colors: false, styles: false, urls: false, timestamps: false, numbers: false, punctuation: false, emojis: false, brackets: false, bidiControl: false },
-            'Basic Clean': { html: true, colors: true, styles: true, urls: false, timestamps: false, numbers: false, punctuation: false, emojis: false, brackets: false, bidiControl: true },
-            'Deep Clean': { html: true, colors: true, styles: true, urls: true, timestamps: false, numbers: false, punctuation: true, emojis: false, brackets: true, bidiControl: true },
-            'Arabic Optimized': { html: true, colors: true, styles: true, urls: true, timestamps: false, numbers: false, punctuation: false, emojis: false, brackets: false, bidiControl: true },
-            'Maximum Clean': { html: true, colors: true, styles: true, urls: true, timestamps: true, numbers: true, punctuation: true, emojis: true, brackets: true, bidiControl: true }
+            None: {
+                html: false,
+                colors: false,
+                styles: false,
+                urls: false,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
+                emojis: false,
+                brackets: false,
+                bidiControl: false,
+            },
+            'Basic Clean': {
+                html: true,
+                colors: true,
+                styles: true,
+                urls: false,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
+                emojis: false,
+                brackets: false,
+                bidiControl: true,
+            },
+            'Deep Clean': {
+                html: true,
+                colors: true,
+                styles: true,
+                urls: true,
+                timestamps: false,
+                numbers: false,
+                punctuation: true,
+                emojis: false,
+                brackets: true,
+                bidiControl: true,
+            },
+            'Arabic Optimized': {
+                html: true,
+                colors: true,
+                styles: true,
+                urls: true,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
+                emojis: false,
+                brackets: false,
+                bidiControl: true,
+            },
+            'Maximum Clean': {
+                html: true,
+                colors: true,
+                styles: true,
+                urls: true,
+                timestamps: true,
+                numbers: true,
+                punctuation: true,
+                emojis: true,
+                brackets: true,
+                bidiControl: true,
+            },
         };
 
         for (const [presetName, preset] of Object.entries(presets)) {
@@ -333,7 +442,7 @@ class PreferencesApp {
     }
 
     presetsMatch(current, preset) {
-        return Object.keys(preset).every(key => current[key] === preset[key]);
+        return Object.keys(preset).every((key) => current[key] === preset[key]);
     }
 
     markChanged() {
@@ -388,16 +497,16 @@ class PreferencesApp {
     async save() {
         try {
             console.log('💾 Saving preferences...');
-            
+
             const config = this.gatherFormData();
             const result = await window.subzilla.saveConfig(config);
-            
+
             if (result.success) {
                 console.log('✅ Preferences saved successfully');
                 this.hasChanges = false;
                 this.saveButton.textContent = 'Save';
                 this.originalConfig = JSON.parse(JSON.stringify(config));
-                
+
                 // Show brief success feedback
                 this.saveButton.textContent = 'Saved!';
                 setTimeout(() => {
@@ -457,8 +566,8 @@ class PreferencesApp {
 // Initialize preferences when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM loaded, starting Preferences App...');
-    
+
     window.preferencesApp = new PreferencesApp();
-    
+
     console.log('✅ Preferences App initialized successfully');
 });

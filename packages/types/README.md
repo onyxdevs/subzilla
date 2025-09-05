@@ -245,14 +245,7 @@ export const configSchema = z.object({
 ### Importing Types
 
 ```typescript
-import {
-    IConfig,
-    IConvertOptions,
-    IBatchOptions,
-    ICommandDefinition,
-    TEncoding,
-    configSchema,
-} from '@subzilla/types';
+import { IConfig, IConvertOptions, IBatchOptions, ICommandDefinition, TEncoding, configSchema } from '@subzilla/types';
 ```
 
 ### Using Validation

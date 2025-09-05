@@ -1,7 +1,8 @@
 import 'module-alias/register';
 
-import { app, BrowserWindow, shell } from 'electron';
 import path from 'path';
+
+import { app, BrowserWindow, shell, Menu } from 'electron';
 
 import { setupIPC } from './ipc';
 import { createMenu } from './menu';
@@ -47,6 +48,7 @@ class SubzillaApp {
         app.on('open-file', (event, filePath) => {
             event.preventDefault();
             console.log(`📂 File opened from system: ${filePath}`);
+
             if (this.mainWindow) {
                 this.mainWindow.webContents.send('file-opened', filePath);
                 this.mainWindow.show();
@@ -56,16 +58,17 @@ class SubzillaApp {
 
         // Security: prevent new window creation
         app.on('web-contents-created', (_, contents) => {
-            contents.on('new-window', (event, navigationUrl) => {
-                event.preventDefault();
-                shell.openExternal(navigationUrl);
+            contents.setWindowOpenHandler(({ url }) => {
+                shell.openExternal(url);
+
+                return { action: 'deny' };
             });
         });
     }
 
     private createMainWindow(): void {
         console.log('🖼️ Creating main window...');
-        
+
         this.mainWindow = new BrowserWindow({
             width: 500,
             height: 400,
@@ -76,23 +79,23 @@ class SubzillaApp {
             webPreferences: {
                 nodeIntegration: false,
                 contextIsolation: true,
-                enableRemoteModule: false,
                 preload: path.join(__dirname, '../preload/index.js'),
                 webSecurity: true,
-                allowRunningInsecureContent: false
+                allowRunningInsecureContent: false,
             },
-            icon: path.join(__dirname, '../../assets/icon.icns')
+            icon: path.join(__dirname, '../../assets/icon.icns'),
         });
 
         // Load the main window content
         const indexPath = path.join(__dirname, '../renderer/index.html');
+
         this.mainWindow.loadFile(indexPath);
 
         // Show window when ready
         this.mainWindow.once('ready-to-show', () => {
             console.log('✅ Main window ready, showing...');
             this.mainWindow?.show();
-            
+
             if (isDev) {
                 this.mainWindow?.webContents.openDevTools();
             }
@@ -106,6 +109,7 @@ class SubzillaApp {
         // Handle external links
         this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
             shell.openExternal(url);
+
             return { action: 'deny' };
         });
     }
@@ -113,6 +117,7 @@ class SubzillaApp {
     public createPreferencesWindow(): void {
         if (this.preferencesWindow) {
             this.preferencesWindow.focus();
+
             return;
         }
 
@@ -134,15 +139,15 @@ class SubzillaApp {
             webPreferences: {
                 nodeIntegration: false,
                 contextIsolation: true,
-                enableRemoteModule: false,
                 preload: path.join(__dirname, '../preload/index.js'),
                 webSecurity: true,
-                allowRunningInsecureContent: false
-            }
+                allowRunningInsecureContent: false,
+            },
         });
 
         // Load preferences content
         const preferencesPath = path.join(__dirname, '../renderer/preferences.html');
+
         this.preferencesWindow.loadFile(preferencesPath);
 
         // Show when ready
@@ -158,7 +163,8 @@ class SubzillaApp {
 
     private setupMenu(): void {
         const menu = createMenu(this);
-        app.setApplicationMenu(menu);
+
+        Menu.setApplicationMenu(menu);
     }
 
     private setupIPC(): void {

@@ -1,4 +1,5 @@
-const Store = require('electron-store');
+import Store from 'electron-store';
+
 import { IConfig, IStripOptions } from '@subzilla/types';
 
 export interface MacAppPreferences {
@@ -8,7 +9,7 @@ export interface MacAppPreferences {
     autoUpdate: boolean;
     startMinimized: boolean;
     showInDock: boolean;
-    
+
     // Window preferences
     rememberWindowSize: boolean;
     lastWindowBounds?: {
@@ -24,7 +25,7 @@ export class ConfigMapper {
 
     constructor() {
         console.log('⚙️ Initializing configuration store...');
-        
+
         this.store = new Store({
             name: 'preferences',
             defaults: this.getDefaultConfig(),
@@ -33,8 +34,8 @@ export class ConfigMapper {
                     type: 'object',
                     properties: {
                         encoding: { type: 'string' },
-                        format: { type: 'string' }
-                    }
+                        format: { type: 'string' },
+                    },
                 },
                 output: {
                     type: 'object',
@@ -47,8 +48,8 @@ export class ConfigMapper {
                         bom: { type: 'boolean' },
                         lineEndings: { type: 'string' },
                         overwriteInput: { type: 'boolean' },
-                        overwriteExisting: { type: 'boolean' }
-                    }
+                        overwriteExisting: { type: 'boolean' },
+                    },
                 },
                 strip: {
                     type: 'object',
@@ -62,8 +63,8 @@ export class ConfigMapper {
                         punctuation: { type: 'boolean' },
                         emojis: { type: 'boolean' },
                         brackets: { type: 'boolean' },
-                        bidiControl: { type: 'boolean' }
-                    }
+                        bidiControl: { type: 'boolean' },
+                    },
                 },
                 batch: {
                     type: 'object',
@@ -76,8 +77,8 @@ export class ConfigMapper {
                         chunkSize: { type: 'number' },
                         retryCount: { type: 'number' },
                         retryDelay: { type: 'number' },
-                        failFast: { type: 'boolean' }
-                    }
+                        failFast: { type: 'boolean' },
+                    },
                 },
                 app: {
                     type: 'object',
@@ -87,10 +88,10 @@ export class ConfigMapper {
                         autoUpdate: { type: 'boolean' },
                         startMinimized: { type: 'boolean' },
                         showInDock: { type: 'boolean' },
-                        rememberWindowSize: { type: 'boolean' }
-                    }
-                }
-            }
+                        rememberWindowSize: { type: 'boolean' },
+                    },
+                },
+            },
         });
 
         console.log('✅ Configuration store initialized');
@@ -100,7 +101,7 @@ export class ConfigMapper {
         return {
             input: {
                 encoding: 'auto',
-                format: 'auto'
+                format: 'auto',
             },
             output: {
                 encoding: 'utf8',
@@ -109,7 +110,7 @@ export class ConfigMapper {
                 bom: true,
                 lineEndings: 'auto',
                 overwriteInput: false,
-                overwriteExisting: false
+                overwriteExisting: true,
             },
             strip: {
                 html: false,
@@ -121,7 +122,7 @@ export class ConfigMapper {
                 punctuation: false,
                 emojis: false,
                 brackets: false,
-                bidiControl: true // Default to true for better Arabic support
+                bidiControl: true, // Default to true for better Arabic support
             },
             batch: {
                 recursive: false,
@@ -131,7 +132,7 @@ export class ConfigMapper {
                 chunkSize: 5,
                 retryCount: 0,
                 retryDelay: 1000,
-                failFast: false
+                failFast: false,
             },
             app: {
                 notifications: true,
@@ -139,8 +140,8 @@ export class ConfigMapper {
                 autoUpdate: true,
                 startMinimized: false,
                 showInDock: true,
-                rememberWindowSize: true
-            }
+                rememberWindowSize: true,
+            },
         };
     }
 
@@ -148,7 +149,7 @@ export class ConfigMapper {
         return {
             input: {
                 encoding: 'auto',
-                format: 'auto'
+                format: 'auto',
             },
             output: {
                 encoding: 'utf8',
@@ -157,7 +158,7 @@ export class ConfigMapper {
                 bom: true,
                 lineEndings: 'auto',
                 overwriteInput: false,
-                overwriteExisting: false
+                overwriteExisting: true,
             },
             strip: {
                 html: false,
@@ -169,7 +170,7 @@ export class ConfigMapper {
                 punctuation: false,
                 emojis: false,
                 brackets: false,
-                bidiControl: true
+                bidiControl: true,
             },
             batch: {
                 recursive: false,
@@ -179,7 +180,7 @@ export class ConfigMapper {
                 chunkSize: 5,
                 retryCount: 0,
                 retryDelay: 1000,
-                failFast: false
+                failFast: false,
             },
             app: {
                 notifications: true,
@@ -187,16 +188,17 @@ export class ConfigMapper {
                 autoUpdate: true,
                 startMinimized: false,
                 showInDock: true,
-                rememberWindowSize: true
-            }
+                rememberWindowSize: true,
+            },
         };
     }
 
     public async getConfig(): Promise<IConfig> {
         const fullConfig = this.store.store;
-        
+
         // Return only the IConfig part (without app preferences)
         const { app, ...config } = fullConfig;
+
         return config;
     }
 
@@ -206,11 +208,12 @@ export class ConfigMapper {
 
     public async saveConfig(config: IConfig): Promise<void> {
         console.log('💾 Saving configuration...');
-        
+
         // Preserve app preferences while updating core config
         const currentApp = await this.getAppPreferences();
+
         this.store.set({ ...config, app: currentApp });
-        
+
         console.log('✅ Configuration saved');
     }
 
@@ -237,7 +240,7 @@ export class ConfigMapper {
     // Preset management for quick formatting options
     public getFormattingPresets(): Record<string, IStripOptions> {
         return {
-            'None': {
+            None: {
                 html: false,
                 colors: false,
                 styles: false,
@@ -247,7 +250,7 @@ export class ConfigMapper {
                 punctuation: false,
                 emojis: false,
                 brackets: false,
-                bidiControl: false
+                bidiControl: false,
             },
             'Basic Clean': {
                 html: true,
@@ -259,7 +262,7 @@ export class ConfigMapper {
                 punctuation: false,
                 emojis: false,
                 brackets: false,
-                bidiControl: true
+                bidiControl: true,
             },
             'Deep Clean': {
                 html: true,
@@ -271,7 +274,7 @@ export class ConfigMapper {
                 punctuation: true,
                 emojis: false,
                 brackets: true,
-                bidiControl: true
+                bidiControl: true,
             },
             'Arabic Optimized': {
                 html: true,
@@ -283,7 +286,7 @@ export class ConfigMapper {
                 punctuation: false,
                 emojis: false,
                 brackets: false,
-                bidiControl: true
+                bidiControl: true,
             },
             'Maximum Clean': {
                 html: true,
@@ -295,8 +298,8 @@ export class ConfigMapper {
                 punctuation: true,
                 emojis: true,
                 brackets: true,
-                bidiControl: true
-            }
+                bidiControl: true,
+            },
         };
     }
 }

@@ -16,9 +16,7 @@ export const stripOptionsSchema = z.object({
 export const configSchema = z.object({
     input: z
         .object({
-            encoding: z
-                .enum(['auto', 'utf8', 'utf16le', 'utf16be', 'ascii', 'windows1256'])
-                .default('auto'),
+            encoding: z.enum(['auto', 'utf8', 'utf16le', 'utf16be', 'ascii', 'windows1256']).default('auto'),
             format: z.enum(['auto', 'srt', 'sub', 'ass', 'ssa', 'txt']).default('auto'),
         })
         .optional(),

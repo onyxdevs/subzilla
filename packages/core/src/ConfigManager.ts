@@ -65,16 +65,10 @@ export default class ConfigManager {
         try {
             // Load config from different sources in order of precedence
             const envConfig = this.loadFromEnv();
-            const fileConfig = configPath
-                ? await this.loadConfigFile(configPath)
-                : await this.findAndLoadConfig();
+            const fileConfig = configPath ? await this.loadConfigFile(configPath) : await this.findAndLoadConfig();
 
             // Merge configs in order of precedence: defaults < file < env
-            const mergedConfig = this.mergeConfigs(
-                this.DEFAULT_CONFIG,
-                fileConfig || {},
-                envConfig
-            );
+            const mergedConfig = this.mergeConfigs(this.DEFAULT_CONFIG, fileConfig || {}, envConfig);
 
             // Validate the merged config
             const validatedConfig = await this.validateConfig(mergedConfig);
@@ -173,11 +167,7 @@ export default class ConfigManager {
     /**
      * 🎯 Set nested value in configuration object
      */
-    private static setNestedValue(
-        obj: Record<string, unknown>,
-        path: string[],
-        value: unknown
-    ): void {
+    private static setNestedValue(obj: Record<string, unknown>, path: string[], value: unknown): void {
         let current = obj;
 
         for (let i = 0; i < path.length - 1; i++) {
@@ -214,16 +204,12 @@ export default class ConfigManager {
             if (Object.prototype.hasOwnProperty.call(source, key)) {
                 const sourceValue = source[key];
 
-                if (
-                    typeof sourceValue === 'object' &&
-                    sourceValue !== null &&
-                    !Array.isArray(sourceValue)
-                ) {
+                if (typeof sourceValue === 'object' && sourceValue !== null && !Array.isArray(sourceValue)) {
                     const targetValue = result[key] as Record<string, unknown>;
 
                     result[key] = this.deepMerge(
                         (targetValue || {}) as Record<string, unknown>,
-                        sourceValue as Record<string, unknown>
+                        sourceValue as Record<string, unknown>,
                     ) as T[Extract<keyof T, string>];
                 } else {
                     result[key] = sourceValue as T[Extract<keyof T, string>];

@@ -16,16 +16,7 @@
         "declarationMap": true,
         "sourceMap": true
     },
-    "include": [
-        "src/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "dist",
-        "dist-electron"
-    ],
-    "references": [
-        { "path": "../core" },
-        { "path": "../types" }
-    ]
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "dist-electron"],
+    "references": [{ "path": "../core" }, { "path": "../types" }]
 }

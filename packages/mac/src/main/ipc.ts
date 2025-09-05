@@ -1,5 +1,6 @@
-import { ipcMain, dialog, BrowserWindow, shell, app } from 'electron';
 import path from 'path';
+
+import { ipcMain, dialog, BrowserWindow, shell, app } from 'electron';
 
 import { SubtitleProcessor, BatchProcessor, ConfigManager } from '@subzilla/core';
 import { IConfig, IConvertOptions, IBatchStats } from '@subzilla/types';
@@ -36,9 +37,9 @@ export function setupIPC(appInstance: any): void {
             title: 'Select Subtitle Files',
             filters: [
                 { name: 'Subtitle Files', extensions: ['srt', 'sub', 'ass', 'ssa', 'txt'] },
-                { name: 'All Files', extensions: ['*'] }
+                { name: 'All Files', extensions: ['*'] },
             ],
-            properties: ['openFile', 'multiSelections']
+            properties: ['openFile', 'multiSelections'],
         });
 
         return result;
@@ -51,8 +52,17 @@ export function setupIPC(appInstance: any): void {
 
         for (const filePath of filePaths) {
             const ext = path.extname(filePath).toLowerCase();
+            const fileName = path.basename(filePath);
+
+            // Check if it's a supported file type
             if (['.srt', '.sub', '.ass', '.ssa', '.txt'].includes(ext)) {
-                validFiles.push(filePath);
+                // Skip files that are already processed (contain .subzilla. in the name)
+                if (fileName.includes('.subzilla.')) {
+                    console.log(`⏭️ Skipping already processed file: ${fileName}`);
+                    invalidFiles.push(filePath);
+                } else {
+                    validFiles.push(filePath);
+                }
             } else {
                 invalidFiles.push(filePath);
             }
@@ -64,28 +74,41 @@ export function setupIPC(appInstance: any): void {
     // Single file processing
     ipcMain.handle('process-file', async (_, filePath: string, options?: IConvertOptions) => {
         try {
+            const fileName = path.basename(filePath);
+
+            // Skip files that are already processed
+            if (fileName.includes('.subzilla.')) {
+                console.log(`⏭️ Skipping already processed file: ${fileName}`);
+                return {
+                    success: false,
+                    error: 'File has already been processed by Subzilla',
+                };
+            }
+
             console.log(`🔄 Processing file: ${filePath}`);
-            
+
             const config = await configMapper.getConfig();
             const processOptions: IConvertOptions = {
                 ...config.output,
-                ...config.strip && { strip: config.strip },
-                ...options
+                ...(config.strip && { strip: config.strip }),
+                ...options,
             };
 
             const result = await processor.processFile(filePath, undefined, processOptions);
-            
+
             console.log(`✅ File processed successfully: ${result.outputPath}`);
+
             return {
                 success: true,
                 outputPath: result.outputPath,
-                backupPath: result.backupPath
+                backupPath: result.backupPath,
             };
         } catch (error) {
             console.error(`❌ Error processing file ${filePath}:`, error);
+
             return {
                 success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
+                error: error instanceof Error ? error.message : 'Unknown error',
             };
         }
     });
@@ -94,21 +117,21 @@ export function setupIPC(appInstance: any): void {
     ipcMain.handle('process-files-batch', async (event, filePaths: string[], options?: IConvertOptions) => {
         try {
             console.log(`🔄 Starting batch processing of ${filePaths.length} files...`);
-            
+
             const config = await configMapper.getConfig();
             const batchOptions = {
                 common: {
                     ...config.output,
-                    ...config.strip && { strip: config.strip },
-                    ...options
+                    ...(config.strip && { strip: config.strip }),
+                    ...options,
                 },
                 batch: {
                     recursive: false,
                     parallel: config.batch?.parallel ?? true,
                     skipExisting: config.batch?.skipExisting ?? false,
                     chunkSize: config.batch?.chunkSize ?? 5,
-                    preserveStructure: false
-                }
+                    preserveStructure: false,
+                },
             };
 
             // Set up progress reporting
@@ -117,18 +140,20 @@ export function setupIPC(appInstance: any): void {
             };
 
             // Process files
-            const stats = await batchProcessor.processFiles(filePaths, batchOptions);
-            
+            const stats = await batchProcessor.processBatch(filePaths.join(','), batchOptions);
+
             console.log(`✅ Batch processing completed. Success: ${stats.successful}, Failed: ${stats.failed}`);
+
             return {
                 success: true,
-                stats
+                stats,
             };
         } catch (error) {
             console.error('❌ Error in batch processing:', error);
+
             return {
                 success: false,
-                error: error instanceof Error ? error.message : 'Unknown error'
+                error: error instanceof Error ? error.message : 'Unknown error',
             };
         }
     });
@@ -139,6 +164,7 @@ export function setupIPC(appInstance: any): void {
             return await configMapper.getConfig();
         } catch (error) {
             console.error('❌ Error getting config:', error);
+
             return configMapper.getDefaultConfigData();
         }
     });
@@ -147,12 +173,14 @@ export function setupIPC(appInstance: any): void {
         try {
             await configMapper.saveConfig(config);
             console.log('💾 Configuration saved successfully');
+
             return { success: true };
         } catch (error) {
             console.error('❌ Error saving config:', error);
-            return { 
-                success: false, 
-                error: error instanceof Error ? error.message : 'Unknown error' 
+
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
             };
         }
     });
@@ -161,12 +189,14 @@ export function setupIPC(appInstance: any): void {
         try {
             await configMapper.resetConfig();
             console.log('🔄 Configuration reset to defaults');
+
             return { success: true };
         } catch (error) {
             console.error('❌ Error resetting config:', error);
-            return { 
-                success: false, 
-                error: error instanceof Error ? error.message : 'Unknown error' 
+
+            return {
+                success: false,
+                error: error instanceof Error ? error.message : 'Unknown error',
             };
         }
     });
@@ -178,6 +208,7 @@ export function setupIPC(appInstance: any): void {
 
     ipcMain.handle('close-preferences', () => {
         const prefsWindow = appInstance.getPreferencesWindow();
+
         if (prefsWindow) {
             prefsWindow.close();
         }

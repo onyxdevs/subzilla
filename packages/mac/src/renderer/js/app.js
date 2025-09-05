@@ -2,11 +2,11 @@
 class SubzillaApp {
     constructor() {
         console.log('🦎 Initializing Subzilla renderer...');
-        
+
         this.files = new Map(); // Map<string, FileProcessingItem>
         this.isProcessing = false;
         this.currentState = 'empty'; // 'empty', 'processing', 'completed'
-        
+
         this.initializeElements();
         this.setupEventListeners();
         this.setupIPC();
@@ -17,21 +17,21 @@ class SubzillaApp {
         // State containers
         this.emptyState = document.getElementById('empty-state');
         this.processingState = document.getElementById('processing-state');
-        
+
         // Interactive elements
         this.browseButton = document.getElementById('browse-button');
         this.fileInput = document.getElementById('file-input');
         this.clearButton = document.getElementById('clear-button');
         this.addMoreButton = document.getElementById('add-more-button');
         this.preferencesButton = document.getElementById('preferences-button');
-        
+
         // Display elements
         this.fileList = document.getElementById('file-list');
         this.progressBar = document.getElementById('progress-fill');
         this.progressText = document.getElementById('progress-text');
         this.statusBar = document.getElementById('status-bar');
         this.statusText = document.getElementById('status-text');
-        
+
         // Overlays
         this.dropOverlay = document.getElementById('drop-overlay');
         this.shortcutsOverlay = document.getElementById('shortcuts-overlay');
@@ -42,22 +42,22 @@ class SubzillaApp {
         // Browse button
         this.browseButton.addEventListener('click', () => this.openFileDialog());
         this.addMoreButton.addEventListener('click', () => this.openFileDialog());
-        
+
         // File input
         this.fileInput.addEventListener('change', (e) => this.handleFileSelection(e));
-        
+
         // Clear button
         this.clearButton.addEventListener('click', () => this.clearFileList());
-        
+
         // Preferences
         this.preferencesButton.addEventListener('click', () => this.openPreferences());
-        
+
         // Shortcuts overlay
         this.closeShortcuts.addEventListener('click', () => this.hideShortcuts());
-        
+
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
-        
+
         // Drag and drop
         this.setupDragAndDrop();
     }
@@ -93,7 +93,7 @@ class SubzillaApp {
             e.preventDefault();
             dragCounter = 0;
             body.classList.remove('drag-over');
-            
+
             const files = Array.from(e.dataTransfer.files);
             this.handleDroppedFiles(files);
         });
@@ -126,7 +126,7 @@ class SubzillaApp {
             const appName = await window.subzilla.getAppName();
             const version = await window.subzilla.getAppVersion();
             console.log(`🚀 ${appName} v${version} ready`);
-            
+
             this.updateStatus('Ready');
         } catch (error) {
             console.error('❌ Error loading initial state:', error);
@@ -147,15 +147,15 @@ class SubzillaApp {
 
     async handleFileSelection(event) {
         const files = Array.from(event.target.files);
-        const filePaths = files.map(file => file.path);
+        const filePaths = files.map((file) => file.path);
         this.addFiles(filePaths);
-        
+
         // Reset file input
         event.target.value = '';
     }
 
     async handleDroppedFiles(files) {
-        const filePaths = files.map(file => file.path || file.name);
+        const filePaths = files.map((file) => file.path || file.name);
         console.log(`📁 Handling ${files.length} dropped files:`, filePaths);
         this.addFiles(filePaths);
     }
@@ -163,10 +163,10 @@ class SubzillaApp {
     async addFiles(filePaths) {
         try {
             console.log(`📁 Adding ${filePaths.length} files...`);
-            
+
             // Validate files
             const validation = await window.subzilla.validateFiles(filePaths);
-            
+
             if (validation.invalidFiles.length > 0) {
                 this.showError(`${validation.invalidFiles.length} files skipped (unsupported format)`);
             }
@@ -190,7 +190,7 @@ class SubzillaApp {
     addFile(filePath) {
         const fileName = filePath.split('/').pop() || filePath;
         const fileId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-        
+
         const fileItem = {
             id: fileId,
             filePath,
@@ -198,35 +198,35 @@ class SubzillaApp {
             status: 'pending',
             originalEncoding: undefined,
             resultEncoding: undefined,
-            error: undefined
+            error: undefined,
         };
 
         this.files.set(fileId, fileItem);
         this.renderFileList();
-        
+
         console.log(`📄 Added file: ${fileName}`);
     }
 
     async startProcessing() {
         if (this.isProcessing) return;
-        
+
         this.isProcessing = true;
         const fileArray = Array.from(this.files.values());
-        
+
         console.log(`🔄 Starting processing of ${fileArray.length} files...`);
         this.updateStatus(`Processing ${fileArray.length} files...`);
 
         // Use the FileProcessingManager for individual file processing with UI updates
         if (window.fileProcessingManager) {
             await window.fileProcessingManager.processFiles(fileArray);
-            
+
             // Calculate final stats
-            const completed = fileArray.filter(f => f.status === 'completed').length;
-            const failed = fileArray.filter(f => f.status === 'error').length;
-            
+            const completed = fileArray.filter((f) => f.status === 'completed').length;
+            const failed = fileArray.filter((f) => f.status === 'error').length;
+
             this.updateStatus(`✓ ${completed} converted, ${failed} failed`);
         }
-        
+
         this.isProcessing = false;
     }
 
@@ -244,7 +244,7 @@ class SubzillaApp {
         const percent = Math.round((progress.current / progress.total) * 100);
         this.progressBar.style.width = `${percent}%`;
         this.progressText.textContent = `${progress.current} of ${progress.total} files`;
-        
+
         if (progress.currentFile) {
             this.updateStatus(`Processing: ${progress.currentFile}`);
         }
@@ -252,7 +252,7 @@ class SubzillaApp {
 
     renderFileList() {
         this.fileList.innerHTML = '';
-        
+
         for (const file of this.files.values()) {
             const fileElement = this.createFileElement(file);
             this.fileList.appendChild(fileElement);
@@ -263,10 +263,10 @@ class SubzillaApp {
         const element = document.createElement('div');
         element.className = `file-item ${file.status}`;
         element.dataset.fileId = file.id;
-        
+
         const statusIcon = this.getStatusIcon(file.status);
         const statusText = this.getStatusText(file.status);
-        
+
         element.innerHTML = `
             <div class="file-name" title="${file.filePath}">${file.fileName}</div>
             <div class="file-status status-${file.status}">
@@ -290,31 +290,41 @@ class SubzillaApp {
 
     getStatusIcon(status) {
         switch (status) {
-            case 'pending': return '⏸';
-            case 'processing': return '⟳';
-            case 'completed': return '✅';
-            case 'error': return '❌';
-            default: return '—';
+            case 'pending':
+                return '⏸';
+            case 'processing':
+                return '⟳';
+            case 'completed':
+                return '✅';
+            case 'error':
+                return '❌';
+            default:
+                return '—';
         }
     }
 
     getStatusText(status) {
         switch (status) {
-            case 'pending': return 'Waiting';
-            case 'processing': return 'Processing';
-            case 'completed': return 'Done';
-            case 'error': return 'Error';
-            default: return '—';
+            case 'pending':
+                return 'Waiting';
+            case 'processing':
+                return 'Processing';
+            case 'completed':
+                return 'Done';
+            case 'error':
+                return 'Error';
+            default:
+                return '—';
         }
     }
 
     switchState(newState) {
         console.log(`🔄 Switching to ${newState} state`);
-        
+
         // Hide all states
         this.emptyState.classList.add('hidden');
         this.processingState.classList.add('hidden');
-        
+
         // Show target state
         switch (newState) {
             case 'empty':
@@ -326,7 +336,7 @@ class SubzillaApp {
                 this.statusBar.classList.remove('hidden');
                 break;
         }
-        
+
         this.currentState = newState;
     }
 
@@ -394,7 +404,7 @@ class SubzillaApp {
     showError(message) {
         this.updateStatus(`❌ ${message}`);
         console.error(`❌ Error: ${message}`);
-        
+
         // Show error for 3 seconds, then revert
         setTimeout(() => {
             if (!this.isProcessing) {
@@ -435,17 +445,17 @@ class DragDropHandler {
         let dragCounter = 0;
 
         // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach((eventName) => {
             dropZone.addEventListener(eventName, this.preventDefaults, false);
             document.body.addEventListener(eventName, this.preventDefaults, false);
         });
 
         // Highlight drop zone when item is dragged over it
-        ['dragenter', 'dragover'].forEach(eventName => {
+        ['dragenter', 'dragover'].forEach((eventName) => {
             dropZone.addEventListener(eventName, () => this.highlight(), false);
         });
 
-        ['dragleave', 'drop'].forEach(eventName => {
+        ['dragleave', 'drop'].forEach((eventName) => {
             dropZone.addEventListener(eventName, () => this.unhighlight(), false);
         });
 
@@ -505,7 +515,7 @@ class FileProcessingManager {
                 const file = files[i];
                 await this.processFile(file, i + 1, files.length);
             }
-            
+
             console.log('✅ All files processed');
         } catch (error) {
             console.error('❌ Error during file processing:', error);
@@ -548,10 +558,10 @@ class FileProcessingManager {
 // Initialize the application when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM loaded, starting Subzilla App...');
-    
+
     window.subzillaApp = new SubzillaApp();
-    window.dragDropHandler = new DragDropHandler(window.subzillaApp);
+    // window.dragDropHandler = new DragDropHandler(window.subzillaApp); // Disabled - main app handles drag/drop
     window.fileProcessingManager = new FileProcessingManager(window.subzillaApp);
-    
+
     console.log('✅ Subzilla App initialized successfully');
 });

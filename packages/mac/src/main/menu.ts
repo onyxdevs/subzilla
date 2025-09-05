@@ -11,8 +11,9 @@ export function createMenu(appInstance: any): Menu {
                     label: 'About Subzilla',
                     click: () => {
                         const version = app.getVersion();
-                        shell.openExternal(`https://github.com/obadaqawwas/subzilla`);
-                    }
+
+                        shell.openExternal(`https://github.com/onyxdevs/subzilla`);
+                    },
                 },
                 { type: 'separator' },
                 {
@@ -20,7 +21,7 @@ export function createMenu(appInstance: any): Menu {
                     accelerator: 'Cmd+,',
                     click: () => {
                         appInstance.createPreferencesWindow();
-                    }
+                    },
                 },
                 { type: 'separator' },
                 { label: 'Services', submenu: [] },
@@ -29,8 +30,8 @@ export function createMenu(appInstance: any): Menu {
                 { label: 'Hide Others', role: 'hideOthers' },
                 { label: 'Show All', role: 'unhide' },
                 { type: 'separator' },
-                { label: 'Quit Subzilla', role: 'quit' }
-            ]
+                { label: 'Quit Subzilla', role: 'quit' },
+            ],
         },
         {
             label: 'File',
@@ -40,13 +41,11 @@ export function createMenu(appInstance: any): Menu {
                     accelerator: 'Cmd+O',
                     click: () => {
                         appInstance.openFiles();
-                    }
+                    },
                 },
                 {
                     label: 'Open Recent',
-                    submenu: [
-                        { label: 'Clear Menu', click: () => app.clearRecentDocuments() }
-                    ]
+                    submenu: [{ label: 'Clear Menu', click: () => app.clearRecentDocuments() }],
                 },
                 { type: 'separator' },
                 {
@@ -54,11 +53,11 @@ export function createMenu(appInstance: any): Menu {
                     accelerator: 'Cmd+Delete',
                     click: () => {
                         appInstance.clearFileList();
-                    }
+                    },
                 },
                 { type: 'separator' },
-                { label: 'Close Window', role: 'close' }
-            ]
+                { label: 'Close Window', role: 'close' },
+            ],
         },
         {
             label: 'Edit',
@@ -69,8 +68,8 @@ export function createMenu(appInstance: any): Menu {
                 { label: 'Cut', role: 'cut' },
                 { label: 'Copy', role: 'copy' },
                 { label: 'Paste', role: 'paste' },
-                { label: 'Select All', role: 'selectAll' }
-            ]
+                { label: 'Select All', role: 'selectAll' },
+            ],
         },
         {
             label: 'View',
@@ -83,8 +82,8 @@ export function createMenu(appInstance: any): Menu {
                 { label: 'Zoom In', role: 'zoomIn' },
                 { label: 'Zoom Out', role: 'zoomOut' },
                 { type: 'separator' },
-                { label: 'Toggle Fullscreen', role: 'togglefullscreen' }
-            ]
+                { label: 'Toggle Fullscreen', role: 'togglefullscreen' },
+            ],
         },
         {
             label: 'Window',
@@ -92,8 +91,8 @@ export function createMenu(appInstance: any): Menu {
                 { label: 'Minimize', role: 'minimize' },
                 { label: 'Close', role: 'close' },
                 { type: 'separator' },
-                { label: 'Bring All to Front', role: 'front' }
-            ]
+                { label: 'Bring All to Front', role: 'front' },
+            ],
         },
         {
             label: 'Help',
@@ -101,14 +100,14 @@ export function createMenu(appInstance: any): Menu {
                 {
                     label: 'Subzilla Help',
                     click: () => {
-                        shell.openExternal('https://github.com/obadaqawwas/subzilla/wiki');
-                    }
+                        shell.openExternal('https://github.com/onyxdevs/subzilla/wiki');
+                    },
                 },
                 {
                     label: 'Report Issue',
                     click: () => {
-                        shell.openExternal('https://github.com/obadaqawwas/subzilla/issues');
-                    }
+                        shell.openExternal('https://github.com/onyxdevs/subzilla/issues');
+                    },
                 },
                 { type: 'separator' },
                 {
@@ -119,14 +118,14 @@ export function createMenu(appInstance: any): Menu {
                         if (mainWindow) {
                             mainWindow.webContents.send('show-shortcuts');
                         }
-                    }
-                }
-            ]
-        }
+                    },
+                },
+            ],
+        },
     ];
 
     const menu = Menu.buildFromTemplate(template);
     console.log('✅ Menu bar created successfully');
-    
+
     return menu;
 }
