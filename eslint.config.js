@@ -180,7 +180,53 @@ module.exports = [
         },
     },
     {
+        // Browser/Renderer JavaScript files (Electron renderer process)
+        files: ['packages/mac/src/renderer/**/*.js'],
+        languageOptions: {
+            ecmaVersion: 2020,
+            sourceType: 'script', // Renderer files use script mode
+            globals: {
+                // Browser globals
+                window: 'readonly',
+                document: 'readonly',
+                console: 'readonly',
+                setTimeout: 'readonly',
+                clearTimeout: 'readonly',
+                setInterval: 'readonly',
+                clearInterval: 'readonly',
+                alert: 'readonly',
+                confirm: 'readonly',
+                prompt: 'readonly',
+                // DOM globals
+                Element: 'readonly',
+                HTMLElement: 'readonly',
+                Event: 'readonly',
+                MouseEvent: 'readonly',
+                KeyboardEvent: 'readonly',
+                // Additional browser APIs
+                fetch: 'readonly',
+                localStorage: 'readonly',
+                sessionStorage: 'readonly',
+            },
+        },
+        plugins: {
+            prettier,
+        },
+        rules: {
+            'prettier/prettier': [
+                'error',
+                {
+                    tabWidth: 4,
+                },
+            ],
+            // Relax some rules for renderer files
+            'no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+        },
+    },
+    {
+        // Node.js JavaScript files
         files: ['**/*.js', '**/*.mjs', '**/*.cjs'],
+        ignores: ['packages/mac/src/renderer/**/*.js'], // Exclude renderer files
         languageOptions: {
             ecmaVersion: 2020,
             sourceType: 'module',

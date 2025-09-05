@@ -1,0 +1,36 @@
+appId: net.onyxdev.subzilla
+productName: Subzilla
+directories:
+    output: dist-electron
+files:
+    - dist/**/*
+    - assets/**/*
+mac:
+    category: public.app-category.utilities
+    icon: assets/icon.icns
+    entitlements: build/entitlements.mac.plist
+    entitlementsInherit: build/entitlements.mac.plist
+    gatekeeperAssess: false
+    hardenedRuntime: true
+    target:
+        - target: dmg
+          arch: [x64, arm64]
+        - target: zip
+          arch: [x64, arm64]
+dmg:
+    # background: assets/dmg-background.png
+    icon: assets/icon.icns
+    iconSize: 100
+    window:
+        width: 540
+        height: 380
+    contents:
+        - x: 140
+          y: 190
+          type: file
+        - x: 400
+          y: 190
+          type: link
+          path: /Applications
+publish:
+    provider: github

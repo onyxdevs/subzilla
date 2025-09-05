@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <title>Subzilla</title>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Empty State -->
+        <div id="empty-state" class="state-container">
+            <div class="empty-content">
+                <div class="logo">🦎</div>
+                <h2>Drop subtitle files here</h2>
+                <p>or <button id="browse-button" class="link-button">click to browse</button></p>
+                <div class="supported-formats">
+                    <span>Supports: .srt .sub .ass .ssa .txt</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Processing State -->
+        <div id="processing-state" class="state-container hidden">
+            <div class="file-list-container">
+                <div class="file-list-header">
+                    <span class="col-file">File</span>
+                    <span class="col-status">Status</span>
+                    <span class="col-original">Original</span>
+                    <span class="col-result">Result</span>
+                </div>
+                <div id="file-list" class="file-list"></div>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar-container">
+                    <div id="progress-bar" class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <span id="progress-text" class="progress-text">0 of 0 files</span>
+                </div>
+                
+                <div class="actions">
+                    <button id="clear-button" class="secondary-button">Clear List</button>
+                    <button id="add-more-button" class="primary-button">Add More Files</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Drop Overlay -->
+        <div id="drop-overlay" class="drop-overlay hidden">
+            <div class="drop-content">
+                <div class="drop-icon">📁</div>
+                <h3>Drop files to convert</h3>
+                <p>Release to add subtitle files</p>
+            </div>
+        </div>
+
+        <!-- Keyboard Shortcuts Overlay -->
+        <div id="shortcuts-overlay" class="shortcuts-overlay hidden">
+            <div class="shortcuts-content">
+                <h3>Keyboard Shortcuts</h3>
+                <div class="shortcuts-list">
+                    <div class="shortcut">
+                        <span class="key">⌘O</span>
+                        <span class="action">Open Files</span>
+                    </div>
+                    <div class="shortcut">
+                        <span class="key">⌘⌫</span>
+                        <span class="action">Clear List</span>
+                    </div>
+                    <div class="shortcut">
+                        <span class="key">⌘,</span>
+                        <span class="action">Preferences</span>
+                    </div>
+                    <div class="shortcut">
+                        <span class="key">⌘Q</span>
+                        <span class="action">Quit</span>
+                    </div>
+                    <div class="shortcut">
+                        <span class="key">Space</span>
+                        <span class="action">Pause/Resume</span>
+                    </div>
+                </div>
+                <button id="close-shortcuts" class="close-button">×</button>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div id="status-bar" class="status-bar hidden">
+            <span id="status-text">Ready</span>
+            <div class="status-actions">
+                <button id="preferences-button" class="icon-button" title="Preferences">⚙️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File input for browse functionality -->
+    <input type="file" id="file-input" multiple accept=".srt,.sub,.ass,.ssa,.txt" style="display: none;">
+
+    <script src="js/app.js"></script>
+</body>
+</html>

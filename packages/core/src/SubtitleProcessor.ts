@@ -26,7 +26,7 @@ export default class SubtitleProcessor {
     public async processFile(
         inputFilePath: string,
         outputFilePath?: string,
-        options: IConvertOptions = {}
+        options: IConvertOptions = {},
     ): Promise<{ outputPath: string; backupPath?: string }> {
         let backupPath: string | undefined;
 
@@ -35,9 +35,7 @@ export default class SubtitleProcessor {
             await fs.access(inputFilePath);
 
             // Determine output strategy
-            const outputStrategy = options.overwriteInput
-                ? new OverwriteOutputStrategy()
-                : new SuffixOutputStrategy();
+            const outputStrategy = options.overwriteInput ? new OverwriteOutputStrategy() : new SuffixOutputStrategy();
 
             // Determine final output path
             const finalOutputPath = outputFilePath || outputStrategy.getOutputPath(inputFilePath);
@@ -89,7 +87,7 @@ export default class SubtitleProcessor {
                     throw new Error(
                         `Processing failed and backup restoration failed. Original error: ${
                             (error as Error).message
-                        }. Restore error: ${(restoreError as Error).message}`
+                        }. Restore error: ${(restoreError as Error).message}`,
                     );
                 }
             }
@@ -143,9 +141,7 @@ export default class SubtitleProcessor {
             await fs.access(outputPath);
 
             if (!options.overwriteExisting) {
-                throw new Error(
-                    `Output file ${outputPath} already exists and overwrite existing is disabled`
-                );
+                throw new Error(`Output file ${outputPath} already exists and overwrite existing is disabled`);
             }
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {

@@ -1,0 +1,93 @@
+{
+    "name": "@subzilla/mac",
+    "version": "1.0.0",
+    "description": "Mac desktop application for Subzilla subtitle converter",
+    "main": "dist/main/index.js",
+    "scripts": {
+        "build": "tsc && npm run copy-renderer && electron-builder",
+        "dev": "tsc && npm run copy-renderer && electron .",
+        "start": "electron dist/main/index.js",
+        "copy-renderer": "mkdir -p dist/renderer && cp -r src/renderer/* dist/renderer/",
+        "dist": "electron-builder",
+        "type-check": "tsc --noEmit",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "format": "prettier --write \"src/**/*.ts\"",
+        "format:check": "prettier --check \"src/**/*.ts\"",
+        "test": "jest --selectProjects mac"
+    },
+    "keywords": [
+        "subtitle",
+        "converter",
+        "mac",
+        "desktop",
+        "electron"
+    ],
+    "author": {
+        "name": "Obada Qawwas",
+        "email": "info@onyxdev.net",
+        "url": "https://onyxdev.net"
+    },
+    "license": "ISC",
+    "_moduleAliases": {
+        "@subzilla/core": "../core/dist",
+        "@subzilla/types": "../types/dist"
+    },
+    "dependencies": {
+        "@subzilla/core": "workspace:*",
+        "@subzilla/types": "workspace:*",
+        "electron-store": "^8.1.0",
+        "electron-updater": "^6.1.0",
+        "module-alias": "^2.2.3"
+    },
+    "devDependencies": {
+        "@types/node": "^24.3.0",
+        "electron": "^31.0.0",
+        "electron-builder": "^24.0.0",
+        "typescript": "^5.9.2"
+    },
+    "build": {
+        "appId": "net.onyxdev.subzilla",
+        "productName": "Subzilla",
+        "directories": {
+            "output": "dist-electron"
+        },
+        "files": [
+            "dist/**/*",
+            "assets/**/*"
+        ],
+        "mac": {
+            "category": "public.app-category.utilities",
+            "icon": "assets/icon.icns",
+            "entitlements": "build/entitlements.mac.plist",
+            "entitlementsInherit": "build/entitlements.mac.plist",
+            "gatekeeperAssess": false,
+            "hardenedRuntime": true
+        },
+        "dmg": {
+            "background": "assets/dmg-background.png",
+            "icon": "assets/icon.icns",
+            "iconSize": 100,
+            "window": {
+                "width": 540,
+                "height": 380
+            },
+            "contents": [
+                {
+                    "x": 140,
+                    "y": 190,
+                    "type": "file"
+                },
+                {
+                    "x": 400,
+                    "y": 190,
+                    "type": "link",
+                    "path": "/Applications"
+                }
+            ]
+        },
+        "publish": {
+            "provider": "github"
+        }
+    }
+}

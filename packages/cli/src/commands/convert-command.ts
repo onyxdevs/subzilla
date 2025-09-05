@@ -27,14 +27,9 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
                         bom: options.bom ?? config.output?.bom,
                         lineEndings: options.lineEndings ?? config.output?.lineEndings,
                         overwriteInput: options.overwriteInput ?? config.output?.overwriteInput,
-                        overwriteExisting:
-                            options.overwriteExisting ?? config.output?.overwriteExisting,
-                        retryCount: options.retryCount
-                            ? parseInt(options.retryCount, 10)
-                            : config.batch?.retryCount,
-                        retryDelay: options.retryDelay
-                            ? parseInt(options.retryDelay, 10)
-                            : config.batch?.retryDelay,
+                        overwriteExisting: options.overwriteExisting ?? config.output?.overwriteExisting,
+                        retryCount: options.retryCount ? parseInt(options.retryCount, 10) : config.batch?.retryCount,
+                        retryDelay: options.retryDelay ? parseInt(options.retryDelay, 10) : config.batch?.retryDelay,
                     };
 
                     console.log('🧬 Output options:', outputOptions);
@@ -45,9 +40,7 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
 
                     console.log('✨ Conversion successful!');
                     console.log(`Input file: ${inputFile}`);
-                    console.log(
-                        `Output file: ${options.output || this.getDefaultOutputPath(inputFile)}`
-                    );
+                    console.log(`Output file: ${options.output || this.getDefaultOutputPath(inputFile)}`);
 
                     if (options.backup || config.output?.createBackup) {
                         console.log(`Backup file: ${inputFile}.bak`);

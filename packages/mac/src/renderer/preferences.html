@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';">
+    <title>Subzilla Preferences</title>
+    <link rel="stylesheet" href="styles/preferences.css">
+</head>
+<body>
+    <div id="preferences-app">
+        <!-- Tab Navigation -->
+        <div class="tab-bar">
+            <button class="tab-button active" data-tab="general">General</button>
+            <button class="tab-button" data-tab="formatting">Formatting</button>
+            <button class="tab-button" data-tab="output">Output</button>
+            <button class="tab-button" data-tab="processing">Processing</button>
+            <button class="tab-button" data-tab="advanced">Advanced</button>
+        </div>
+
+        <!-- Tab Contents -->
+        <div class="tab-content">
+            <!-- General Tab -->
+            <div id="general-tab" class="tab-pane active">
+                <div class="section">
+                    <h3>Application</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="notifications">
+                            <span>Show notifications when processing completes</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="sounds">
+                            <span>Play sounds for completion and errors</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="auto-update">
+                            <span>Automatically check for updates</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="show-in-dock">
+                            <span>Show in Dock when processing</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>File Handling</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="create-backup">
+                            <span>Create backup of original files</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="overwrite-backup">
+                            <span>Overwrite existing backups</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="overwrite-input">
+                            <span>Replace original files (no suffix)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Formatting Tab -->
+            <div id="formatting-tab" class="tab-pane">
+                <div class="section">
+                    <h3>Quick Presets</h3>
+                    <div class="preset-buttons">
+                        <button class="preset-button" data-preset="None">None</button>
+                        <button class="preset-button" data-preset="Basic Clean">Basic Clean</button>
+                        <button class="preset-button" data-preset="Deep Clean">Deep Clean</button>
+                        <button class="preset-button" data-preset="Arabic Optimized">Arabic Optimized</button>
+                        <button class="preset-button" data-preset="Maximum Clean">Maximum Clean</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Strip Options</h3>
+                    <div class="strip-options">
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-html">
+                                <span>HTML tags (&lt;b&gt;, &lt;i&gt;, etc.)</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-colors">
+                                <span>Color formatting</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-styles">
+                                <span>Style formatting</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-urls">
+                                <span>URLs and links</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-timestamps">
+                                <span>Embedded timestamps</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-numbers">
+                                <span>Line numbers</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-punctuation">
+                                <span>Extra punctuation</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-emojis">
+                                <span>Emojis</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-brackets">
+                                <span>Brackets and parentheses</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="strip-bidi-control">
+                                <span>BiDi control characters (recommended for Arabic)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Output Tab -->
+            <div id="output-tab" class="tab-pane">
+                <div class="section">
+                    <h3>Encoding</h3>
+                    <div class="form-group">
+                        <label for="output-encoding">Output encoding:</label>
+                        <select id="output-encoding">
+                            <option value="utf8">UTF-8</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="output-bom">
+                            <span>Add UTF-8 BOM (Byte Order Mark)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Line Endings</h3>
+                    <div class="form-group">
+                        <label for="line-endings">Line ending style:</label>
+                        <select id="line-endings">
+                            <option value="auto">Auto (system default)</option>
+                            <option value="lf">Unix (LF)</option>
+                            <option value="crlf">Windows (CRLF)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>File Format</h3>
+                    <div class="form-group">
+                        <label for="output-format">Output format:</label>
+                        <select id="output-format">
+                            <option value="srt">SubRip (.srt)</option>
+                            <option value="sub">MicroDVD (.sub)</option>
+                            <option value="ass">Advanced SSA (.ass)</option>
+                            <option value="ssa">SubStation Alpha (.ssa)</option>
+                            <option value="txt">Plain Text (.txt)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>File Overwriting</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="overwrite-existing">
+                            <span>Overwrite existing converted files</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Tab -->
+            <div id="processing-tab" class="tab-pane">
+                <div class="section">
+                    <h3>Performance</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="parallel-processing">
+                            <span>Enable parallel processing</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="chunk-size">Concurrent files:</label>
+                        <select id="chunk-size">
+                            <option value="1">1 file at a time</option>
+                            <option value="3">3 files at a time</option>
+                            <option value="5">5 files at a time</option>
+                            <option value="10">10 files at a time</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>Error Handling</h3>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="skip-existing">
+                            <span>Skip files that already exist</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="fail-fast">
+                            <span>Stop processing on first error</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="retry-count">Retry attempts:</label>
+                        <select id="retry-count">
+                            <option value="0">No retries</option>
+                            <option value="1">1 retry</option>
+                            <option value="2">2 retries</option>
+                            <option value="3">3 retries</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advanced Tab -->
+            <div id="advanced-tab" class="tab-pane">
+                <div class="section">
+                    <h3>Application Data</h3>
+                    <div class="form-group">
+                        <label>Configuration file location:</label>
+                        <div class="file-path" id="config-path">Loading...</div>
+                    </div>
+                    <div class="form-group">
+                        <button id="show-config-button" class="secondary-button">Show in Finder</button>
+                        <button id="reset-config-button" class="danger-button">Reset to Defaults</button>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h3>About</h3>
+                    <div class="about-info">
+                        <div class="app-info">
+                            <strong id="app-name">Subzilla</strong>
+                            <span id="app-version">v1.0.0</span>
+                        </div>
+                        <p>A powerful subtitle converter with UTF-8 and Arabic language support.</p>
+                        <div class="links">
+                            <button id="github-link" class="link-button">GitHub Repository</button>
+                            <button id="report-issue-link" class="link-button">Report Issue</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-bar">
+            <button id="restore-defaults" class="secondary-button">Restore Defaults</button>
+            <div class="actions-right">
+                <button id="cancel-button" class="secondary-button">Cancel</button>
+                <button id="save-button" class="primary-button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/preferences.js"></script>
+</body>
+</html>

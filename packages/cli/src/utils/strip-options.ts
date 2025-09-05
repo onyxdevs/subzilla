@@ -1,9 +1,6 @@
 import { IStripOptions, IStripCommandOptions, IConfig } from '@subzilla/types';
 
-export function createStripOptions(
-    options: IStripCommandOptions,
-    config: IConfig
-): IStripOptions | undefined {
+export function createStripOptions(options: IStripCommandOptions, config: IConfig): IStripOptions | undefined {
     const stripOptions: IStripOptions = options.stripAll
         ? {
               html: true,

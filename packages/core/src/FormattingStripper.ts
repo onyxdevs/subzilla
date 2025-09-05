@@ -13,20 +13,7 @@ export default class FormattingStripper {
     private emojiRegex = /[\u{1F300}-\u{1F9FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]/gu;
     private bracketsRegex = /[[\](){}⟨⟩<>]/g;
     private bidiControlRegex = /[\u200E\u200F\u202A-\u202E\u2066-\u2069]/g;
-    private richTextTags = [
-        'b',
-        'i',
-        'u',
-        's',
-        'font',
-        'size',
-        'color',
-        'ruby',
-        'rt',
-        'rp',
-        'style',
-        'class',
-    ];
+    private richTextTags = ['b', 'i', 'u', 's', 'font', 'size', 'color', 'ruby', 'rt', 'rp', 'style', 'class'];
 
     public stripFormatting(content: string, options: IStripOptions): string {
         let result = content;

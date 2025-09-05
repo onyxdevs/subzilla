@@ -74,9 +74,7 @@ describe('EncodingDetectionService', () => {
         it('should reject when file does not exist', async () => {
             const nonExistentPath = path.join(tempDir, 'nonexistent.srt');
 
-            await expect(
-                EncodingDetectionService.detectEncoding(nonExistentPath)
-            ).rejects.toThrow();
+            await expect(EncodingDetectionService.detectEncoding(nonExistentPath)).rejects.toThrow();
         });
 
         it('should handle Windows-1252 encoded content', async () => {

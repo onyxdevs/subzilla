@@ -11,11 +11,7 @@
         "declaration": true,
         "composite": true
     },
-    "references": [
-        { "path": "./packages/types" },
-        { "path": "./packages/core" },
-        { "path": "./packages/cli" }
-    ],
+    "references": [{ "path": "./packages/types" }, { "path": "./packages/core" }, { "path": "./packages/cli" }],
     "files": [],
     "include": []
 }

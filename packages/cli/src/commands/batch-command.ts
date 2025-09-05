@@ -24,13 +24,11 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
                         common: {
                             strip: createStripOptions(options, config),
                             backupOriginal: options.backup ?? config.output?.createBackup,
-                            overwriteBackup:
-                                options.overwriteBackup ?? config.output?.overwriteBackup,
+                            overwriteBackup: options.overwriteBackup ?? config.output?.overwriteBackup,
                             bom: options.bom ?? config.output?.bom,
                             lineEndings: options.lineEndings ?? config.output?.lineEndings,
                             overwriteInput: options.overwriteInput ?? config.output?.overwriteInput,
-                            overwriteExisting:
-                                options.overwriteExisting ?? config.output?.overwriteExisting,
+                            overwriteExisting: options.overwriteExisting ?? config.output?.overwriteExisting,
                             retryCount: options.retryCount
                                 ? parseInt(options.retryCount, 10)
                                 : config.batch?.retryCount,
@@ -43,19 +41,11 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
                             outputDir: options.outputDir ?? config.output?.directory,
                             recursive: options.recursive ?? config.batch?.recursive ?? false,
                             parallel: options.parallel ?? config.batch?.parallel ?? false,
-                            skipExisting:
-                                options.skipExisting ?? config.batch?.skipExisting ?? false,
-                            maxDepth: options.maxDepth
-                                ? parseInt(options.maxDepth, 10)
-                                : config.batch?.maxDepth,
-                            includeDirectories:
-                                options.includeDirs ?? config.batch?.includeDirectories,
-                            excludeDirectories:
-                                options.excludeDirs ?? config.batch?.excludeDirectories,
-                            preserveStructure:
-                                options.preserveStructure ??
-                                config.batch?.preserveStructure ??
-                                false,
+                            skipExisting: options.skipExisting ?? config.batch?.skipExisting ?? false,
+                            maxDepth: options.maxDepth ? parseInt(options.maxDepth, 10) : config.batch?.maxDepth,
+                            includeDirectories: options.includeDirs ?? config.batch?.includeDirectories,
+                            excludeDirectories: options.excludeDirs ?? config.batch?.excludeDirectories,
+                            preserveStructure: options.preserveStructure ?? config.batch?.preserveStructure ?? false,
                             chunkSize: options.chunkSize ?? config.batch?.chunkSize,
                         },
                     };

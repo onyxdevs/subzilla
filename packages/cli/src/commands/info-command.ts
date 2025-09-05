@@ -29,8 +29,7 @@ export class InfoCommandCreator extends BaseCommandCreator<IInfoCommandOptions> 
                     const fileBuffer = await fs.readFile(inputFile);
 
                     // Detect encoding
-                    const detectedEncoding =
-                        await EncodingDetectionService.detectEncoding(inputFile);
+                    const detectedEncoding = await EncodingDetectionService.detectEncoding(inputFile);
 
                     // Check for BOM
                     const hasBOM = fileBuffer.slice(0, 3).equals(Buffer.from([0xef, 0xbb, 0xbf]));
@@ -38,9 +37,7 @@ export class InfoCommandCreator extends BaseCommandCreator<IInfoCommandOptions> 
                     // Count lines and entries
                     const content = fileBuffer.toString(detectedEncoding as NodeJS.BufferEncoding);
                     const lines = content.split(/\r?\n/);
-                    const entries = content
-                        .split(/\r?\n\r?\n/)
-                        .filter((entry) => entry.trim()).length;
+                    const entries = content.split(/\r?\n\r?\n/).filter((entry) => entry.trim()).length;
 
                     // Detect line endings
                     const hasCarriageReturn = content.includes('\r\n');
@@ -63,10 +60,7 @@ export class InfoCommandCreator extends BaseCommandCreator<IInfoCommandOptions> 
                     console.log(`   • Total Lines: ${chalk.yellow(lines.length)}`);
                     console.log(`   • Subtitle Entries: ${chalk.yellow(entries)}`);
                 } catch (error) {
-                    console.error(
-                        chalk.red('❌ Error analyzing subtitle file:'),
-                        (error as Error).message
-                    );
+                    console.error(chalk.red('❌ Error analyzing subtitle file:'), (error as Error).message);
                     process.exit(1);
                 }
             },

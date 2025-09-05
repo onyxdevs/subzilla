@@ -45,11 +45,7 @@ module.exports = {
     ],
 
     // Global settings
-    collectCoverageFrom: [
-        'packages/*/src/**/*.ts',
-        '!packages/*/src/**/*.d.ts',
-        '!packages/*/src/**/index.ts',
-    ],
+    collectCoverageFrom: ['packages/*/src/**/*.ts', '!packages/*/src/**/*.d.ts', '!packages/*/src/**/index.ts'],
 
     coverageDirectory: 'coverage',
     coverageReporters: ['text', 'lcov', 'html'],
