@@ -20,10 +20,6 @@ class PreferencesApp {
         this.tabPanes = document.querySelectorAll('.tab-pane');
 
         // General tab
-        this.notifications = document.getElementById('notifications');
-        this.sounds = document.getElementById('sounds');
-        this.autoUpdate = document.getElementById('auto-update');
-        this.showInDock = document.getElementById('show-in-dock');
         this.createBackup = document.getElementById('create-backup');
         this.overwriteBackup = document.getElementById('overwrite-backup');
         this.overwriteInput = document.getElementById('overwrite-input');
@@ -83,10 +79,6 @@ class PreferencesApp {
 
         // Form change detection
         const formElements = [
-            this.notifications,
-            this.sounds,
-            this.autoUpdate,
-            this.showInDock,
             this.createBackup,
             this.overwriteBackup,
             this.overwriteInput,

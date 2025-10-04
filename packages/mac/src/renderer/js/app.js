@@ -214,17 +214,11 @@ class SubzillaApp {
         const fileArray = Array.from(this.files.values());
 
         console.log(`🔄 Starting processing of ${fileArray.length} files...`);
-        this.updateStatus(`Processing ${fileArray.length} files...`);
+        this.updateStatus(`Processing ${fileArray.length} file${fileArray.length !== 1 ? 's' : ''}...`);
 
         // Use the FileProcessingManager for individual file processing with UI updates
         if (window.fileProcessingManager) {
             await window.fileProcessingManager.processFiles(fileArray);
-
-            // Calculate final stats
-            const completed = fileArray.filter((f) => f.status === 'completed').length;
-            const failed = fileArray.filter((f) => f.status === 'error').length;
-
-            this.updateStatus(`✓ ${completed} converted, ${failed} failed`);
         }
 
         this.isProcessing = false;
@@ -516,9 +510,22 @@ class FileProcessingManager {
                 await this.processFile(file, i + 1, files.length);
             }
 
-            console.log('✅ All files processed');
+            // Calculate final stats
+            const completed = files.filter((f) => f.status === 'completed').length;
+            const failed = files.filter((f) => f.status === 'error').length;
+
+            console.log(`✅ Processing complete: ${completed} succeeded, ${failed} failed`);
+
+            if (failed === 0) {
+                this.app.updateStatus(`✅ ${completed} file${completed !== 1 ? 's' : ''} converted successfully`);
+            } else if (completed === 0) {
+                this.app.updateStatus(`❌ All ${failed} file${failed !== 1 ? 's' : ''} failed to convert`);
+            } else {
+                this.app.updateStatus(`⚠️ ${completed} succeeded, ${failed} failed`);
+            }
         } catch (error) {
             console.error('❌ Error during file processing:', error);
+            this.app.updateStatus(`❌ Processing error: ${error.message}`);
         } finally {
             this.isProcessing = false;
         }
@@ -538,20 +545,28 @@ class FileProcessingManager {
                 file.status = 'completed';
                 file.resultEncoding = 'UTF-8';
                 console.log(`✅ Processed: ${file.fileName}`);
+
+                // Update UI immediately with success
+                this.app.renderFileList();
+                this.app.updateProgress({ current, total });
             } else {
                 file.status = 'error';
-                file.error = result.error;
+                file.error = result.error || 'Unknown error';
                 console.error(`❌ Failed to process: ${file.fileName} - ${result.error}`);
+
+                // Update UI immediately with error
+                this.app.renderFileList();
+                this.app.updateProgress({ current, total });
             }
         } catch (error) {
             file.status = 'error';
             file.error = error.message;
             console.error(`❌ Error processing ${file.fileName}:`, error);
-        }
 
-        // Update UI
-        this.app.renderFileList();
-        this.app.updateProgress({ current, total });
+            // Update UI immediately with error
+            this.app.renderFileList();
+            this.app.updateProgress({ current, total });
+        }
     }
 }
 

@@ -2,26 +2,8 @@ import Store from 'electron-store';
 
 import { IConfig, IStripOptions } from '@subzilla/types';
 
-export interface MacAppPreferences {
-    // Application-specific preferences
-    notifications: boolean;
-    sounds: boolean;
-    autoUpdate: boolean;
-    startMinimized: boolean;
-    showInDock: boolean;
-
-    // Window preferences
-    rememberWindowSize: boolean;
-    lastWindowBounds?: {
-        width: number;
-        height: number;
-        x?: number;
-        y?: number;
-    };
-}
-
 export class ConfigMapper {
-    private store: Store<IConfig & { app: MacAppPreferences }>;
+    private store: Store<IConfig>;
 
     constructor() {
         console.log('⚙️ Initializing configuration store...');
@@ -80,24 +62,13 @@ export class ConfigMapper {
                         failFast: { type: 'boolean' },
                     },
                 },
-                app: {
-                    type: 'object',
-                    properties: {
-                        notifications: { type: 'boolean' },
-                        sounds: { type: 'boolean' },
-                        autoUpdate: { type: 'boolean' },
-                        startMinimized: { type: 'boolean' },
-                        showInDock: { type: 'boolean' },
-                        rememberWindowSize: { type: 'boolean' },
-                    },
-                },
             },
         });
 
         console.log('✅ Configuration store initialized');
     }
 
-    private getDefaultConfig(): IConfig & { app: MacAppPreferences } {
+    private getDefaultConfig(): IConfig {
         return {
             input: {
                 encoding: 'auto',
@@ -134,18 +105,10 @@ export class ConfigMapper {
                 retryDelay: 1000,
                 failFast: false,
             },
-            app: {
-                notifications: true,
-                sounds: true,
-                autoUpdate: true,
-                startMinimized: false,
-                showInDock: true,
-                rememberWindowSize: true,
-            },
         };
     }
 
-    public getDefaultConfigData(): IConfig & { app: MacAppPreferences } {
+    public getDefaultConfigData(): IConfig {
         return {
             input: {
                 encoding: 'auto',
@@ -182,45 +145,17 @@ export class ConfigMapper {
                 retryDelay: 1000,
                 failFast: false,
             },
-            app: {
-                notifications: true,
-                sounds: true,
-                autoUpdate: true,
-                startMinimized: false,
-                showInDock: true,
-                rememberWindowSize: true,
-            },
         };
     }
 
     public async getConfig(): Promise<IConfig> {
-        const fullConfig = this.store.store;
-
-        // Return only the IConfig part (without app preferences)
-        const { app, ...config } = fullConfig;
-
-        return config;
-    }
-
-    public async getAppPreferences(): Promise<MacAppPreferences> {
-        return this.store.get('app', this.getDefaultConfig().app);
+        return this.store.store;
     }
 
     public async saveConfig(config: IConfig): Promise<void> {
         console.log('💾 Saving configuration...');
-
-        // Preserve app preferences while updating core config
-        const currentApp = await this.getAppPreferences();
-
-        this.store.set({ ...config, app: currentApp });
-
+        this.store.set(config);
         console.log('✅ Configuration saved');
-    }
-
-    public async saveAppPreferences(preferences: MacAppPreferences): Promise<void> {
-        console.log('💾 Saving app preferences...');
-        this.store.set('app', preferences);
-        console.log('✅ App preferences saved');
     }
 
     public async resetConfig(): Promise<void> {
