@@ -40,16 +40,20 @@ export default class SubtitleProcessor {
             // Determine final output path
             const finalOutputPath = outputFilePath || outputStrategy.getOutputPath(inputFilePath);
 
-            // Check if we need to create a backup
-            // Respect user's createBackup config even when overwriting input
-            const shouldBackup = options.backupOriginal ?? outputStrategy.shouldBackup;
+            // Handle existing output file - check before creating backup
+            const outputExists = await this.checkFileExists(finalOutputPath);
 
-            if (shouldBackup) {
-                backupPath = await this.createBackup(inputFilePath, options.overwriteBackup);
+            if (outputExists && !options.overwriteExisting && !options.overwriteInput) {
+                throw new Error(`Output file ${finalOutputPath} already exists and overwrite is disabled`);
             }
 
-            // Handle existing output file
-            await this.handleExistingFile(finalOutputPath, options);
+            // Determine if we should create a backup
+            // Only create backups when overwriting the original input file
+            const shouldBackup = options.overwriteInput && (options.backupOriginal ?? false);
+
+            if (shouldBackup) {
+                backupPath = await this.createBackup(inputFilePath, options.overwriteBackup ?? false);
+            }
 
             // Process content
             const detectedEncoding = await EncodingDetectionService.detectEncoding(inputFilePath);
@@ -136,17 +140,15 @@ export default class SubtitleProcessor {
         return finalBackupPath;
     }
 
-    private async handleExistingFile(outputPath: string, options: IConvertOptions): Promise<void> {
+    private async checkFileExists(filePath: string): Promise<boolean> {
         try {
-            await fs.access(outputPath);
-
-            if (!options.overwriteExisting) {
-                throw new Error(`Output file ${outputPath} already exists and overwrite existing is disabled`);
-            }
+            await fs.access(filePath);
+            return true;
         } catch (error) {
-            if ((error as NodeJS.ErrnoException).code !== 'ENOENT') {
-                throw error;
+            if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+                return false;
             }
+            throw error;
         }
     }
 
