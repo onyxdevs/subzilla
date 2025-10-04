@@ -79,6 +79,7 @@ export function setupIPC(appInstance: any): void {
             // Skip files that are already processed
             if (fileName.includes('.subzilla.')) {
                 console.log(`⏭️ Skipping already processed file: ${fileName}`);
+
                 return {
                     success: false,
                     error: 'File has already been processed by Subzilla',
@@ -90,6 +91,8 @@ export function setupIPC(appInstance: any): void {
             const config = await configMapper.getConfig();
             const processOptions: IConvertOptions = {
                 ...config.output,
+                // Map createBackup to backupOriginal to match IConvertOptions interface
+                backupOriginal: config.output?.createBackup,
                 ...(config.strip && { strip: config.strip }),
                 ...options,
             };
@@ -122,6 +125,8 @@ export function setupIPC(appInstance: any): void {
             const batchOptions = {
                 common: {
                     ...config.output,
+                    // Map createBackup to backupOriginal to match IConvertOptions interface
+                    backupOriginal: config.output?.createBackup,
                     ...(config.strip && { strip: config.strip }),
                     ...options,
                 },
