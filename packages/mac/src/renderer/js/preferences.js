@@ -42,14 +42,10 @@ class PreferencesApp {
         this.outputBom = document.getElementById('output-bom');
         this.lineEndings = document.getElementById('line-endings');
         this.outputFormat = document.getElementById('output-format');
-        this.overwriteExisting = document.getElementById('overwrite-existing');
 
         // Processing tab
         this.parallelProcessing = document.getElementById('parallel-processing');
         this.chunkSize = document.getElementById('chunk-size');
-        this.skipExisting = document.getElementById('skip-existing');
-        this.failFast = document.getElementById('fail-fast');
-        this.retryCount = document.getElementById('retry-count');
 
         // Advanced tab
         this.configPath = document.getElementById('config-path');
@@ -61,7 +57,6 @@ class PreferencesApp {
         this.reportIssueLink = document.getElementById('report-issue-link');
 
         // Actions
-        this.restoreDefaults = document.getElementById('restore-defaults');
         this.cancelButton = document.getElementById('cancel-button');
         this.saveButton = document.getElementById('save-button');
     }
@@ -96,12 +91,8 @@ class PreferencesApp {
             this.outputBom,
             this.lineEndings,
             this.outputFormat,
-            this.overwriteExisting,
             this.parallelProcessing,
             this.chunkSize,
-            this.skipExisting,
-            this.failFast,
-            this.retryCount,
         ];
 
         formElements.forEach((element) => {
@@ -115,7 +106,6 @@ class PreferencesApp {
         this.resetConfigButton.addEventListener('click', () => this.resetConfiguration());
         this.githubLink.addEventListener('click', () => this.openGitHub());
         this.reportIssueLink.addEventListener('click', () => this.openIssueTracker());
-        this.restoreDefaults.addEventListener('click', () => this.restoreDefaults());
         this.cancelButton.addEventListener('click', () => this.cancel());
         this.saveButton.addEventListener('click', () => this.save());
 
@@ -199,14 +189,10 @@ class PreferencesApp {
         this.outputBom.checked = this.config.output?.bom ?? true;
         this.lineEndings.value = this.config.output?.lineEndings ?? 'auto';
         this.outputFormat.value = this.config.output?.format ?? 'srt';
-        this.overwriteExisting.checked = this.config.output?.overwriteExisting ?? false;
 
         // Processing tab
         this.parallelProcessing.checked = this.config.batch?.parallel ?? true;
         this.chunkSize.value = this.config.batch?.chunkSize?.toString() ?? '5';
-        this.skipExisting.checked = this.config.batch?.skipExisting ?? false;
-        this.failFast.checked = this.config.batch?.failFast ?? false;
-        this.retryCount.value = this.config.batch?.retryCount?.toString() ?? '0';
 
         this.updatePresetButtons();
     }
@@ -225,7 +211,7 @@ class PreferencesApp {
                 lineEndings: this.lineEndings.value,
                 format: this.outputFormat.value,
                 overwriteInput: this.overwriteInput.checked,
-                overwriteExisting: this.overwriteExisting.checked,
+                overwriteExisting: true, // Always overwrite existing files by default
             },
             strip: {
                 html: this.stripHtml.checked,
@@ -242,12 +228,12 @@ class PreferencesApp {
             batch: {
                 recursive: false,
                 parallel: this.parallelProcessing.checked,
-                skipExisting: this.skipExisting.checked,
+                skipExisting: false,
                 preserveStructure: false,
                 chunkSize: parseInt(this.chunkSize.value, 10),
-                retryCount: parseInt(this.retryCount.value, 10),
+                retryCount: 0,
                 retryDelay: 1000,
-                failFast: this.failFast.checked,
+                failFast: false,
             },
         };
 
@@ -477,13 +463,6 @@ class PreferencesApp {
     openIssueTracker() {
         // This will be handled by the main process
         console.log('🔗 Opening issue tracker...');
-    }
-
-    async restoreDefaults() {
-        const confirmed = confirm('Restore all settings to defaults?');
-        if (confirmed) {
-            await this.resetConfiguration();
-        }
     }
 
     async save() {

@@ -168,16 +168,6 @@
                         </select>
                     </div>
                 </div>
-
-                <div class="section">
-                    <h3>File Overwriting</h3>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="overwrite-existing">
-                            <span>Overwrite existing converted files</span>
-                        </label>
-                    </div>
-                </div>
             </div>
 
             <!-- Processing Tab -->
@@ -201,30 +191,6 @@
                     </div>
                 </div>
 
-                <div class="section">
-                    <h3>Error Handling</h3>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="skip-existing">
-                            <span>Skip files that already exist</span>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="fail-fast">
-                            <span>Stop processing on first error</span>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="retry-count">Retry attempts:</label>
-                        <select id="retry-count">
-                            <option value="0">No retries</option>
-                            <option value="1">1 retry</option>
-                            <option value="2">2 retries</option>
-                            <option value="3">3 retries</option>
-                        </select>
-                    </div>
-                </div>
             </div>
 
             <!-- Advanced Tab -->
@@ -260,7 +226,6 @@
 
         <!-- Actions -->
         <div class="actions-bar">
-            <button id="restore-defaults" class="secondary-button">Restore Defaults</button>
             <div class="actions-right">
                 <button id="cancel-button" class="secondary-button">Cancel</button>
                 <button id="save-button" class="primary-button">Save</button>
