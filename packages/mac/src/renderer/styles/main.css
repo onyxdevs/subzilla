@@ -14,12 +14,18 @@ body {
     overflow: hidden;
     user-select: none;
     -webkit-user-select: none;
+    -webkit-app-region: drag;
 }
 
 #app {
     height: 100vh;
     display: flex;
     flex-direction: column;
+}
+
+/* Make interactive elements non-draggable */
+button, input, .file-item, .file-list, .drop-overlay, .shortcuts-overlay {
+    -webkit-app-region: no-drag;
 }
 
 /* State containers */
