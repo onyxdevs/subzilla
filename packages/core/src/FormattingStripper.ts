@@ -111,7 +111,29 @@ export default class FormattingStripper {
     }
 
     private stripBrackets(content: string): string {
-        return content.replace(this.bracketsRegex, '');
+        // Protect our own placeholders from being corrupted
+        // Save placeholders temporarily
+        const placeholders: string[] = [];
+        let placeholderIndex = 0;
+
+        content = content.replace(/\[(TIMESTAMP|URL|EMOJI)\]/g, (match) => {
+            const placeholder = `__PLACEHOLDER_${placeholderIndex}__`;
+
+            placeholders.push(match);
+            placeholderIndex++;
+
+            return placeholder;
+        });
+
+        // Strip brackets
+        content = content.replace(this.bracketsRegex, '');
+
+        // Restore placeholders
+        placeholders.forEach((original, index) => {
+            content = content.replace(`__PLACEHOLDER_${index}__`, original);
+        });
+
+        return content;
     }
 
     private normalizeWhitespace(content: string): string {

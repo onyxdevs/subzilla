@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 
-import { IConvertOptions } from '@subzilla/types';
+import { IConvertOptions, IStripOptions } from '@subzilla/types';
 
 import EncodingConversionService from './EncodingConversionService';
 import EncodingDetectionService from './EncodingDetectionService';
@@ -61,7 +61,17 @@ export default class SubtitleProcessor {
             let utf8Content = EncodingConversionService.convertToUtf8(fileBuffer, detectedEncoding);
 
             if (options.strip) {
-                utf8Content = this.formattingStripper.stripFormatting(utf8Content, options.strip);
+                // Validate strip options for subtitle files
+                const validatedOptions = this.validateStripOptions(options.strip);
+
+                // Protect timestamps from being corrupted by other strippers (especially punctuation)
+                const { content: protectedContent, timestamps } = this.protectTimestamps(utf8Content);
+
+                // Apply stripping to protected content
+                const strippedContent = this.formattingStripper.stripFormatting(protectedContent, validatedOptions);
+
+                // Restore original timestamps
+                utf8Content = this.restoreTimestamps(strippedContent, timestamps);
             }
 
             utf8Content = this.ensureProperLineBreaks(utf8Content);
@@ -143,6 +153,7 @@ export default class SubtitleProcessor {
     private async checkFileExists(filePath: string): Promise<boolean> {
         try {
             await fs.access(filePath);
+
             return true;
         } catch (error) {
             if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
@@ -150,6 +161,50 @@ export default class SubtitleProcessor {
             }
             throw error;
         }
+    }
+
+    private validateStripOptions(stripOptions: IStripOptions): IStripOptions {
+        // Timestamps and numbers are structural elements in subtitle files
+        // Stripping them corrupts the file format
+        if (stripOptions.timestamps || stripOptions.numbers) {
+            console.warn(
+                '⚠️  Warning: Stripping timestamps or numbers from subtitle files will corrupt them. These options will be ignored.',
+            );
+        }
+
+        return {
+            ...stripOptions,
+            timestamps: false, // Never strip timestamps - they're structural
+            numbers: false, // Never strip numbers - sequence numbers are structural
+        };
+    }
+
+    private protectTimestamps(content: string): { content: string; timestamps: string[] } {
+        const timestamps: string[] = [];
+        const timestampRegex = /\d{2}:\d{2}:\d{2},\d{3}\s*-->\s*\d{2}:\d{2}:\d{2},\d{3}/g;
+
+        let index = 0;
+        const protectedContent = content.replace(timestampRegex, (match) => {
+            timestamps.push(match);
+
+            // Use a placeholder that won't be affected by ANY stripping operations
+            // Alphanumeric only, wrapped in a unique pattern
+            return `XXTIMESTAMPXX${String(index++).padStart(6, '0')}XXTIMESTAMPXX`;
+        });
+
+        return { content: protectedContent, timestamps };
+    }
+
+    private restoreTimestamps(content: string, timestamps: string[]): string {
+        let restoredContent = content;
+
+        timestamps.forEach((timestamp, index) => {
+            const placeholder = `XXTIMESTAMPXX${String(index).padStart(6, '0')}XXTIMESTAMPXX`;
+
+            restoredContent = restoredContent.replace(placeholder, timestamp);
+        });
+
+        return restoredContent;
     }
 
     private ensureProperLineBreaks(content: string): string {

@@ -22,7 +22,7 @@ describe('FormattingStripper', () => {
         });
 
         it('should preserve content when no options are enabled', () => {
-            const content = '<b>Bold text</b> with colors {\c&H0000FF&}';
+            const content = '<b>Bold text</b> with colors {c&H0000FF&}';
             const options: IStripOptions = {};
 
             const result = stripper.stripFormatting(content, options);
@@ -91,6 +91,35 @@ describe('FormattingStripper', () => {
             const result = stripper.stripFormatting(content, options);
 
             expect(result).toBe('Episode # aired in #');
+        });
+
+        it('should protect placeholders when stripping brackets', () => {
+            const content = 'Visit [URL] at [TIMESTAMP] with [EMOJI] and [other brackets]';
+            const options: IStripOptions = { brackets: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            // Our placeholders should be preserved
+            expect(result).toContain('[URL]');
+            expect(result).toContain('[TIMESTAMP]');
+            expect(result).toContain('[EMOJI]');
+            // But other brackets should be removed
+            expect(result).not.toContain('[other brackets]');
+            expect(result).toContain('other brackets');
+        });
+
+        it('should handle URLs and brackets together without corruption', () => {
+            const content = 'Visit https://example.com and [some text]';
+            const options: IStripOptions = { urls: true, brackets: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            // URL should be replaced and the placeholder protected from bracket stripping
+            expect(result).toContain('[URL]');
+            expect(result).not.toContain('https://');
+            // Other brackets should be removed
+            expect(result).toContain('some text');
+            expect(result).not.toContain('[some text]');
         });
 
         it('should remove punctuation when punctuation option is enabled', () => {
@@ -172,12 +201,12 @@ describe('FormattingStripper', () => {
         });
 
         it('should handle content with only formatting codes', () => {
-            const content = '<b></b>{\\c&H0000FF&}{\c}';
+            const content = '<b></b>{\\c&H0000FF&}{c}';
             const options: IStripOptions = { html: true, colors: true };
 
             const result = stripper.stripFormatting(content, options);
 
-            expect(result).toBe('{\c}'); // Only unmatched codes remain
+            expect(result).toBe('{c}'); // Only unmatched codes remain
         });
     });
 });

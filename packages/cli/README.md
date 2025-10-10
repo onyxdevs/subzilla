@@ -86,13 +86,15 @@ subzilla convert input.srt \
 - `--strip-colors`: Remove color codes
 - `--strip-styles`: Remove style tags
 - `--strip-urls`: Replace URLs with [URL]
-- `--strip-timestamps`: Replace timestamps with [TIMESTAMP]
-- `--strip-numbers`: Replace numbers with #
+- `--strip-timestamps`: ⚠️ **DISABLED** - Would corrupt subtitle files
+- `--strip-numbers`: ⚠️ **DISABLED** - Would corrupt subtitle files
 - `--strip-punctuation`: Remove punctuation
 - `--strip-emojis`: Replace emojis with [EMOJI]
 - `--strip-brackets`: Remove brackets
 - `--strip-bidi-control`: Remove bidirectional control characters
-- `--strip-all`: Apply all stripping options
+- `--strip-all`: Apply all safe stripping options
+
+> **⚠️ Warning:** The `--strip-timestamps` and `--strip-numbers` options are automatically disabled for subtitle files as they would corrupt the file structure. These options are for text analysis only, not for producing playable subtitles.
 
 ### batch - Batch Processing
 

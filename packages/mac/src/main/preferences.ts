@@ -228,8 +228,8 @@ export class ConfigMapper {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: true,
-                numbers: true,
+                timestamps: false, // Never strip - structural element
+                numbers: false, // Never strip - structural element
                 punctuation: true,
                 emojis: true,
                 brackets: true,

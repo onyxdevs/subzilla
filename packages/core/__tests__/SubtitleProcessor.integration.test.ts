@@ -107,6 +107,7 @@ Test content`;
 
             const options: IConvertOptions = {
                 backupOriginal: true,
+                overwriteInput: true, // Backup only created when overwriting input
             };
 
             const result = await processor.processFile(inputPath, undefined, options);
@@ -200,7 +201,6 @@ Test content`;
                 strip: {
                     html: true,
                     urls: true,
-                    numbers: true,
                     emojis: true,
                 },
             };
@@ -209,11 +209,87 @@ Test content`;
 
             const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
 
-            expect(outputContent).toContain('Visit [URL] for episode #! [EMOJI]');
+            expect(outputContent).toContain('Visit [URL] for episode 123! [EMOJI]');
             expect(outputContent).not.toContain('<font');
             expect(outputContent).not.toContain('https://');
-            expect(outputContent).not.toContain('123');
             expect(outputContent).not.toContain('😊');
+            // Numbers preserved as they're structural in SRT
+            expect(outputContent).toContain('123');
+            // Timestamps preserved
+            expect(outputContent).toContain('00:00:01,000 --> 00:00:06,000');
+        });
+
+        it('should never strip timestamps or numbers even if requested (structural protection)', async () => {
+            const inputPath = path.join(tempDir, 'input.srt');
+            const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+Episode 42 starts now
+
+2
+00:00:04,000 --> 00:00:06,000
+The answer is 123`;
+
+            await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+            const options: IConvertOptions = {
+                strip: {
+                    timestamps: true, // Should be ignored
+                    numbers: true, // Should be ignored
+                },
+            };
+
+            const result = await processor.processFile(inputPath, undefined, options);
+
+            const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+            // Timestamps must be preserved (structural)
+            expect(outputContent).toContain('00:00:01,000 --> 00:00:03,000');
+            expect(outputContent).toContain('00:00:04,000 --> 00:00:06,000');
+            // Sequence numbers must be preserved (structural)
+            expect(outputContent).toMatch(/^1\n/);
+            expect(outputContent).toContain('\n2\n');
+            // Content numbers preserved too
+            expect(outputContent).toContain('42');
+            expect(outputContent).toContain('123');
+            // Should NOT have corrupted placeholders
+            expect(outputContent).not.toContain('[TIMESTAMP]');
+            expect(outputContent).not.toContain('TIMESTAMP');
+        });
+
+        it('should protect timestamps from punctuation stripping', async () => {
+            const inputPath = path.join(tempDir, 'input.srt');
+            const srtContent = `1
+00:00:03,983 --> 00:00:21,077
+Hello, world! How are you?
+
+2
+00:01:00,000 --> 00:01:05,500
+Test (with) [brackets]`;
+
+            await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+            const options: IConvertOptions = {
+                strip: {
+                    punctuation: true, // This should NOT affect timestamps
+                    brackets: true,
+                },
+            };
+
+            const result = await processor.processFile(inputPath, undefined, options);
+
+            const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+            // Timestamps must remain intact with their colons, commas, and arrows
+            expect(outputContent).toContain('00:00:03,983 --> 00:00:21,077');
+            expect(outputContent).toContain('00:01:00,000 --> 00:01:05,500');
+            // Should NOT have corrupted timestamps like "000003983  000021077"
+            expect(outputContent).not.toContain('000003983');
+            expect(outputContent).not.toContain('000021077');
+            // Punctuation should be removed from content
+            expect(outputContent).toContain('Hello world How are you');
+            // Brackets should be removed from content
+            expect(outputContent).toContain('with');
+            expect(outputContent).not.toContain('[brackets]');
         });
 
         it('should throw error for non-existent input file', async () => {

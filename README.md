@@ -440,11 +440,14 @@ Settings are merged in the following order (later ones override earlier ones):
 - `colors`: Remove color codes.
 - `styles`: Remove style tags.
 - `urls`: Replace URLs with `[URL]`.
-- `timestamps`: Replace timestamps with `[TIMESTAMP]`.
-- `numbers`: Replace numbers with `#`.
+- `timestamps`: ⚠️ **DISABLED FOR SUBTITLE FILES** - Would corrupt file structure.
+- `numbers`: ⚠️ **DISABLED FOR SUBTITLE FILES** - Would corrupt file structure.
 - `punctuation`: Remove punctuation.
 - `emojis`: Replace emojis with `[EMOJI]`.
 - `brackets`: Remove brackets.
+- `bidiControl`: Remove bidirectional text control characters.
+
+> **⚠️ Important:** The `timestamps` and `numbers` options are automatically disabled when processing subtitle files because timestamps and sequence numbers are structural elements, not formatting. Enabling them would corrupt the SRT file format and make files unplayable. These options are designed for text analysis/ML use cases, not for producing valid subtitle files.
 
 #### Batch Options
 

@@ -213,10 +213,14 @@ const cleanContent = stripper.stripFormatting(content, options);
 - Color codes (`{c:$FFFFFF}`, `<font color="#FF0000">`)
 - Style attributes and CSS
 - URLs (replaced with `[URL]`)
-- Timestamps (replaced with `[TIMESTAMP]`)
+- ~~Timestamps~~ ⚠️ **DISABLED FOR SUBTITLE FILES** - Would corrupt file structure
+- ~~Numbers~~ ⚠️ **DISABLED FOR SUBTITLE FILES** - Would corrupt file structure
 - Emojis (replaced with `[EMOJI]`)
 - Brackets and parentheses
+- Bidirectional control characters
 - Excessive whitespace normalization
+
+> **⚠️ Structural Protection:** SubtitleProcessor automatically disables `timestamps` and `numbers` stripping options as these are structural elements of subtitle files (timestamps and sequence numbers). Stripping them would corrupt the SRT format. These options remain available in FormattingStripper for non-subtitle text analysis use cases.
 
 ## Output Strategies
 

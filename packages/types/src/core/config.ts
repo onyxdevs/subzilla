@@ -4,11 +4,11 @@ import { IStripOptions } from './options';
  * Main configuration interface for the application
  */
 export interface IConfig {
-    input?: {
-        encoding?: 'auto' | 'utf8' | 'utf16le' | 'utf16be' | 'ascii' | 'windows1256';
+    input: {
+        encoding?: 'auto' | 'utf8' | 'utf16le' | 'utf16be' | 'ascii' | 'windows-1256' | 'latin1';
         format?: 'auto' | 'srt' | 'sub' | 'ass' | 'ssa' | 'txt';
     };
-    output?: {
+    output: {
         directory?: string;
         createBackup?: boolean;
         overwriteBackup?: boolean;
@@ -20,7 +20,7 @@ export interface IConfig {
         overwriteExisting?: boolean;
     };
     strip?: IStripOptions;
-    batch?: {
+    batch: {
         recursive?: boolean;
         parallel?: boolean;
         skipExisting?: boolean;

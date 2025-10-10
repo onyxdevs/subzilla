@@ -211,7 +211,7 @@ class SubzillaApp {
         if (this.isProcessing) return;
 
         this.isProcessing = true;
-        const fileArray = Array.from(this.files.values());
+        const fileArray = Array.from(this.files.values()).filter((f) => f.status === 'pending');
 
         console.log(`🔄 Starting processing of ${fileArray.length} files...`);
         this.updateStatus(`Processing ${fileArray.length} file${fileArray.length !== 1 ? 's' : ''}...`);

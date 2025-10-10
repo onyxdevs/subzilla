@@ -14,44 +14,38 @@ export const stripOptionsSchema = z.object({
 });
 
 export const configSchema = z.object({
-    input: z
-        .object({
-            encoding: z.enum(['auto', 'utf8', 'utf16le', 'utf16be', 'ascii', 'windows1256']).default('auto'),
-            format: z.enum(['auto', 'srt', 'sub', 'ass', 'ssa', 'txt']).default('auto'),
-        })
-        .optional(),
+    input: z.object({
+        encoding: z.enum(['auto', 'utf8', 'utf16le', 'utf16be', 'ascii', 'windows-1256', 'latin1']).default('auto'),
+        format: z.enum(['auto', 'srt', 'sub', 'ass', 'ssa', 'txt']).default('auto'),
+    }),
 
-    output: z
-        .object({
-            directory: z.string().optional(),
-            createBackup: z.boolean().default(false),
-            overwriteBackup: z.boolean().default(true),
-            format: z.enum(['srt', 'sub', 'ass', 'ssa', 'txt']).optional(),
-            encoding: z.literal('utf8').default('utf8'),
-            bom: z.boolean().default(false),
-            lineEndings: z.enum(['lf', 'crlf', 'auto']).default('auto'),
-            overwriteInput: z.boolean().default(false),
-            overwriteExisting: z.boolean().default(false),
-        })
-        .optional(),
+    output: z.object({
+        directory: z.string().optional(),
+        createBackup: z.boolean().default(false),
+        overwriteBackup: z.boolean().default(true),
+        format: z.enum(['srt', 'sub', 'ass', 'ssa', 'txt']).optional(),
+        encoding: z.literal('utf8').default('utf8'),
+        bom: z.boolean().default(false),
+        lineEndings: z.enum(['lf', 'crlf', 'auto']).default('auto'),
+        overwriteInput: z.boolean().default(false),
+        overwriteExisting: z.boolean().default(false),
+    }),
 
     strip: stripOptionsSchema.optional(),
 
-    batch: z
-        .object({
-            recursive: z.boolean().default(false),
-            parallel: z.boolean().default(false),
-            skipExisting: z.boolean().default(false),
-            maxDepth: z.number().int().min(1).optional(),
-            includeDirectories: z.array(z.string()).optional(),
-            excludeDirectories: z.array(z.string()).optional(),
-            preserveStructure: z.boolean().default(false),
-            chunkSize: z.number().int().min(1).max(100).default(5),
-            retryCount: z.number().int().min(0).max(5).default(0),
-            retryDelay: z.number().int().min(100).max(5000).default(1000),
-            failFast: z.boolean().default(false),
-        })
-        .optional(),
+    batch: z.object({
+        recursive: z.boolean().default(false),
+        parallel: z.boolean().default(false),
+        skipExisting: z.boolean().default(false),
+        maxDepth: z.number().int().min(1).optional(),
+        includeDirectories: z.array(z.string()).optional(),
+        excludeDirectories: z.array(z.string()).optional(),
+        preserveStructure: z.boolean().default(false),
+        chunkSize: z.number().int().min(1).max(100).default(5),
+        retryCount: z.number().int().min(0).max(5).default(0),
+        retryDelay: z.number().int().min(100).max(5000).default(1000),
+        failFast: z.boolean().default(false),
+    }),
 
     // error: z
     //     .object({

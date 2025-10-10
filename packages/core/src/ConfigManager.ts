@@ -186,10 +186,13 @@ export default class ConfigManager {
     /**
      * 🔄 Deep merge configuration objects
      */
-    private static mergeConfigs(...configs: Partial<IConfig>[]): IConfig {
-        return configs.reduce((acc, config) => {
-            return this.deepMerge(acc, config);
-        }, {} as IConfig);
+    private static mergeConfigs(base: IConfig, ...configs: Partial<IConfig>[]): IConfig {
+        return configs.reduce<IConfig>((acc, config) => {
+            return this.deepMerge(
+                acc as unknown as Record<string, unknown>,
+                config as unknown as Record<string, unknown>,
+            ) as unknown as IConfig;
+        }, base);
     }
 
     /**
