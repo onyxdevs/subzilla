@@ -326,5 +326,211 @@ Subtitle line ${i} with some <b>formatting</b>
             expect(outputContent).toContain('Subtitle line 1');
             expect(outputContent).toContain('Subtitle line 1000');
         });
+
+        describe('Adjacent HTML Tags - Integration Tests', () => {
+            it('should preserve word spacing when stripping adjacent HTML tags in Arabic', async () => {
+                const inputPath = path.join(tempDir, 'arabic-adjacent.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+<b>مرحبا</b><i>بك</i>
+
+2
+00:00:04,000 --> 00:00:06,000
+<font color="red">هذا</font><font color="blue">نص</font><font color="green">عربي</font>`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // Should have proper spacing between words
+                expect(outputContent).toContain('مرحبا بك');
+                expect(outputContent).not.toContain('مرحبابك');
+
+                expect(outputContent).toContain('هذا نص عربي');
+                expect(outputContent).not.toContain('هذانصعربي');
+            });
+
+            it('should preserve word spacing in multiline Arabic subtitles with adjacent tags', async () => {
+                const inputPath = path.join(tempDir, 'arabic-multiline.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+<b>مرحبا</b><i>بك</i><u>يا</u><s>صديقي</s>
+
+2
+00:00:04,000 --> 00:00:06,000
+<font color="red">هذا</font><font color="blue">نص</font>
+<font color="green">عربي</font><font color="yellow">جميل</font>
+
+3
+00:00:07,000 --> 00:00:09,000
+Normal text with <b>bold</b> and <i>italic</i> mixed`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true, colors: true, styles: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // First subtitle: all words on one line with spaces
+                expect(outputContent).toContain('مرحبا بك يا صديقي');
+
+                // Second subtitle: words split across lines but each line has proper spacing
+                expect(outputContent).toContain('هذا نص');
+                expect(outputContent).toContain('عربي جميل');
+
+                // Third subtitle: English text with proper spacing
+                expect(outputContent).toContain('Normal text with bold and italic mixed');
+            });
+
+            it('should handle complex nested and adjacent tags without losing word boundaries', async () => {
+                const inputPath = path.join(tempDir, 'complex-arabic.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+<font color="red"><b>مرحبا</b></font><font color="blue"><i>بك</i></font> <font color="green">يا</font><font color="yellow">صديقي</font>`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // Should maintain proper word boundaries
+                expect(outputContent).toContain('مرحبا بك يا صديقي');
+
+                // Verify we have exactly 4 words separated by spaces
+                const lines = outputContent.split('\n');
+                const textLine = lines.find((line) => line.includes('مرحبا'));
+
+                expect(textLine).toBeDefined();
+                expect(textLine!.split(' ')).toHaveLength(4);
+            });
+
+            it('should preserve spacing in mixed language content with adjacent tags', async () => {
+                const inputPath = path.join(tempDir, 'mixed-language.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+<b>Hello</b><i>مرحبا</i><u>World</u><s>عالم</s>
+
+2
+00:00:04,000 --> 00:00:06,000
+<font color="red">English</font><font color="blue">and</font><font color="green">عربي</font><font color="yellow">mixed</font>`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // Mixed language should have proper spacing
+                expect(outputContent).toContain('Hello مرحبا World عالم');
+                expect(outputContent).toContain('English and عربي mixed');
+            });
+
+            it('should handle real-world subtitle scenario with many adjacent font tags', async () => {
+                const inputPath = path.join(tempDir, 'real-world.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+<font color="#FF0000">أنا</font><font color="#00FF00">أحب</font><font color="#0000FF">البرمجة</font>
+
+2
+00:00:04,000 --> 00:00:06,000
+<font size="12" color="red">هذا</font><font size="14" color="blue">نص</font><font size="16" color="green">جميل</font>
+
+3
+00:00:07,000 --> 00:00:09,000
+<b><font color="white">Bold</font></b><i><font color="yellow">and</font></i><u><font color="cyan">styled</font></u>`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // All subtitles should have proper word spacing
+                expect(outputContent).toContain('أنا أحب البرمجة');
+                expect(outputContent).toContain('هذا نص جميل');
+                expect(outputContent).toContain('Bold and styled');
+
+                // No concatenated words
+                expect(outputContent).not.toContain('أناأحبالبرمجة');
+                expect(outputContent).not.toContain('هذانصجميل');
+                expect(outputContent).not.toContain('Boldandstyled');
+            });
+
+            it('should maintain proper line breaks and spacing in multiline subtitles', async () => {
+                const inputPath = path.join(tempDir, 'multiline-spacing.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:05,000
+<font color="red">السطر</font><font color="blue">الأول</font>
+<font color="green">السطر</font><font color="yellow">الثاني</font>
+<font color="pink">السطر</font><font color="purple">الثالث</font>`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // Each line should have proper spacing
+                expect(outputContent).toContain('السطر الأول');
+                expect(outputContent).toContain('السطر الثاني');
+                expect(outputContent).toContain('السطر الثالث');
+
+                // Verify line breaks are preserved
+                const lines = outputContent.split('\n');
+                const textLines = lines.filter((line) => line.includes('السطر'));
+
+                expect(textLines).toHaveLength(3);
+            });
+
+            it('should handle edge case of empty tags between content tags', async () => {
+                const inputPath = path.join(tempDir, 'empty-tags.srt');
+                const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+<b>Word1</b><i></i><u>Word2</u><s></s><font>Word3</font>`;
+
+                await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+                const options: IConvertOptions = {
+                    strip: { html: true },
+                };
+
+                const result = await processor.processFile(inputPath, undefined, options);
+
+                const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+                // Empty tags should not cause extra spacing
+                expect(outputContent).toContain('Word1 Word2 Word3');
+
+                // Should not have double spaces
+                expect(outputContent).not.toContain('  ');
+            });
+        });
     });
 });

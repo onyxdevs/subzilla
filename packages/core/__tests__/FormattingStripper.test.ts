@@ -209,4 +209,143 @@ describe('FormattingStripper', () => {
             expect(result).toBe('{c}'); // Only unmatched codes remain
         });
     });
+
+    describe('Adjacent HTML Tags - Word Concatenation Prevention', () => {
+        it('should preserve spaces when stripping adjacent HTML tags in Arabic text', () => {
+            const content = '<b>مرحبا</b><i>بك</i>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            // Should have a space between the words
+            expect(result).toBe('مرحبا بك');
+            expect(result).not.toBe('مرحبابك');
+        });
+
+        it('should preserve spaces when stripping multiple adjacent font tags in Arabic', () => {
+            const content = '<font color="red">هذا</font><font color="blue">نص</font><font color="green">عربي</font>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('هذا نص عربي');
+            expect(result).not.toBe('هذانصعربي');
+        });
+
+        it('should preserve spaces when stripping adjacent HTML tags in English text', () => {
+            const content = '<b>Hello</b><i>World</i><u>Test</u>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('Hello World Test');
+            expect(result).not.toBe('HelloWorldTest');
+        });
+
+        it('should handle mixed adjacent tags with various formatting', () => {
+            const content = '<b>Bold</b><i>Italic</i><u>Underline</u><s>Strike</s>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('Bold Italic Underline Strike');
+        });
+
+        it('should not add extra spaces when tags already have spaces between them', () => {
+            const content = '<b>Word1</b> <i>Word2</i> <u>Word3</u>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            // Should normalize to single spaces
+            expect(result).toBe('Word1 Word2 Word3');
+        });
+
+        it('should handle complex nested and adjacent tags in Arabic', () => {
+            const content = '<font color="red"><b>مرحبا</b></font><font color="blue"><i>بك</i></font>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('مرحبا بك');
+        });
+
+        it('should preserve existing spaces and add missing ones for adjacent tags', () => {
+            const content = '<b>Word1</b><i>Word2</i> <u>Word3</u><s>Word4</s>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('Word1 Word2 Word3 Word4');
+        });
+
+        it('should handle adjacent tags with no content between them', () => {
+            const content = '<b>Text1</b><i></i><u>Text2</u>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            // Empty tags should not add extra spaces
+            expect(result).toBe('Text1 Text2');
+        });
+
+        it('should handle multiline content with adjacent tags', () => {
+            const content = '<b>Line1</b><i>Word</i>\n<u>Line2</u><s>Word</s>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('Line1 Word\nLine2 Word');
+        });
+
+        it('should trim spaces at line boundaries after tag removal', () => {
+            const content = '<b>Start</b><i>Middle</i><u>End</u>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            // Should not have leading or trailing spaces
+            expect(result).toBe('Start Middle End');
+            expect(result.startsWith(' ')).toBe(false);
+            expect(result.endsWith(' ')).toBe(false);
+        });
+
+        it('should handle very long Arabic sentences with many adjacent tags', () => {
+            const content = `<b>هذا</b><i>نص</i><u>طويل</u><s>جدا</s><font>مع</font><b>كثير</b><i>من</i><u>العلامات</u>`;
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('هذا نص طويل جدا مع كثير من العلامات');
+            // Verify no words are concatenated
+            expect(result.split(' ')).toHaveLength(8);
+        });
+
+        it('should handle self-closing and adjacent tags', () => {
+            const content = '<b>Bold</b><br/><i>Italic</i>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('Bold Italic');
+        });
+
+        it('should preserve sentence structure in Arabic subtitles', () => {
+            const content = `<font color="red">مرحبا</font><font color="blue">بك</font> <font color="green">يا</font><font color="yellow">صديقي</font>`;
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('مرحبا بك يا صديقي');
+        });
+
+        it('should handle tags with attributes and adjacent placement', () => {
+            const content = '<font color="red" size="12">Red</font><font color="blue" size="14">Blue</font>';
+            const options: IStripOptions = { html: true };
+
+            const result = stripper.stripFormatting(content, options);
+
+            expect(result).toBe('Red Blue');
+        });
+    });
 });

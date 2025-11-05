@@ -71,15 +71,24 @@ export default class FormattingStripper {
             const tagRegex = new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gi');
 
             content = content.replace(tagRegex, (match) => {
-                // Extract text between tags
-                const text = match.replace(/<[^>]+>/g, '');
+                // Extract text between tags and replace inner tags with spaces
+                const text = match.replace(/<[^>]+>/g, ' ');
 
                 return text;
             });
         });
 
-        // Then remove any remaining HTML tags
-        return content.replace(this.htmlTagRegex, '');
+        // Then remove any remaining HTML tags, but preserve word boundaries
+        // Replace tags with a space to prevent word concatenation
+        content = content.replace(this.htmlTagRegex, ' ');
+
+        // Normalize multiple spaces to single space, but preserve intentional line breaks
+        content = content.replace(/ {2,}/g, ' ');
+
+        // Clean up spaces at the beginning and end of lines
+        content = content.replace(/^ +/gm, '').replace(/ +$/gm, '');
+
+        return content;
     }
 
     private stripColors(content: string): string {
