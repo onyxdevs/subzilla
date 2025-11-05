@@ -77,16 +77,16 @@ export class ConfigMapper {
             output: {
                 encoding: 'utf8',
                 createBackup: false,
-                overwriteBackup: false,
+                overwriteBackup: true, // Match root .subzillarc
                 bom: true,
-                lineEndings: 'auto',
-                overwriteInput: false,
+                lineEndings: 'crlf', // Match root .subzillarc
+                overwriteInput: true, // Match root .subzillarc
                 overwriteExisting: true,
             },
             strip: {
-                html: false,
-                colors: false,
-                styles: false,
+                html: true, // Match root .subzillarc - enables HTML stripping by default
+                colors: true, // Match root .subzillarc
+                styles: true, // Match root .subzillarc
                 urls: false,
                 timestamps: false,
                 numbers: false,
@@ -96,12 +96,12 @@ export class ConfigMapper {
                 bidiControl: true, // Default to true for better Arabic support
             },
             batch: {
-                recursive: false,
+                recursive: true, // Match root .subzillarc
                 parallel: true,
-                skipExisting: false,
+                skipExisting: true, // Match root .subzillarc
                 preserveStructure: false,
                 chunkSize: 5,
-                retryCount: 0,
+                retryCount: 3, // Match root .subzillarc
                 retryDelay: 1000,
                 failFast: false,
             },
@@ -117,16 +117,16 @@ export class ConfigMapper {
             output: {
                 encoding: 'utf8',
                 createBackup: false,
-                overwriteBackup: false,
+                overwriteBackup: true, // Match root .subzillarc
                 bom: true,
-                lineEndings: 'auto',
-                overwriteInput: false,
+                lineEndings: 'crlf', // Match root .subzillarc
+                overwriteInput: true, // Match root .subzillarc
                 overwriteExisting: true,
             },
             strip: {
-                html: false,
-                colors: false,
-                styles: false,
+                html: true, // Match root .subzillarc - enables HTML stripping by default
+                colors: true, // Match root .subzillarc
+                styles: true, // Match root .subzillarc
                 urls: false,
                 timestamps: false,
                 numbers: false,
@@ -136,12 +136,12 @@ export class ConfigMapper {
                 bidiControl: true,
             },
             batch: {
-                recursive: false,
+                recursive: true, // Match root .subzillarc
                 parallel: true,
-                skipExisting: false,
+                skipExisting: true, // Match root .subzillarc
                 preserveStructure: false,
                 chunkSize: 5,
-                retryCount: 0,
+                retryCount: 3, // Match root .subzillarc
                 retryDelay: 1000,
                 failFast: false,
             },
