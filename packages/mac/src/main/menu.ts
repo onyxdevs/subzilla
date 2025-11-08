@@ -1,6 +1,13 @@
 import { Menu, MenuItemConstructorOptions, app, shell } from 'electron';
 
-export function createMenu(appInstance: any): Menu {
+interface IAppInstance {
+    createPreferencesWindow: () => void;
+    openFiles: () => void;
+    clearFileList: () => void;
+    getMainWindow: () => { webContents: { send: (channel: string) => void } } | null;
+}
+
+export function createMenu(appInstance: IAppInstance): Menu {
     console.log('📋 Creating native menu bar...');
 
     const template: MenuItemConstructorOptions[] = [
@@ -9,9 +16,7 @@ export function createMenu(appInstance: any): Menu {
             submenu: [
                 {
                     label: 'About Subzilla',
-                    click: () => {
-                        const version = app.getVersion();
-
+                    click: (): void => {
                         shell.openExternal(`https://github.com/onyxdevs/subzilla`);
                     },
                 },
@@ -19,7 +24,7 @@ export function createMenu(appInstance: any): Menu {
                 {
                     label: 'Preferences...',
                     accelerator: 'Cmd+,',
-                    click: () => {
+                    click: (): void => {
                         appInstance.createPreferencesWindow();
                     },
                 },
@@ -39,7 +44,7 @@ export function createMenu(appInstance: any): Menu {
                 {
                     label: 'Open Files...',
                     accelerator: 'Cmd+O',
-                    click: () => {
+                    click: (): void => {
                         appInstance.openFiles();
                     },
                 },
@@ -51,7 +56,7 @@ export function createMenu(appInstance: any): Menu {
                 {
                     label: 'Clear List',
                     accelerator: 'Cmd+Delete',
-                    click: () => {
+                    click: (): void => {
                         appInstance.clearFileList();
                     },
                 },
@@ -99,22 +104,23 @@ export function createMenu(appInstance: any): Menu {
             submenu: [
                 {
                     label: 'Subzilla Help',
-                    click: () => {
+                    click: (): void => {
                         shell.openExternal('https://github.com/onyxdevs/subzilla/wiki');
                     },
                 },
                 {
                     label: 'Report Issue',
-                    click: () => {
+                    click: (): void => {
                         shell.openExternal('https://github.com/onyxdevs/subzilla/issues');
                     },
                 },
                 { type: 'separator' },
                 {
                     label: 'Keyboard Shortcuts',
-                    click: () => {
+                    click: (): void => {
                         // Show keyboard shortcuts overlay
                         const mainWindow = appInstance.getMainWindow();
+
                         if (mainWindow) {
                             mainWindow.webContents.send('show-shortcuts');
                         }
@@ -125,6 +131,7 @@ export function createMenu(appInstance: any): Menu {
     ];
 
     const menu = Menu.buildFromTemplate(template);
+
     console.log('✅ Menu bar created successfully');
 
     return menu;

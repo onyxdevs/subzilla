@@ -20,8 +20,19 @@
         "format": "yarn workspaces foreach --all run format",
         "format:check": "yarn workspaces foreach --all run format:check",
         "prettify": "prettier --write \"**/*.{ts,js,json,md,yml,yaml}\" --ignore-path .gitignore",
-        "clean": "yarn workspaces foreach --all exec rm -rf dist && rm -rf dist"
+        "clean": "yarn workspaces foreach --all exec rm -rf dist && rm -rf dist",
+        "prepare": "husky"
     },
+    "lint-staged": {
+        "*.{js,jsx,ts,tsx}": [
+            "prettier --write",
+            "eslint --fix"
+        ],
+        "*.{json,md,yml,yaml}": [
+            "prettier --write"
+        ]
+    },
+    "packageManager": "yarn@4.9.4",
     "keywords": [
         "subtitle",
         "converter",
@@ -54,5 +65,9 @@
         "prettier": "^3.6.2",
         "ts-jest": "^29.4.1",
         "typescript": "^5.9.2"
+    },
+    "dependencies": {
+        "husky": "^9.1.7",
+        "lint-staged": "^16.2.6"
     }
 }

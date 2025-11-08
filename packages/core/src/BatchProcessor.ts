@@ -224,50 +224,56 @@ export default class BatchProcessor {
         dirStats.total++;
 
         let attempts = 0;
-        const maxAttempts = (options.common.retryCount || 0) + 1;
+        const retryCount = options.common.retryCount || 0;
+        const maxAttempts = retryCount + 1; // Initial attempt + retry count
         const retryDelay = options.common.retryDelay || 1000;
 
-        while (attempts < maxAttempts) {
-            if (this.shouldStop) return;
+        try {
+            while (attempts < maxAttempts) {
+                if (this.shouldStop) return;
 
-            try {
-                if (options.batch.skipExisting && outputPath && (await this.fileExists(outputPath))) {
-                    dirStats.skipped++;
-                    this.stats.skipped++;
+                try {
+                    if (options.batch.skipExisting && outputPath && (await this.fileExists(outputPath))) {
+                        dirStats.skipped++;
+                        this.stats.skipped++;
 
-                    return;
+                        return;
+                    }
+
+                    await this.processor.processFile(file, outputPath, options.common);
+                    dirStats.successful++;
+                    this.stats.successful++;
+
+                    return; // Success - exit early
+                } catch (error) {
+                    attempts++;
+
+                    if (attempts < maxAttempts) {
+                        // Log retry attempt
+                        console.log(`🔄 Retrying ${file} (attempt ${attempts}/${retryCount})...`);
+                        await this.delay(retryDelay);
+
+                        continue;
+                    }
+
+                    // All retries exhausted
+                    dirStats.failed++;
+                    this.stats.failed++;
+                    this.stats.errors.push({
+                        file,
+                        error: (error as Error).message,
+                    });
+
+                    if (options.common.failFast) {
+                        this.shouldStop = true;
+                        throw new Error(`Failed to process ${file}: ${(error as Error).message}`);
+                    }
                 }
-
-                await this.processor.processFile(file, outputPath, options.common);
-                dirStats.successful++;
-                this.stats.successful++;
-
-                break;
-            } catch (error) {
-                attempts++;
-
-                if (attempts < maxAttempts) {
-                    // Log retry attempt
-                    console.log(`🔄 Retrying ${file} (attempt ${attempts}/${maxAttempts - 1})...`);
-                    await this.delay(retryDelay);
-                    continue;
-                }
-
-                dirStats.failed++;
-                this.stats.failed++;
-                this.stats.errors.push({
-                    file,
-                    error: (error as Error).message,
-                });
-
-                if (options.common.failFast) {
-                    this.shouldStop = true;
-                    throw new Error(`Failed to process ${file}: ${(error as Error).message}`);
-                }
-            } finally {
-                this.mainProgressBar.increment();
-                this.directoryBars.get(dir)?.increment();
             }
+        } finally {
+            // Only increment progress bars once, after all retries are complete
+            this.mainProgressBar.increment();
+            this.directoryBars.get(dir)?.increment();
         }
     }
 

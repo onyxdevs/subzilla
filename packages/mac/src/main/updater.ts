@@ -1,5 +1,5 @@
-import { autoUpdater } from 'electron-updater';
 import { dialog, BrowserWindow, Notification } from 'electron';
+import { autoUpdater } from 'electron-updater';
 
 export class AutoUpdater {
     private mainWindow: BrowserWindow;
@@ -54,11 +54,13 @@ export class AutoUpdater {
         // Download progress
         autoUpdater.on('download-progress', (progressObj) => {
             const percent = Math.round(progressObj.percent);
+
             console.log(`📥 Download progress: ${percent}%`);
 
             // Update dock badge with download progress
             if (process.platform === 'darwin') {
                 const { app } = require('electron');
+
                 app.dock.setBadge(`${percent}%`);
             }
 
@@ -77,6 +79,7 @@ export class AutoUpdater {
             // Clear dock badge
             if (process.platform === 'darwin') {
                 const { app } = require('electron');
+
                 app.dock.setBadge('');
             }
 

@@ -22,7 +22,7 @@ describe('FormattingStripper', () => {
         });
 
         it('should preserve content when no options are enabled', () => {
-            const content = '<b>Bold text</b> with colors {\c&H0000FF&}';
+            const content = '<b>Bold text</b> with colors {\\c&H0000FF&}';
             const options: IStripOptions = {};
 
             const result = stripper.stripFormatting(content, options);
@@ -172,12 +172,12 @@ describe('FormattingStripper', () => {
         });
 
         it('should handle content with only formatting codes', () => {
-            const content = '<b></b>{\\c&H0000FF&}{\c}';
+            const content = '<b></b>{\\c&H0000FF&}{\\c}';
             const options: IStripOptions = { html: true, colors: true };
 
             const result = stripper.stripFormatting(content, options);
 
-            expect(result).toBe('{\c}'); // Only unmatched codes remain
+            expect(result).toBe('{\\c}'); // Only unmatched codes remain
         });
     });
 });

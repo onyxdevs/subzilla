@@ -42,6 +42,18 @@ module.exports = {
             // Setup files for CLI tests
             setupFilesAfterEnv: ['<rootDir>/packages/cli/jest.setup.ts'],
         },
+        {
+            displayName: 'mac',
+            testMatch: ['<rootDir>/packages/mac/__tests__/**/*.test.ts'],
+            preset: 'ts-jest',
+            testEnvironment: 'node',
+            moduleNameMapper: {
+                '^@subzilla/types$': '<rootDir>/packages/types/src',
+                '^@subzilla/core$': '<rootDir>/packages/core/src',
+                '^@subzilla/mac/(.*)$': '<rootDir>/packages/mac/src/$1',
+            },
+            setupFiles: ['<rootDir>/packages/mac/__tests__/jest.setup.js'],
+        },
     ],
 
     // Global settings

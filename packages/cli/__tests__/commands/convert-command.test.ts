@@ -4,7 +4,7 @@ import path from 'path';
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
 
-import { IConvertCommandOptions } from '@subzilla/types';
+import { IConvertCommandOptions, IConfig, ICommandDefinition } from '@subzilla/types';
 
 import { ConvertCommandCreator } from '../../src/commands/convert-command';
 
@@ -42,7 +42,7 @@ describe('ConvertCommandCreator', () => {
             backupPath: '/mock/backup.srt',
         });
 
-        (SubtitleProcessor as any).mockImplementation(() => ({
+        (SubtitleProcessor as jest.Mock).mockImplementation(() => ({
             processFile: mockProcessFile,
         }));
 
@@ -65,19 +65,22 @@ describe('ConvertCommandCreator', () => {
     afterEach(async () => {
         try {
             await fs.promises.rm(tempDir, { recursive: true, force: true });
-        } catch (error) {
+        } catch {
             // Ignore cleanup errors
         }
     });
 
     describe('getDefinition', () => {
         it('should return correct command definition', () => {
-            const definition = (commandCreator as any).getDefinition();
+            const definition = (
+                commandCreator as unknown as { getDefinition(): ICommandDefinition<IConvertCommandOptions> }
+            ).getDefinition();
 
             expect(definition.name).toBe('convert');
             expect(definition.description).toBe('Convert a single subtitle file to UTF-8');
+            expect(definition.arguments).toBeDefined();
             expect(definition.arguments).toHaveLength(1);
-            expect(definition.arguments[0].name).toBe('inputFile');
+            expect(definition.arguments![0].name).toBe('inputFile');
             expect(definition.options).toBeDefined();
             expect(typeof definition.action).toBe('function');
         });
@@ -85,12 +88,14 @@ describe('ConvertCommandCreator', () => {
 
     describe('action', () => {
         let testFilePath: string;
-        let definition: any;
+        let definition: ICommandDefinition<IConvertCommandOptions>;
 
         beforeEach(async () => {
             testFilePath = path.join(tempDir, 'test.srt');
             await fs.promises.writeFile(testFilePath, 'test content', 'utf8');
-            definition = (commandCreator as any).getDefinition();
+            definition = (
+                commandCreator as unknown as { getDefinition(): ICommandDefinition<IConvertCommandOptions> }
+            ).getDefinition();
         });
 
         it('should successfully process a file with default options', async () => {
@@ -198,7 +203,7 @@ describe('ConvertCommandCreator', () => {
                     createBackup: true,
                     bom: false,
                 },
-            };
+            } as IConfig;
 
             const options: IConvertCommandOptions = {
                 loadedConfig: customConfig,
@@ -248,21 +253,27 @@ describe('ConvertCommandCreator', () => {
     describe('getDefaultOutputPath', () => {
         it('should generate correct default output path', () => {
             const inputFile = '/path/to/input.srt';
-            const result = (commandCreator as any).getDefaultOutputPath(inputFile);
+            const result = (
+                commandCreator as unknown as { getDefaultOutputPath(file: string): string }
+            ).getDefaultOutputPath(inputFile);
 
             expect(result).toBe('/path/to/input.subzilla.srt');
         });
 
         it('should handle files with multiple dots', () => {
             const inputFile = '/path/to/file.name.with.dots.srt';
-            const result = (commandCreator as any).getDefaultOutputPath(inputFile);
+            const result = (
+                commandCreator as unknown as { getDefaultOutputPath(file: string): string }
+            ).getDefaultOutputPath(inputFile);
 
             expect(result).toBe('/path/to/file.name.with.dots.subzilla.srt');
         });
 
         it('should handle files without extension', () => {
             const inputFile = '/path/to/filename';
-            const result = (commandCreator as any).getDefaultOutputPath(inputFile);
+            const result = (
+                commandCreator as unknown as { getDefaultOutputPath(file: string): string }
+            ).getDefaultOutputPath(inputFile);
 
             expect(result).toBe('.subzilla./path/to/filename');
         });
