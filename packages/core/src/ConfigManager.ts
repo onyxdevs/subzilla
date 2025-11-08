@@ -21,6 +21,50 @@ export default class ConfigManager {
 
     private static readonly ENV_PREFIX = 'SUBZILLA_';
 
+    // Map of known config property names for case-insensitive matching
+    private static readonly KNOWN_PROPERTIES: Record<string, Record<string, string>> = {
+        input: {
+            encoding: 'encoding',
+            format: 'format',
+        },
+        output: {
+            directory: 'directory',
+            createbackup: 'createBackup',
+            overwritebackup: 'overwriteBackup',
+            format: 'format',
+            encoding: 'encoding',
+            bom: 'bom',
+            lineendings: 'lineEndings',
+            overwriteinput: 'overwriteInput',
+            overwriteexisting: 'overwriteExisting',
+        },
+        strip: {
+            html: 'html',
+            colors: 'colors',
+            styles: 'styles',
+            urls: 'urls',
+            timestamps: 'timestamps',
+            numbers: 'numbers',
+            punctuation: 'punctuation',
+            emojis: 'emojis',
+            brackets: 'brackets',
+            bidicontrol: 'bidiControl',
+        },
+        batch: {
+            recursive: 'recursive',
+            parallel: 'parallel',
+            skipexisting: 'skipExisting',
+            maxdepth: 'maxDepth',
+            includedirectories: 'includeDirectories',
+            excludedirectories: 'excludeDirectories',
+            preservestructure: 'preserveStructure',
+            chunksize: 'chunkSize',
+            retrycount: 'retryCount',
+            retrydelay: 'retryDelay',
+            failfast: 'failFast',
+        },
+    };
+
     private static readonly DEFAULT_CONFIG: IConfig = {
         input: {
             encoding: 'auto',
@@ -88,9 +132,13 @@ export default class ConfigManager {
         const config: TConfigSegment = {};
 
         for (const [key, value] of Object.entries(process.env)) {
-            if (!key.startsWith(this.ENV_PREFIX) || !value) continue;
+            if (!key.startsWith(this.ENV_PREFIX)) continue;
+            // Skip undefined or empty strings, but not whitespace-only strings
+            if (value === undefined || value === '') continue;
 
-            const configPath = key.slice(this.ENV_PREFIX.length).toLowerCase().split('_');
+            // Convert SUBZILLA_BATCH_CHUNK_SIZE to ['batch', 'chunkSize']
+            const envKey = key.slice(this.ENV_PREFIX.length);
+            const configPath = this.envKeyToConfigPath(envKey);
 
             this.setNestedValue(config, configPath, this.parseEnvValue(value));
         }
@@ -153,13 +201,49 @@ export default class ConfigManager {
     }
 
     /**
+     * 🔑 Convert environment variable key to config path
+     * Example: BATCH_CHUNK_SIZE -> ['batch', 'chunkSize']
+     * Example: INPUT_ENCODING -> ['input', 'encoding']
+     * Example: STRIP -> ['strip']
+     */
+    private static envKeyToConfigPath(envKey: string): string[] {
+        const parts = envKey.split('_');
+
+        if (parts.length === 1) {
+            // Single part like STRIP -> ['strip']
+            return [parts[0].toLowerCase()];
+        }
+
+        // Multi-part: first part is section, rest form the property name
+        const section = parts[0].toLowerCase();
+        const propertyKey = parts.slice(1).join('').toLowerCase();
+
+        // Look up the correct camelCase property name
+        const correctPropertyName = this.KNOWN_PROPERTIES[section]?.[propertyKey] || propertyKey;
+
+        return [section, correctPropertyName];
+    }
+
+    /**
      * 🔄 Parse environment variable value
      */
     private static parseEnvValue(value: string): unknown {
+        // Try to parse as JSON first (handles arrays, objects, numbers, booleans, etc.)
         try {
             return JSON.parse(value);
         } catch {
-            // If it's not valid JSON, return as is
+            // Handle boolean strings
+            if (value.toLowerCase() === 'true') return true;
+            if (value.toLowerCase() === 'false') return false;
+
+            // Try to parse as number
+            const num = Number(value);
+
+            if (!isNaN(num) && value.trim() !== '') {
+                return num;
+            }
+
+            // Return as string if nothing else matches
             return value;
         }
     }
@@ -187,34 +271,48 @@ export default class ConfigManager {
      * 🔄 Deep merge configuration objects
      */
     private static mergeConfigs(...configs: Partial<IConfig>[]): IConfig {
-        return configs.reduce((acc, config) => {
-            return this.deepMerge(acc, config);
-        }, {} as IConfig);
+        if (configs.length === 0) {
+            return this.DEFAULT_CONFIG;
+        }
+
+        // Start with the first config and merge the rest
+        const [first, ...rest] = configs;
+
+        let result: IConfig = { ...first } as IConfig;
+
+        for (const config of rest) {
+            result = this.deepMergeConfig(result, config);
+        }
+
+        return result;
     }
 
     /**
-     * 🔄 Deep merge two objects
+     * 🔄 Deep merge two configuration objects
      */
-    private static deepMerge<T extends Record<string, unknown>>(target: T, source: Partial<T>): T {
+    private static deepMergeConfig(target: IConfig, source: Partial<IConfig>): IConfig {
         if (!source) return target;
 
-        const result = { ...target };
+        const result: IConfig = { ...target };
 
-        for (const key in source) {
-            if (Object.prototype.hasOwnProperty.call(source, key)) {
-                const sourceValue = source[key];
+        // Merge input
+        if (source.input !== undefined) {
+            result.input = { ...(target.input || {}), ...source.input };
+        }
 
-                if (typeof sourceValue === 'object' && sourceValue !== null && !Array.isArray(sourceValue)) {
-                    const targetValue = result[key] as Record<string, unknown>;
+        // Merge output
+        if (source.output !== undefined) {
+            result.output = { ...(target.output || {}), ...source.output };
+        }
 
-                    result[key] = this.deepMerge(
-                        (targetValue || {}) as Record<string, unknown>,
-                        sourceValue as Record<string, unknown>,
-                    ) as T[Extract<keyof T, string>];
-                } else {
-                    result[key] = sourceValue as T[Extract<keyof T, string>];
-                }
-            }
+        // Merge strip
+        if (source.strip !== undefined) {
+            result.strip = { ...(target.strip || {}), ...source.strip };
+        }
+
+        // Merge batch
+        if (source.batch !== undefined) {
+            result.batch = { ...(target.batch || {}), ...source.batch };
         }
 
         return result;
@@ -225,7 +323,8 @@ export default class ConfigManager {
      */
     public static async saveConfig(config: IConfig, filePath: string): Promise<void> {
         try {
-            const validatedConfig = await this.validateConfig(config);
+            // Validate and throw on error (don't return defaults)
+            const validatedConfig = configSchema.parse(config);
             const yamlContent = yaml.stringify(validatedConfig, { indent: 2 });
 
             await fs.writeFile(filePath, yamlContent, 'utf8');

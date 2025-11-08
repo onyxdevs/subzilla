@@ -20,7 +20,7 @@ describe('SubtitleProcessor Integration Tests', () => {
     afterEach(async () => {
         try {
             await fs.promises.rm(tempDir, { recursive: true, force: true });
-        } catch (error) {
+        } catch {
             // Ignore cleanup errors
         }
     });

@@ -2,7 +2,7 @@ import Store from 'electron-store';
 
 import { IConfig, IStripOptions } from '@subzilla/types';
 
-export interface MacAppPreferences {
+export interface IMacAppPreferences {
     // Application-specific preferences
     notifications: boolean;
     sounds: boolean;
@@ -21,7 +21,7 @@ export interface MacAppPreferences {
 }
 
 export class ConfigMapper {
-    private store: Store<IConfig & { app: MacAppPreferences }>;
+    private store: Store<IConfig & { app: IMacAppPreferences }>;
 
     constructor() {
         console.log('⚙️ Initializing configuration store...');
@@ -97,7 +97,7 @@ export class ConfigMapper {
         console.log('✅ Configuration store initialized');
     }
 
-    private getDefaultConfig(): IConfig & { app: MacAppPreferences } {
+    private getDefaultConfig(): IConfig & { app: IMacAppPreferences } {
         return {
             input: {
                 encoding: 'auto',
@@ -145,7 +145,7 @@ export class ConfigMapper {
         };
     }
 
-    public getDefaultConfigData(): IConfig & { app: MacAppPreferences } {
+    public getDefaultConfigData(): IConfig & { app: IMacAppPreferences } {
         return {
             input: {
                 encoding: 'auto',
@@ -197,12 +197,13 @@ export class ConfigMapper {
         const fullConfig = this.store.store;
 
         // Return only the IConfig part (without app preferences)
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { app, ...config } = fullConfig;
 
         return config;
     }
 
-    public async getAppPreferences(): Promise<MacAppPreferences> {
+    public async getAppPreferences(): Promise<IMacAppPreferences> {
         return this.store.get('app', this.getDefaultConfig().app);
     }
 
@@ -217,7 +218,7 @@ export class ConfigMapper {
         console.log('✅ Configuration saved');
     }
 
-    public async saveAppPreferences(preferences: MacAppPreferences): Promise<void> {
+    public async saveAppPreferences(preferences: IMacAppPreferences): Promise<void> {
         console.log('💾 Saving app preferences...');
         this.store.set('app', preferences);
         console.log('✅ App preferences saved');
@@ -233,7 +234,7 @@ export class ConfigMapper {
         return this.store.path;
     }
 
-    public getStore(): any {
+    public getStore(): Store<IConfig & { app: IMacAppPreferences }> {
         return this.store;
     }
 

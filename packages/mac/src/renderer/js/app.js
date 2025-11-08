@@ -231,7 +231,7 @@ class SubzillaApp {
     }
 
     markAllCompleted() {
-        for (const [id, file] of this.files) {
+        for (const [, file] of this.files) {
             if (file.status === 'processing' || file.status === 'pending') {
                 file.status = 'completed';
                 file.resultEncoding = 'UTF-8';
@@ -434,6 +434,7 @@ class SubzillaApp {
 }
 
 // Drag and Drop Handler
+// eslint-disable-next-line no-unused-vars
 class DragDropHandler {
     constructor(app) {
         this.app = app;
@@ -442,6 +443,7 @@ class DragDropHandler {
 
     setupEventListeners() {
         const dropZone = document.body;
+        // eslint-disable-next-line no-unused-vars
         let dragCounter = 0;
 
         // Prevent default drag behaviors

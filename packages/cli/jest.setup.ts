@@ -16,10 +16,10 @@ global.console = {
 };
 
 // Mock process.exit and process.argv
-const mockExit = jest.fn();
+const mockExit = jest.fn<typeof process.exit>();
 const originalArgv = process.argv;
 
-process.exit = mockExit as any;
+process.exit = mockExit;
 
 // Reset process.argv and mocks after each test
 afterEach(() => {

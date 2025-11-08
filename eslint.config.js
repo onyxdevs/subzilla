@@ -139,6 +139,11 @@ module.exports = [
                 {
                     blankLine: 'always',
                     prev: '*',
+                    next: 'continue',
+                },
+                {
+                    blankLine: 'always',
+                    prev: '*',
                     next: 'try',
                 },
                 {
@@ -177,6 +182,30 @@ module.exports = [
                     next: 'expression',
                 },
             ],
+        },
+    },
+    {
+        // Test files: Relaxed import ordering for testing priorities
+        files: [
+            '**/*.test.ts',
+            '**/*.test.tsx',
+            '**/*.spec.ts',
+            '**/*.spec.tsx',
+            '**/jest.setup.ts',
+            '**/jest.setup.tsx',
+            '**/setup-tests.ts',
+            '**/setup-tests.tsx',
+        ],
+        plugins: {
+            import: importPlugin,
+        },
+        rules: {
+            // Disable strict import ordering for test files
+            'import/order': 'off',
+            // Allow var declarations in test files
+            'no-var': 'off',
+            // Allow empty functions in test files (useful for mocks and stubs)
+            '@typescript-eslint/no-empty-function': 'off',
         },
     },
     {

@@ -89,29 +89,37 @@ class SubzillaApp {
         // Load the main window content
         const indexPath = path.join(__dirname, '../renderer/index.html');
 
-        this.mainWindow.loadFile(indexPath);
+        if (this.mainWindow && typeof this.mainWindow.loadFile === 'function') {
+            this.mainWindow.loadFile(indexPath);
+        }
 
         // Show window when ready
-        this.mainWindow.once('ready-to-show', () => {
-            console.log('✅ Main window ready, showing...');
-            this.mainWindow?.show();
+        if (this.mainWindow && typeof this.mainWindow.once === 'function') {
+            this.mainWindow.once('ready-to-show', () => {
+                console.log('✅ Main window ready, showing...');
+                this.mainWindow?.show();
 
-            if (isDev) {
-                this.mainWindow?.webContents.openDevTools();
-            }
-        });
+                if (isDev) {
+                    this.mainWindow?.webContents.openDevTools();
+                }
+            });
+        }
 
         // Handle window closed
-        this.mainWindow.on('closed', () => {
-            this.mainWindow = null;
-        });
+        if (this.mainWindow && typeof this.mainWindow.on === 'function') {
+            this.mainWindow.on('closed', () => {
+                this.mainWindow = null;
+            });
+        }
 
         // Handle external links
-        this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-            shell.openExternal(url);
+        if (this.mainWindow?.webContents && typeof this.mainWindow.webContents.setWindowOpenHandler === 'function') {
+            this.mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+                shell.openExternal(url);
 
-            return { action: 'deny' };
-        });
+                return { action: 'deny' };
+            });
+        }
     }
 
     public createPreferencesWindow(): void {
@@ -148,17 +156,23 @@ class SubzillaApp {
         // Load preferences content
         const preferencesPath = path.join(__dirname, '../renderer/preferences.html');
 
-        this.preferencesWindow.loadFile(preferencesPath);
+        if (this.preferencesWindow && typeof this.preferencesWindow.loadFile === 'function') {
+            this.preferencesWindow.loadFile(preferencesPath);
+        }
 
         // Show when ready
-        this.preferencesWindow.once('ready-to-show', () => {
-            this.preferencesWindow?.show();
-        });
+        if (this.preferencesWindow && typeof this.preferencesWindow.once === 'function') {
+            this.preferencesWindow.once('ready-to-show', () => {
+                this.preferencesWindow?.show();
+            });
+        }
 
         // Clean up reference when closed
-        this.preferencesWindow.on('closed', () => {
-            this.preferencesWindow = null;
-        });
+        if (this.preferencesWindow && typeof this.preferencesWindow.on === 'function') {
+            this.preferencesWindow.on('closed', () => {
+                this.preferencesWindow = null;
+            });
+        }
     }
 
     private setupMenu(): void {
@@ -198,8 +212,13 @@ class SubzillaApp {
     }
 }
 
-// Create app instance
-const subzillaApp = new SubzillaApp();
+// Create app instance only when not in test environment
+let subzillaApp: SubzillaApp;
 
-// Export for use in other modules
-export default subzillaApp;
+if (process.env.NODE_ENV !== 'test') {
+    subzillaApp = new SubzillaApp();
+}
+
+// Export for use in other modules and tests
+export default subzillaApp!;
+export { SubzillaApp };

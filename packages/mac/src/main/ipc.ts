@@ -1,13 +1,13 @@
 import path from 'path';
 
-import { ipcMain, dialog, BrowserWindow, shell, app } from 'electron';
+import { ipcMain, dialog, shell, app } from 'electron';
 
-import { SubtitleProcessor, BatchProcessor, ConfigManager } from '@subzilla/core';
+import { SubtitleProcessor, BatchProcessor } from '@subzilla/core';
 import { IConfig, IConvertOptions, IBatchStats } from '@subzilla/types';
 
 import { ConfigMapper } from './preferences';
 
-export interface FileProcessingItem {
+export interface IFileProcessingItem {
     id: string;
     filePath: string;
     fileName: string;
@@ -17,14 +17,17 @@ export interface FileProcessingItem {
     error?: string;
 }
 
-export interface ProcessingProgress {
+export interface IProcessingProgress {
     current: number;
     total: number;
     currentFile?: string;
     stats: IBatchStats;
 }
 
-export function setupIPC(appInstance: any): void {
+export function setupIPC(appInstance: {
+    createPreferencesWindow: () => void;
+    getPreferencesWindow: () => { close: () => void } | null;
+}): void {
     console.log('🔗 Setting up IPC handlers...');
 
     const processor = new SubtitleProcessor();
@@ -79,6 +82,7 @@ export function setupIPC(appInstance: any): void {
             // Skip files that are already processed
             if (fileName.includes('.subzilla.')) {
                 console.log(`⏭️ Skipping already processed file: ${fileName}`);
+
                 return {
                     success: false,
                     error: 'File has already been processed by Subzilla',
@@ -134,10 +138,10 @@ export function setupIPC(appInstance: any): void {
                 },
             };
 
-            // Set up progress reporting
-            const sendProgress = (progress: ProcessingProgress) => {
-                event.sender.send('processing-progress', progress);
-            };
+            // Set up progress reporting (currently unused but available for future use)
+            // const sendProgress = (progress: IProcessingProgress): void => {
+            //     event.sender.send('processing-progress', progress);
+            // };
 
             // Process files
             const stats = await batchProcessor.processBatch(filePaths.join(','), batchOptions);

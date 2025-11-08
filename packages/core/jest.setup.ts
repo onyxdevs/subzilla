@@ -16,9 +16,9 @@ global.console = {
 };
 
 // Mock process.exit to prevent tests from actually exiting
-const mockExit = jest.fn();
+const mockExit = jest.fn<typeof process.exit>();
 
-process.exit = mockExit as any;
+process.exit = mockExit;
 
 // Reset mocks after each test
 afterEach(() => {

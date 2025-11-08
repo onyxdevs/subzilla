@@ -39,11 +39,11 @@ describe('CLI Main Entry Point', () => {
                 total: 1,
             });
 
-        (SubtitleProcessor as any).mockImplementation(() => ({
+        (SubtitleProcessor as jest.Mock).mockImplementation(() => ({
             processFile: mockProcessFile,
         }));
 
-        (BatchProcessor as any).mockImplementation(() => ({
+        (BatchProcessor as jest.Mock).mockImplementation(() => ({
             processBatch: mockProcessBatch,
         }));
     });
@@ -65,10 +65,12 @@ describe('CLI Main Entry Point', () => {
                 expect(output).toContain('Commands:');
                 expect(output).toContain('convert');
                 expect(output).toContain('batch');
-            } catch (error: any) {
+            } catch (error: unknown) {
                 // Help command exits with code 0, but execSync might throw
-                if (error.status === 0) {
-                    expect(error.stdout).toContain('subzilla');
+                const execError = error as { status?: number; stdout?: string };
+
+                if (execError.status === 0) {
+                    expect(execError.stdout).toContain('subzilla');
                 } else {
                     throw error;
                 }
@@ -83,10 +85,12 @@ describe('CLI Main Entry Point', () => {
                 });
 
                 expect(output).toMatch(/\d+\.\d+\.\d+/); // Version pattern
-            } catch (error: any) {
+            } catch (error: unknown) {
                 // Version command exits with code 0, but execSync might throw
-                if (error.status === 0) {
-                    expect(error.stdout).toMatch(/\d+\.\d+\.\d+/);
+                const execError = error as { status?: number; stdout?: string };
+
+                if (execError.status === 0) {
+                    expect(execError.stdout).toMatch(/\d+\.\d+\.\d+/);
                 } else {
                     throw error;
                 }
@@ -104,9 +108,11 @@ describe('CLI Main Entry Point', () => {
 
                 expect(output).toContain('Convert a single subtitle file to UTF-8');
                 expect(output).toContain('inputFile');
-            } catch (error: any) {
-                if (error.status === 0) {
-                    expect(error.stdout).toContain('Convert a single subtitle file');
+            } catch (error: unknown) {
+                const execError = error as { status?: number; stdout?: string };
+
+                if (execError.status === 0) {
+                    expect(execError.stdout).toContain('Convert a single subtitle file');
                 } else {
                     throw error;
                 }
@@ -122,9 +128,11 @@ describe('CLI Main Entry Point', () => {
 
                 expect(output).toContain('Convert multiple subtitle files');
                 expect(output).toContain('pattern');
-            } catch (error: any) {
-                if (error.status === 0) {
-                    expect(error.stdout).toContain('Convert multiple subtitle files');
+            } catch (error: unknown) {
+                const execError = error as { status?: number; stdout?: string };
+
+                if (execError.status === 0) {
+                    expect(execError.stdout).toContain('Convert multiple subtitle files');
                 } else {
                     throw error;
                 }
@@ -139,9 +147,11 @@ describe('CLI Main Entry Point', () => {
                 });
 
                 expect(output).toContain('Create a default configuration file');
-            } catch (error: any) {
-                if (error.status === 0) {
-                    expect(error.stdout).toContain('Create a default configuration');
+            } catch (error: unknown) {
+                const execError = error as { status?: number; stdout?: string };
+
+                if (execError.status === 0) {
+                    expect(execError.stdout).toContain('Create a default configuration');
                 } else {
                     throw error;
                 }
@@ -156,9 +166,11 @@ describe('CLI Main Entry Point', () => {
                 });
 
                 expect(output).toContain('Show detailed information about a subtitle file');
-            } catch (error: any) {
-                if (error.status === 0) {
-                    expect(error.stdout).toContain('Show detailed information about a subtitle file');
+            } catch (error: unknown) {
+                const execError = error as { status?: number; stdout?: string };
+
+                if (execError.status === 0) {
+                    expect(execError.stdout).toContain('Show detailed information about a subtitle file');
                 } else {
                     throw error;
                 }
@@ -176,9 +188,11 @@ describe('CLI Main Entry Point', () => {
 
                 // Should not reach here
                 expect(true).toBe(false);
-            } catch (error: any) {
-                expect(error.status).not.toBe(0);
-                expect(error.stderr || error.stdout).toContain('unknown command');
+            } catch (error: unknown) {
+                const execError = error as { status?: number; stderr?: string; stdout?: string };
+
+                expect(execError.status).not.toBe(0);
+                expect(execError.stderr || execError.stdout).toContain('unknown command');
             }
         });
 
@@ -191,10 +205,12 @@ describe('CLI Main Entry Point', () => {
 
                 // Should not reach here
                 expect(true).toBe(false);
-            } catch (error: any) {
-                expect(error.status).not.toBe(0);
+            } catch (error: unknown) {
+                const execError = error as { status?: number; stderr?: string; stdout?: string };
+
+                expect(execError.status).not.toBe(0);
                 // Should show error about missing argument
-                expect(error.stderr || error.stdout).toContain('argument');
+                expect(execError.stderr || execError.stdout).toContain('argument');
             }
         });
     });
