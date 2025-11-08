@@ -106,32 +106,78 @@ export default class BatchProcessor {
     private async findFiles(pattern: string, options: IBatchOptions): Promise<string[]> {
         console.info(`🔍 Finding files: ${pattern}`);
 
-        const files = await glob(pattern, {
+        const globOptions: Parameters<typeof glob>[1] = {
             nodir: true,
             dot: false,
             follow: true,
-            maxDepth: options.batch.maxDepth,
-        });
+        };
 
-        return files.filter((file) => {
-            const dirPath = path.dirname(file);
+        // Note: We don't use glob's maxDepth option as it may not work correctly with ** patterns
+        // Instead, we filter manually after getting all files
 
-            // Check include directories
-            if (options.batch.includeDirectories?.length) {
-                if (!options.batch.includeDirectories.some((dir) => dirPath.includes(dir))) {
-                    return false;
+        const files = await glob(pattern, globOptions);
+
+        return files
+            .map((file) => String(file))
+            .filter((file) => {
+                // Apply maxDepth filtering manually if needed
+                // Note: glob's maxDepth may not work correctly with ** patterns, so we filter manually
+                if (options.batch.maxDepth !== undefined) {
+                    // Calculate depth relative to the pattern's base directory
+                    // Pattern is like "tempDir/**/*.srt", base is "tempDir"
+                    // Extract base directory: everything before the first "**"
+                    const doubleStarIndex = pattern.indexOf('**');
+                    let patternBase: string;
+
+                    if (doubleStarIndex > 0) {
+                        const basePart = pattern.substring(0, doubleStarIndex);
+
+                        // Remove trailing slash/separator if present
+                        patternBase = basePart.replace(/[/\\]$/, '') || path.dirname(pattern);
+                    } else {
+                        patternBase = path.dirname(pattern);
+                    }
+
+                    // Normalize paths to handle absolute/relative differences
+                    const normalizedBase = path.resolve(patternBase);
+                    const normalizedFile = path.resolve(file);
+                    const relativePath = path.relative(normalizedBase, normalizedFile);
+
+                    // Skip if relative path is empty or just ".." (file is outside base)
+                    if (!relativePath || relativePath.startsWith('..')) {
+                        return false;
+                    }
+
+                    // Depth is the number of directory separators in the relative path
+                    // For "level1/file2.srt", depth is 1; for "file1.srt", depth is 0
+                    const pathParts = relativePath
+                        .split(path.sep)
+                        .filter((segment) => segment !== '' && segment !== '.');
+                    const depth = pathParts.length > 0 ? pathParts.length - 1 : 0; // -1 for filename
+
+                    if (depth > options.batch.maxDepth) {
+                        return false;
+                    }
                 }
-            }
 
-            // Check exclude directories
-            if (options.batch.excludeDirectories?.length) {
-                if (options.batch.excludeDirectories.some((dir) => dirPath.includes(dir))) {
-                    return false;
+                const dirPath = path.dirname(file);
+
+                // Check include directories
+                if (options.batch.includeDirectories?.length) {
+                    if (!options.batch.includeDirectories.some((dir) => dirPath.includes(dir))) {
+                        return false;
+                    }
                 }
-            }
 
-            return true;
-        });
+                // Check exclude directories
+                if (options.batch.excludeDirectories?.length) {
+                    if (options.batch.excludeDirectories.some((dir) => dirPath.includes(dir))) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
     }
 
     private countDirectories(files: string[]): number {

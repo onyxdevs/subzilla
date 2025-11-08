@@ -438,20 +438,23 @@ Test subtitle content
             });
 
             it('should respect maxDepth option', async () => {
-                await createTestSrtFile(path.join(tempDir, 'file1.srt'));
-                await createTestSrtFile(path.join(tempDir, 'level1', 'file2.srt'));
-                await createTestSrtFile(path.join(tempDir, 'level1', 'level2', 'file3.srt'));
-                await createTestSrtFile(path.join(tempDir, 'level1', 'level2', 'level3', 'file4.srt'));
+                await createTestSrtFile(path.join(tempDir, 'file1.srt')); // depth 0
+                await createTestSrtFile(path.join(tempDir, 'level1', 'file2.srt')); // depth 1
+                await createTestSrtFile(path.join(tempDir, 'level1', 'level2', 'file3.srt')); // depth 2
+                await createTestSrtFile(path.join(tempDir, 'level1', 'level2', 'level3', 'file4.srt')); // depth 3
 
                 const pattern = path.join(tempDir, '**', '*.srt');
+
+                // Test with maxDepth: 2 - should only find files at depth 0, 1, 2
                 const options = createDefaultOptions({
                     batch: { maxDepth: 2 },
                 } as Partial<IBatchOptions>);
 
                 const stats = await processor.processBatch(pattern, options);
 
-                // Should only find files up to depth 2
-                expect(stats.total).toBeLessThan(4);
+                // Should find 3 files (file1, file2, file3) but not file4 (depth 3)
+                expect(stats.total).toBe(3);
+                expect(stats.successful).toBe(3);
             });
         });
 

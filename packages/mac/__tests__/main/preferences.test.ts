@@ -120,9 +120,9 @@ describe('ConfigMapper - Preferences Management', () => {
         it('should have correct default configuration', () => {
             const defaults = configMapper.getDefaultConfigData();
 
-            expect(defaults.input.encoding).toBe('auto');
-            expect(defaults.output.encoding).toBe('utf8');
-            expect(defaults.output.bom).toBe(true);
+            expect(defaults.input!.encoding).toBe('auto');
+            expect(defaults.output!.encoding).toBe('utf8');
+            expect(defaults.output!.bom).toBe(true);
             expect(defaults.strip?.bidiControl).toBe(true);
             expect(defaults.batch?.parallel).toBe(true);
             expect(defaults.app.notifications).toBe(true);
@@ -299,20 +299,20 @@ describe('ConfigMapper - Preferences Management', () => {
         it('should have correct input defaults', () => {
             const defaults = configMapper.getDefaultConfigData();
 
-            expect(defaults.input.encoding).toBe('auto');
-            expect(defaults.input.format).toBe('auto');
+            expect(defaults.input!.encoding).toBe('auto');
+            expect(defaults.input!.format).toBe('auto');
         });
 
         it('should have correct output defaults', () => {
             const defaults = configMapper.getDefaultConfigData();
 
-            expect(defaults.output.encoding).toBe('utf8');
-            expect(defaults.output.createBackup).toBe(false);
-            expect(defaults.output.overwriteBackup).toBe(false);
-            expect(defaults.output.bom).toBe(true);
-            expect(defaults.output.lineEndings).toBe('auto');
-            expect(defaults.output.overwriteInput).toBe(false);
-            expect(defaults.output.overwriteExisting).toBe(true);
+            expect(defaults.output!.encoding).toBe('utf8');
+            expect(defaults.output!.createBackup).toBe(false);
+            expect(defaults.output!.overwriteBackup).toBe(false);
+            expect(defaults.output!.bom).toBe(true);
+            expect(defaults.output!.lineEndings).toBe('auto');
+            expect(defaults.output!.overwriteInput).toBe(false);
+            expect(defaults.output!.overwriteExisting).toBe(true);
         });
 
         it('should have correct strip defaults', () => {
@@ -333,14 +333,14 @@ describe('ConfigMapper - Preferences Management', () => {
         it('should have correct batch defaults', () => {
             const defaults = configMapper.getDefaultConfigData();
 
-            expect(defaults.batch.recursive).toBe(false);
-            expect(defaults.batch.parallel).toBe(true);
-            expect(defaults.batch.skipExisting).toBe(false);
-            expect(defaults.batch.preserveStructure).toBe(false);
-            expect(defaults.batch.chunkSize).toBe(5);
-            expect(defaults.batch.retryCount).toBe(0);
-            expect(defaults.batch.retryDelay).toBe(1000);
-            expect(defaults.batch.failFast).toBe(false);
+            expect(defaults.batch!.recursive).toBe(false);
+            expect(defaults.batch!.parallel).toBe(true);
+            expect(defaults.batch!.skipExisting).toBe(false);
+            expect(defaults.batch!.preserveStructure).toBe(false);
+            expect(defaults.batch!.chunkSize).toBe(5);
+            expect(defaults.batch!.retryCount).toBe(0);
+            expect(defaults.batch!.retryDelay).toBe(1000);
+            expect(defaults.batch!.failFast).toBe(false);
         });
 
         it('should have correct app defaults', () => {
