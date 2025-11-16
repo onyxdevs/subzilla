@@ -1183,7 +1183,7 @@ __metadata:
     "@subzilla/core": "workspace:*"
     "@subzilla/types": "workspace:*"
     "@types/node": "npm:^24.3.0"
-    electron: "npm:^31.0.0"
+    electron: "npm:31.0.0"
     electron-builder: "npm:^24.0.0"
     electron-store: "npm:^8.1.0"
     electron-updater: "npm:^6.1.0"
@@ -3101,16 +3101,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"electron@npm:^31.0.0":
-  version: 31.7.7
-  resolution: "electron@npm:31.7.7"
+"electron@npm:31.0.0":
+  version: 31.0.0
+  resolution: "electron@npm:31.0.0"
   dependencies:
     "@electron/get": "npm:^2.0.0"
     "@types/node": "npm:^20.9.0"
     extract-zip: "npm:^2.0.1"
   bin:
     electron: cli.js
-  checksum: 10c0/f7e68fa44a2f802d9090de570d07279ea0d473be55c7f26b870ca0afb2b074d8f140a7f83f81d5c54687178efca145d9206d71430a754d8031bda785f20b49a2
+  checksum: 10c0/1030a670969465744e1edf11117ce0f1367622b6bf1346ae1250fea2e3091077aa5571c25bca9e8d27d7c9666cd718496f2fc3dbaf64da313b4e047ba93bdf86
   languageName: node
   linkType: hard
 

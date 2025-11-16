@@ -14,9 +14,9 @@
         "resolveJsonModule": true,
         "declaration": true,
         "declarationMap": true,
-        "sourceMap": true
+        "sourceMap": true,
+        "composite": false
     },
     "include": ["src/**/*"],
-    "exclude": ["node_modules", "dist", "dist-electron"],
-    "references": [{ "path": "../core" }, { "path": "../types" }]
+    "exclude": ["node_modules", "dist", "dist-electron"]
 }
