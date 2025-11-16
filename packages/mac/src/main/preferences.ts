@@ -1,5 +1,9 @@
+import os from 'os';
+import path from 'path';
+
 import Store from 'electron-store';
 
+import { ConfigManager } from '@subzilla/core';
 import { IConfig, IStripOptions } from '@subzilla/types';
 
 export interface IMacAppPreferences {
@@ -22,6 +26,7 @@ export interface IMacAppPreferences {
 
 export class ConfigMapper {
     private store: Store<IConfig & { app: IMacAppPreferences }>;
+    private rcConfig: IConfig | null = null;
 
     constructor() {
         console.log('⚙️ Initializing configuration store...');
@@ -95,6 +100,58 @@ export class ConfigMapper {
         });
 
         console.log('✅ Configuration store initialized');
+
+        // Load RC config asynchronously (will be merged when getConfig() is called)
+        // We don't await this to avoid blocking the constructor
+        this.loadRcConfig().catch((err) => {
+            console.warn('⚠️ Failed to load RC config:', err);
+        });
+    }
+
+    /**
+     * Load configuration from .subzillarc files (home directory and current working directory)
+     * This follows the same precedence as the CLI: defaults < file config < env vars < app preferences
+     */
+    private async loadRcConfig(): Promise<void> {
+        console.log('🔍 Loading RC configuration from root/home directory...');
+
+        // Try to load from ConfigManager (which searches cwd and respects env vars)
+        const coreConfig = await ConfigManager.loadConfig();
+
+        // Also check home directory for global config
+        const homeDir = os.homedir();
+        const rcFiles = [
+            '.subzillarc',
+            '.subzilla.yml',
+            '.subzilla.yaml',
+            'subzilla.config.yml',
+            'subzilla.config.yaml',
+        ];
+
+        let homeConfig: IConfig | null = null;
+
+        for (const rcFile of rcFiles) {
+            try {
+                const homeRcPath = path.join(homeDir, rcFile);
+                const fs = await import('fs/promises');
+
+                await fs.access(homeRcPath);
+                const yaml = await import('yaml');
+                const content = await fs.readFile(homeRcPath, 'utf8');
+
+                homeConfig = yaml.parse(content);
+                console.log(`✅ Loaded RC config from ${homeRcPath}`);
+                break;
+            } catch {
+                // Continue to next file
+                continue;
+            }
+        }
+
+        // Merge: coreConfig (from ConfigManager) is already merged with defaults and env vars
+        // If we found a home config, it becomes our base RC config
+        this.rcConfig = homeConfig || coreConfig;
+        console.log('✅ RC configuration loaded successfully');
     }
 
     private getDefaultConfig(): IConfig & { app: IMacAppPreferences } {
@@ -198,9 +255,40 @@ export class ConfigMapper {
 
         // Return only the IConfig part (without app preferences)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { app, ...config } = fullConfig;
+        const { app, ...storedConfig } = fullConfig;
 
-        return config;
+        // Merge RC config (base) with stored preferences (override)
+        // Precedence: defaults < RC file config < stored app preferences
+        if (this.rcConfig) {
+            return this.mergeConfigs(this.rcConfig, storedConfig);
+        }
+
+        return storedConfig;
+    }
+
+    /**
+     * Deep merge two configuration objects (source overrides target)
+     */
+    private mergeConfigs(target: IConfig, source: Partial<IConfig>): IConfig {
+        const result: IConfig = { ...target };
+
+        if (source.input !== undefined) {
+            result.input = { ...(target.input || {}), ...source.input };
+        }
+
+        if (source.output !== undefined) {
+            result.output = { ...(target.output || {}), ...source.output };
+        }
+
+        if (source.strip !== undefined) {
+            result.strip = { ...(target.strip || {}), ...source.strip };
+        }
+
+        if (source.batch !== undefined) {
+            result.batch = { ...(target.batch || {}), ...source.batch };
+        }
+
+        return result;
     }
 
     public async getAppPreferences(): Promise<IMacAppPreferences> {
@@ -294,8 +382,8 @@ export class ConfigMapper {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: true,
-                numbers: true,
+                timestamps: false, // NEVER strip timestamps - corrupts SRT structure
+                numbers: false, // NEVER strip numbers - corrupts SRT sequence numbers
                 punctuation: true,
                 emojis: true,
                 brackets: true,

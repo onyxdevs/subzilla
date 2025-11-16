@@ -278,7 +278,7 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(arabicOptimized.punctuation).toBe(false);
         });
 
-        it('should have Maximum Clean preset with all options enabled', () => {
+        it('should have Maximum Clean preset with safe options enabled (no timestamps/numbers to prevent file corruption)', () => {
             const presets = configMapper.getFormattingPresets();
             const maxClean = presets['Maximum Clean'];
 
@@ -286,8 +286,9 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(maxClean.colors).toBe(true);
             expect(maxClean.styles).toBe(true);
             expect(maxClean.urls).toBe(true);
-            expect(maxClean.timestamps).toBe(true);
-            expect(maxClean.numbers).toBe(true);
+            // These must be false to prevent SRT file corruption
+            expect(maxClean.timestamps).toBe(false);
+            expect(maxClean.numbers).toBe(false);
             expect(maxClean.punctuation).toBe(true);
             expect(maxClean.emojis).toBe(true);
             expect(maxClean.brackets).toBe(true);
