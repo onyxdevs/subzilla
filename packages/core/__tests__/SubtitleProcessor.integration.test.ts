@@ -209,11 +209,102 @@ Test content`;
 
             const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
 
-            expect(outputContent).toContain('Visit [URL] for episode #! [EMOJI]');
+            // IMPORTANT: numbers should NOT be stripped to preserve SRT structure
+            // The SubtitleProcessor now ignores strip.numbers to prevent file corruption
+            expect(outputContent).toContain('Visit [URL] for episode 123! [EMOJI]');
             expect(outputContent).not.toContain('<font');
             expect(outputContent).not.toContain('https://');
-            expect(outputContent).not.toContain('123');
+            expect(outputContent).toContain('123'); // Numbers preserved to prevent corruption
             expect(outputContent).not.toContain('😊');
+        });
+
+        it('should preserve SRT structure even when timestamps strip option is true (prevent corruption)', async () => {
+            const inputPath = path.join(tempDir, 'input.srt');
+            const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+Hello World
+
+2
+00:00:04,000 --> 00:00:06,000
+Second subtitle`;
+
+            await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+            const options: IConvertOptions = {
+                strip: {
+                    timestamps: true, // This should be ignored to prevent corruption
+                },
+            };
+
+            const result = await processor.processFile(inputPath, undefined, options);
+
+            const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+            // Timestamps should NOT be stripped - they are essential for SRT structure
+            expect(outputContent).toContain('00:00:01,000 --> 00:00:03,000');
+            expect(outputContent).toContain('00:00:04,000 --> 00:00:06,000');
+            expect(outputContent).not.toContain('[TIMESTAMP]');
+        });
+
+        it('should preserve sequence numbers even when numbers strip option is true (prevent corruption)', async () => {
+            const inputPath = path.join(tempDir, 'input.srt');
+            const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+Hello World
+
+2
+00:00:04,000 --> 00:00:06,000
+Second subtitle`;
+
+            await fs.promises.writeFile(inputPath, srtContent, 'utf8');
+
+            const options: IConvertOptions = {
+                strip: {
+                    numbers: true, // This should be ignored to prevent corruption
+                },
+            };
+
+            const result = await processor.processFile(inputPath, undefined, options);
+
+            const outputContent = await fs.promises.readFile(result.outputPath, 'utf8');
+
+            // Sequence numbers should NOT be stripped - they are essential for SRT structure
+            expect(outputContent).toMatch(/^1\n/m); // Subtitle sequence number preserved
+            expect(outputContent).toMatch(/^2\n/m); // Subtitle sequence number preserved
+            expect(outputContent).not.toContain('#');
+        });
+
+        it('should not add double BOM when input already has BOM', async () => {
+            const inputPath = path.join(tempDir, 'bom-input.srt');
+            const UTF8_BOM = Buffer.from([0xef, 0xbb, 0xbf]);
+            const srtContent = `1
+00:00:01,000 --> 00:00:03,000
+Test content`;
+
+            // Write file with BOM
+            const contentWithBom = Buffer.concat([UTF8_BOM, Buffer.from(srtContent, 'utf8')]);
+
+            await fs.promises.writeFile(inputPath, contentWithBom);
+
+            const options: IConvertOptions = {
+                bom: true, // Request BOM in output
+            };
+
+            const result = await processor.processFile(inputPath, undefined, options);
+
+            const outputBuffer = await fs.promises.readFile(result.outputPath);
+
+            // Should have exactly one BOM (3 bytes), not double BOM (6 bytes)
+            expect(outputBuffer[0]).toBe(0xef);
+            expect(outputBuffer[1]).toBe(0xbb);
+            expect(outputBuffer[2]).toBe(0xbf);
+            // The next character should NOT be another BOM
+            expect(outputBuffer.slice(3, 6).equals(UTF8_BOM)).toBe(false);
+
+            // Content should start with '1' after the single BOM
+            const contentAfterBom = outputBuffer.slice(3).toString('utf8');
+
+            expect(contentAfterBom.startsWith('1')).toBe(true);
         });
 
         it('should throw error for non-existent input file', async () => {

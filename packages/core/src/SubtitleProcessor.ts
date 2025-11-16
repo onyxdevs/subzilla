@@ -56,8 +56,20 @@ export default class SubtitleProcessor {
             const fileBuffer = await fs.readFile(inputFilePath);
             let utf8Content = EncodingConversionService.convertToUtf8(fileBuffer, detectedEncoding);
 
+            // Strip any existing BOM to prevent double BOM when adding a new one
+            if (utf8Content.charCodeAt(0) === 0xfeff) {
+                utf8Content = utf8Content.slice(1);
+            }
+
             if (options.strip) {
-                utf8Content = this.formattingStripper.stripFormatting(utf8Content, options.strip);
+                // Prevent corrupting SRT file structure by never stripping timestamps or sequence numbers
+                const safeStripOptions = {
+                    ...options.strip,
+                    timestamps: false, // NEVER strip timestamps - corrupts SRT structure
+                    numbers: false, // NEVER strip numbers - corrupts SRT sequence numbers
+                };
+
+                utf8Content = this.formattingStripper.stripFormatting(utf8Content, safeStripOptions);
             }
 
             utf8Content = this.ensureProperLineBreaks(utf8Content);
