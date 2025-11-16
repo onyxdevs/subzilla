@@ -22,6 +22,35 @@ body {
     flex-direction: column;
 }
 
+/* Window Title Bar - Draggable Region */
+.title-bar {
+    -webkit-app-region: drag;
+    height: 38px;
+    background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+    border-bottom: 1px solid #d0d0d0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.title-bar-text {
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    opacity: 0.8;
+}
+
+/* Ensure interactive elements inside title bar are clickable */
+.title-bar button,
+.title-bar input,
+.title-bar select,
+.title-bar a {
+    -webkit-app-region: no-drag;
+}
+
 /* State containers */
 .state-container {
     flex: 1;
@@ -117,7 +146,7 @@ p {
 }
 
 .file-list {
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - 158px); /* Account for title bar (38px) + header + progress */
     overflow-y: auto;
 }
 
