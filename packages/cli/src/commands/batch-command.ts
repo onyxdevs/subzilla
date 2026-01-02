@@ -19,7 +19,7 @@ export class BatchCommandCreator extends BaseCommandCreator<IBatchCommandOptions
             options: BATCH_OPTIONS,
             action: async (pattern: string, options: IBatchCommandOptions): Promise<void> => {
                 try {
-                    const config = options.loadedConfig || (await ConfigManager.loadConfig());
+                    const config = options.loadedConfig || (await ConfigManager.loadConfig()).config;
                     const outputOptions = {
                         common: {
                             strip: createStripOptions(options, config),

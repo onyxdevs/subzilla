@@ -47,18 +47,21 @@ describe('ConvertCommandCreator', () => {
         }));
 
         ConfigManager.loadConfig.mockResolvedValue({
-            output: {
-                createBackup: false,
-                overwriteBackup: true,
-                bom: true,
-                lineEndings: 'auto',
-                overwriteInput: false,
-                overwriteExisting: false,
+            config: {
+                output: {
+                    createBackup: false,
+                    overwriteBackup: true,
+                    bom: true,
+                    lineEndings: 'auto',
+                    overwriteInput: false,
+                    overwriteExisting: false,
+                },
+                batch: {
+                    retryCount: 0,
+                    retryDelay: 1000,
+                },
             },
-            batch: {
-                retryCount: 0,
-                retryDelay: 1000,
-            },
+            source: 'default',
         });
     });
 

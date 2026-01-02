@@ -72,22 +72,25 @@ describe('BatchCommandCreator', () => {
         }));
 
         ConfigManager.loadConfig.mockResolvedValue({
-            output: {
-                createBackup: false,
-                overwriteBackup: true,
-                bom: true,
-                lineEndings: 'auto',
-                overwriteInput: false,
-                overwriteExisting: false,
+            config: {
+                output: {
+                    createBackup: false,
+                    overwriteBackup: true,
+                    bom: true,
+                    lineEndings: 'auto',
+                    overwriteInput: false,
+                    overwriteExisting: false,
+                },
+                batch: {
+                    retryCount: 0,
+                    retryDelay: 1000,
+                    recursive: false,
+                    parallel: false,
+                    skipExisting: false,
+                    preserveStructure: false,
+                },
             },
-            batch: {
-                retryCount: 0,
-                retryDelay: 1000,
-                recursive: false,
-                parallel: false,
-                skipExisting: false,
-                preserveStructure: false,
-            },
+            source: 'default',
         });
     });
 
@@ -869,23 +872,26 @@ describe('BatchCommandCreator', () => {
             const { ConfigManager } = require('@subzilla/core');
 
             ConfigManager.loadConfig.mockResolvedValueOnce({
-                output: {
-                    createBackup: true,
-                    overwriteBackup: false,
-                    bom: false,
-                    lineEndings: 'lf',
-                    overwriteInput: false,
-                    overwriteExisting: true,
+                config: {
+                    output: {
+                        createBackup: true,
+                        overwriteBackup: false,
+                        bom: false,
+                        lineEndings: 'lf',
+                        overwriteInput: false,
+                        overwriteExisting: true,
+                    },
+                    batch: {
+                        retryCount: 3,
+                        retryDelay: 2000,
+                        recursive: true,
+                        parallel: false,
+                        skipExisting: true,
+                        maxDepth: 5,
+                        preserveStructure: true,
+                    },
                 },
-                batch: {
-                    retryCount: 3,
-                    retryDelay: 2000,
-                    recursive: true,
-                    parallel: false,
-                    skipExisting: true,
-                    maxDepth: 5,
-                    preserveStructure: true,
-                },
+                source: 'default',
             });
 
             const options: IBatchCommandOptions = {};

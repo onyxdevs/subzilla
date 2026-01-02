@@ -4,7 +4,7 @@ import path from 'path';
 import yaml from 'yaml';
 import { z } from 'zod';
 
-import { IConfig, TConfigSegment, configSchema } from '@subzilla/types';
+import { IConfig, IConfigResult, TConfigSegment, configSchema } from '@subzilla/types';
 
 /**
  * Manages configuration loading, validation, and saving
@@ -105,11 +105,23 @@ export default class ConfigManager {
     /**
      * 🔄 Load configuration from all sources and merge them
      */
-    public static async loadConfig(configPath?: string): Promise<IConfig> {
+    public static async loadConfig(configPath?: string): Promise<IConfigResult> {
         try {
             // Load config from different sources in order of precedence
             const envConfig = this.loadFromEnv();
-            const fileConfig = configPath ? await this.loadConfigFile(configPath) : await this.findAndLoadConfig();
+
+            let fileConfig: IConfig | null = null;
+            let resolvedFilePath: string | undefined;
+
+            if (configPath) {
+                fileConfig = await this.loadConfigFile(configPath);
+                resolvedFilePath = configPath;
+            } else {
+                const found = await this.findAndLoadConfig();
+
+                fileConfig = found?.config ?? null;
+                resolvedFilePath = found?.filePath;
+            }
 
             // Merge configs in order of precedence: defaults < file < env
             const mergedConfig = this.mergeConfigs(this.DEFAULT_CONFIG, fileConfig || {}, envConfig);
@@ -117,11 +129,18 @@ export default class ConfigManager {
             // Validate the merged config
             const validatedConfig = await this.validateConfig(mergedConfig);
 
-            return validatedConfig;
+            return {
+                config: validatedConfig,
+                source: resolvedFilePath ? 'file' : 'default',
+                filePath: resolvedFilePath,
+            };
         } catch (error) {
             console.warn('⚠️ Failed to load config:', (error as Error).message);
 
-            return this.DEFAULT_CONFIG;
+            return {
+                config: this.DEFAULT_CONFIG,
+                source: 'default',
+            };
         }
     }
 
@@ -149,7 +168,7 @@ export default class ConfigManager {
     /**
      * 🔍 Find and load the first available config file
      */
-    private static async findAndLoadConfig(): Promise<IConfig | null> {
+    private static async findAndLoadConfig(): Promise<{ config: IConfig; filePath: string } | null> {
         const cwd = process.cwd();
 
         for (const fileName of this.CONFIG_FILE_NAMES) {
@@ -158,7 +177,9 @@ export default class ConfigManager {
 
                 await fs.access(filePath);
 
-                return await this.loadConfigFile(filePath);
+                const config = await this.loadConfigFile(filePath);
+
+                return { config, filePath };
             } catch {
                 continue;
             }

@@ -21,15 +21,15 @@ program
     .hook('preAction', async (thisCommand) => {
         try {
             const configPath = thisCommand.opts().config;
-            const config = await ConfigManager.loadConfig(configPath);
+            const result = await ConfigManager.loadConfig(configPath);
 
-            if (configPath) {
-                console.log('🔧 Using configuration:', configPath);
+            if (result.source === 'file' && result.filePath) {
+                console.log('🔧 Using configuration:', result.filePath);
             } else {
                 console.log('ℹ️  Using default configuration');
             }
 
-            thisCommand.setOptionValue('loadedConfig', config);
+            thisCommand.setOptionValue('loadedConfig', result.config);
         } catch (error) {
             console.error('❌ Failed to load configuration:', (error as Error).message);
             process.exit(1);

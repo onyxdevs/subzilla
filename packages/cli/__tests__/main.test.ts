@@ -24,8 +24,11 @@ describe('CLI Main Entry Point', () => {
         const { ConfigManager, SubtitleProcessor, BatchProcessor } = require('@subzilla/core');
 
         ConfigManager.loadConfig.mockResolvedValue({
-            output: { createBackup: false },
-            batch: { retryCount: 0 },
+            config: {
+                output: { createBackup: false },
+                batch: { retryCount: 0 },
+            },
+            source: 'default',
         });
 
         const mockProcessFile = jest.fn<() => Promise<{ outputPath: string }>>().mockResolvedValue({

@@ -19,7 +19,7 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
             options: CONVERT_OPTIONS,
             action: async (inputFile: string, options: IConvertCommandOptions): Promise<void> => {
                 try {
-                    const config = options.loadedConfig || (await ConfigManager.loadConfig());
+                    const config = options.loadedConfig || (await ConfigManager.loadConfig()).config;
                     const outputOptions = {
                         strip: createStripOptions(options, config),
                         backupOriginal: options.backup ?? config.output?.createBackup,

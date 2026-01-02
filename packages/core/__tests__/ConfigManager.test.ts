@@ -46,7 +46,7 @@ describe('ConfigManager', () => {
     describe('loadConfig', () => {
         describe('default configuration', () => {
             it('should return default configuration when no config file exists', async () => {
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config).toBeDefined();
                 expect(config.input).toBeDefined();
@@ -66,7 +66,7 @@ describe('ConfigManager', () => {
             it('should return default configuration when config file loading fails', async () => {
                 const invalidPath = path.join(tempDir, 'nonexistent', 'config.yml');
 
-                const config = await ConfigManager.loadConfig(invalidPath);
+                const { config } = await ConfigManager.loadConfig(invalidPath);
 
                 expect(config).toBeDefined();
                 expect(config.input?.encoding).toBe('auto');
@@ -88,7 +88,7 @@ output:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf8');
                 expect(config.input?.format).toBe('srt');
@@ -107,7 +107,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.recursive).toBe(true);
                 expect(config.batch?.parallel).toBe(true);
@@ -124,7 +124,7 @@ output:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.output?.lineEndings).toBe('lf');
                 expect(config.output?.overwriteInput).toBe(true);
@@ -139,7 +139,7 @@ input:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf16le');
             });
@@ -154,7 +154,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.retryCount).toBe(3);
                 expect(config.batch?.retryDelay).toBe(2000);
@@ -170,7 +170,7 @@ output:
 
                 await fs.promises.writeFile(customPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig(customPath);
+                const { config } = await ConfigManager.loadConfig(customPath);
 
                 expect(config.output?.createBackup).toBe(true);
             });
@@ -180,7 +180,7 @@ output:
                 await fs.promises.writeFile(path.join(tempDir, '.subzillarc'), 'batch:\n  chunkSize: 11', 'utf8');
                 await fs.promises.writeFile(path.join(tempDir, '.subzilla.yml'), 'batch:\n  chunkSize: 22', 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should use .subzillarc (first in the list)
                 expect(config.batch?.chunkSize).toBe(11);
@@ -191,7 +191,7 @@ output:
 
                 await fs.promises.writeFile(configPath, '', 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should return defaults merged with empty config
                 expect(config).toBeDefined();
@@ -206,7 +206,7 @@ output:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config).toBeDefined();
                 expect(config.input?.encoding).toBe('auto');
@@ -222,7 +222,7 @@ input:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should fall back to defaults on parse error
                 expect(config).toBeDefined();
@@ -235,7 +235,7 @@ input:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should fall back to defaults
                 expect(config).toBeDefined();
@@ -248,7 +248,7 @@ input:
                 process.env.SUBZILLA_OUTPUT_CREATEBACKUP = 'true';
                 process.env.SUBZILLA_BATCH_CHUNKSIZE = '15';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf16be');
                 expect(config.output?.createBackup).toBe(true);
@@ -259,7 +259,7 @@ input:
                 process.env.SUBZILLA_BATCH_RECURSIVE = 'true';
                 process.env.SUBZILLA_BATCH_PARALLEL = 'false';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.recursive).toBe(true);
                 expect(config.batch?.parallel).toBe(false);
@@ -270,7 +270,7 @@ input:
                 process.env.SUBZILLA_BATCH_RETRYCOUNT = '3';
                 process.env.SUBZILLA_BATCH_RETRYDELAY = '1500';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.chunkSize).toBe(25);
                 expect(config.batch?.retryCount).toBe(3);
@@ -280,7 +280,7 @@ input:
             it('should parse JSON arrays from environment variables', async () => {
                 process.env.SUBZILLA_BATCH_INCLUDEDIRECTORIES = '["src", "tests"]';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.includeDirectories).toEqual(['src', 'tests']);
             });
@@ -292,7 +292,7 @@ input:
                     styles: false,
                 });
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.strip?.html).toBe(true);
                 expect(config.strip?.colors).toBe(true);
@@ -302,7 +302,7 @@ input:
             it('should handle non-JSON string values from environment variables', async () => {
                 process.env.SUBZILLA_OUTPUT_DIRECTORY = '/path/to/output';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.output?.directory).toBe('/path/to/output');
             });
@@ -311,7 +311,7 @@ input:
                 process.env.INPUT_ENCODING = 'utf16le';
                 process.env.ENCODING = 'ascii';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should use defaults, not env vars
                 expect(config.input?.encoding).toBe('auto');
@@ -320,7 +320,7 @@ input:
             it('should ignore empty environment variables', async () => {
                 process.env.SUBZILLA_INPUT_ENCODING = '';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('auto');
             });
@@ -328,7 +328,7 @@ input:
             it('should handle deeply nested environment variables', async () => {
                 process.env.SUBZILLA_BATCH_MAXDEPTH = '5';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.maxDepth).toBe(5);
             });
@@ -345,7 +345,7 @@ output:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // From file
                 expect(config.output?.createBackup).toBe(true);
@@ -367,7 +367,7 @@ batch:
 
                 process.env.SUBZILLA_BATCH_CHUNKSIZE = '20';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // From env (highest priority)
                 expect(config.batch?.chunkSize).toBe(20);
@@ -380,7 +380,7 @@ batch:
             it('should merge environment variables over defaults when no file exists', async () => {
                 process.env.SUBZILLA_OUTPUT_CREATEBACKUP = 'true';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // From env
                 expect(config.output?.createBackup).toBe(true);
@@ -402,7 +402,7 @@ batch:
 
                 process.env.SUBZILLA_BATCH_PARALLEL = 'true';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.output?.createBackup).toBe(true);
                 expect(config.output?.encoding).toBe('utf8'); // From defaults
@@ -420,7 +420,7 @@ input:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf16le');
                 expect(config.input?.format).toBe('auto'); // From defaults
@@ -443,7 +443,7 @@ batch:
                 process.env.SUBZILLA_BATCH_CHUNKSIZE = '20';
                 process.env.SUBZILLA_BATCH_PARALLEL = 'true';
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf16be'); // From file
                 expect(config.input?.format).toBe('auto'); // From defaults
@@ -477,7 +477,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf8');
                 expect(config.input?.format).toBe('srt');
@@ -494,7 +494,7 @@ input:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should fall back to defaults on validation error
                 expect(config.input?.encoding).toBe('auto');
@@ -509,7 +509,7 @@ input:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.format).toBe('auto');
             });
@@ -523,7 +523,7 @@ output:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Output encoding must be 'utf8' per schema
                 expect(config.output?.encoding).toBe('utf8');
@@ -538,7 +538,7 @@ output:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.output?.lineEndings).toBe('auto');
             });
@@ -552,7 +552,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Max is 100
                 expect(config.batch?.chunkSize).toBe(5);
@@ -567,7 +567,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.chunkSize).toBe(5);
             });
@@ -581,7 +581,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Max is 5
                 expect(config.batch?.retryCount).toBe(0);
@@ -596,7 +596,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Max is 5000
                 expect(config.batch?.retryDelay).toBe(1000);
@@ -611,7 +611,7 @@ batch:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.batch?.recursive).toBe(false);
             });
@@ -628,7 +628,7 @@ anotherUnknown:
 
                 await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 expect(config.input?.encoding).toBe('utf8');
                 expect(config).not.toHaveProperty('unknownField');
@@ -639,7 +639,7 @@ anotherUnknown:
             it('should handle file read errors gracefully', async () => {
                 const invalidPath = path.join(tempDir, 'nonexistent', 'deeply', 'nested', 'config.yml');
 
-                const config = await ConfigManager.loadConfig(invalidPath);
+                const { config } = await ConfigManager.loadConfig(invalidPath);
 
                 // Should return defaults
                 expect(config).toBeDefined();
@@ -657,7 +657,7 @@ anotherUnknown:
                 await fs.promises.writeFile(configPath, 'input:\n  encoding: utf8', 'utf8');
                 await fs.promises.chmod(configPath, 0o000);
 
-                const config = await ConfigManager.loadConfig(configPath);
+                const { config } = await ConfigManager.loadConfig(configPath);
 
                 // Restore permissions for cleanup
                 await fs.promises.chmod(configPath, 0o644);
@@ -672,7 +672,7 @@ anotherUnknown:
 
                 await fs.promises.mkdir(dirPath);
 
-                const config = await ConfigManager.loadConfig(dirPath);
+                const { config } = await ConfigManager.loadConfig(dirPath);
 
                 expect(config).toBeDefined();
                 expect(config.input?.encoding).toBe('auto');
@@ -684,7 +684,7 @@ anotherUnknown:
 
                 await fs.promises.writeFile(configPath, buffer);
 
-                const config = await ConfigManager.loadConfig();
+                const { config } = await ConfigManager.loadConfig();
 
                 // Should fall back to defaults
                 expect(config).toBeDefined();
@@ -990,7 +990,7 @@ anotherUnknown:
             await ConfigManager.createDefaultConfig(configPath);
 
             // Load the created config
-            const config = await ConfigManager.loadConfig(configPath);
+            const { config } = await ConfigManager.loadConfig(configPath);
 
             expect(config.input?.encoding).toBe('auto');
             expect(config.input?.format).toBe('auto');
@@ -1011,7 +1011,7 @@ input:
 
             await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-            const config = await ConfigManager.loadConfig();
+            const { config } = await ConfigManager.loadConfig();
 
             // Should fall back to defaults or handle null appropriately
             expect(config).toBeDefined();
@@ -1029,7 +1029,7 @@ output:
 
             await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-            const config = await ConfigManager.loadConfig();
+            const { config } = await ConfigManager.loadConfig();
 
             // YAML parser should handle this
             expect(config.input?.encoding).toBeDefined();
@@ -1075,7 +1075,7 @@ output:
 
             await ConfigManager.saveConfig(config, savePath);
 
-            const loaded = await ConfigManager.loadConfig(savePath);
+            const { config: loaded } = await ConfigManager.loadConfig(savePath);
 
             expect(loaded.output?.directory).toBe('/path/with/special/chars/!@#$%^&*()');
         });
@@ -1097,7 +1097,7 @@ output:
 
             await ConfigManager.saveConfig(config, savePath);
 
-            const loaded = await ConfigManager.loadConfig(savePath);
+            const { config: loaded } = await ConfigManager.loadConfig(savePath);
 
             expect(loaded.output?.directory).toBe('/path/with/unicode/文件夹/папка/مجلد');
         });
@@ -1120,14 +1120,14 @@ batch:
 
             // All should return the same values
             results.forEach((config) => {
-                expect(config.batch?.chunkSize).toBe(10);
+                expect(config.config.batch?.chunkSize).toBe(10);
             });
         });
 
         it('should handle empty string values in environment variables', async () => {
             process.env.SUBZILLA_OUTPUT_DIRECTORY = '';
 
-            const config = await ConfigManager.loadConfig();
+            const { config } = await ConfigManager.loadConfig();
 
             expect(config).toBeDefined();
         });
@@ -1135,7 +1135,7 @@ batch:
         it('should handle whitespace-only values in environment variables', async () => {
             process.env.SUBZILLA_OUTPUT_DIRECTORY = '   ';
 
-            const config = await ConfigManager.loadConfig();
+            const { config } = await ConfigManager.loadConfig();
 
             expect(config.output?.directory).toBe('   ');
         });
@@ -1146,7 +1146,7 @@ batch:
 
             await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-            const config = await ConfigManager.loadConfig();
+            const { config } = await ConfigManager.loadConfig();
 
             expect(config.input?.encoding).toBe('utf8');
         });
@@ -1157,7 +1157,7 @@ batch:
 
             await fs.promises.writeFile(configPath, configContent, 'utf8');
 
-            const config = await ConfigManager.loadConfig();
+            const { config } = await ConfigManager.loadConfig();
 
             expect(config.input?.encoding).toBe('utf8');
             expect(config.output?.createBackup).toBe(true);

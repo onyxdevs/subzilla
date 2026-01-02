@@ -58,3 +58,12 @@ type TRecursiveRecord<T> = {
  * Type for config segments
  */
 export type TConfigSegment = TRecursiveRecord<string | number | boolean>;
+
+/**
+ * Result of loading configuration, includes source information
+ */
+export interface IConfigResult {
+    config: IConfig;
+    source: 'file' | 'default';
+    filePath?: string;
+}

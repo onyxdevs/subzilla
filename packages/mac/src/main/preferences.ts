@@ -116,7 +116,7 @@ export class ConfigMapper {
         console.log('🔍 Loading RC configuration from root/home directory...');
 
         // Try to load from ConfigManager (which searches cwd and respects env vars)
-        const coreConfig = await ConfigManager.loadConfig();
+        const coreConfig = (await ConfigManager.loadConfig()).config;
 
         // Also check home directory for global config
         const homeDir = os.homedir();
@@ -136,11 +136,13 @@ export class ConfigMapper {
                 const fs = await import('fs/promises');
 
                 await fs.access(homeRcPath);
+
                 const yaml = await import('yaml');
                 const content = await fs.readFile(homeRcPath, 'utf8');
 
                 homeConfig = yaml.parse(content);
                 console.log(`✅ Loaded RC config from ${homeRcPath}`);
+
                 break;
             } catch {
                 // Continue to next file
