@@ -1,7 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 
-import { SingleBar, MultiBar, Presets } from 'cli-progress';
+import { SingleBar, Presets } from 'cli-progress';
 import { glob } from 'glob';
 
 import { IBatchOptions, IBatchStats } from '@subzilla/types';
@@ -10,25 +10,14 @@ import SubtitleProcessor from './SubtitleProcessor';
 
 export default class BatchProcessor {
     private processor: SubtitleProcessor;
-    private multiBar: MultiBar;
-    private mainProgressBar!: SingleBar;
-    private directoryBars: Map<string, SingleBar>;
+    private progressBar: SingleBar | null = null;
     private startTime: number = 0;
     private stats: IBatchStats;
     private shouldStop: boolean = false;
+    private currentFile: string = '';
 
     constructor() {
         this.processor = new SubtitleProcessor();
-        this.multiBar = new MultiBar(
-            {
-                format: '{bar} {percentage}% | {value}/{total} | {title}',
-                hideCursor: true,
-                clearOnComplete: false,
-            },
-            Presets.shades_classic,
-        );
-
-        this.directoryBars = new Map();
         this.stats = this.initializeStats();
     }
 
@@ -62,7 +51,9 @@ export default class BatchProcessor {
             }
 
             this.stats.total = files.length;
-            console.log(`🔍 Found ${files.length} files in ${this.countDirectories(files)} directories...`);
+            const dirCount = this.countDirectories(files);
+
+            console.log(`🔍 Found ${files.length} files in ${dirCount} directories\n`);
 
             // Create output directory if specified
             if (options.common.outputDir) {
@@ -74,10 +65,19 @@ export default class BatchProcessor {
 
             this.stats.directoriesProcessed = Object.keys(filesByDir).length;
 
-            // Initialize main progress bar
-            this.mainProgressBar = this.multiBar.create(files.length, 0, {
-                title: 'Total Progress',
-            });
+            // Initialize progress bar
+            this.progressBar = new SingleBar(
+                {
+                    format: '  {bar} {percentage}% | {value}/{total} files | {status}',
+                    hideCursor: true,
+                    clearOnComplete: false,
+                    barCompleteChar: '█',
+                    barIncompleteChar: '░',
+                },
+                Presets.shades_classic,
+            );
+
+            this.progressBar.start(files.length, 0, { status: 'Starting...' });
 
             // Process directories
             if (options.batch.parallel) {
@@ -88,17 +88,18 @@ export default class BatchProcessor {
 
             // Finalize statistics
             this.stats.timeTaken = (Date.now() - this.startTime) / 1000;
-            this.stats.averageTimePerFile = this.stats.timeTaken / (this.stats.successful + this.stats.failed);
+            this.stats.averageTimePerFile = this.stats.timeTaken / (this.stats.successful + this.stats.failed) || 0;
 
-            // Stop progress bars
-            this.multiBar.stop();
+            // Stop progress bar
+            this.progressBar.update({ status: 'Complete!' });
+            this.progressBar.stop();
 
             // Print summary
             this.printSummary();
 
             return this.stats;
         } catch (error) {
-            this.multiBar.stop();
+            this.progressBar?.stop();
             throw error;
         }
     }
@@ -209,7 +210,7 @@ export default class BatchProcessor {
         options: IBatchOptions,
     ): Promise<void> {
         const directories = Object.entries(filesByDir);
-        const chunks = this.chunkArray(directories, options.batch.chunkSize || 3); // Use configured chunk size
+        const chunks = this.chunkArray(directories, options.batch.chunkSize || 3);
 
         for (const chunk of chunks) {
             if (this.shouldStop) break;
@@ -228,13 +229,6 @@ export default class BatchProcessor {
 
     private async processDirectory(dir: string, files: string[], options: IBatchOptions): Promise<void> {
         if (this.shouldStop) return;
-
-        // Create directory progress bar
-        const dirBar = this.multiBar.create(files.length, 0, {
-            title: `Processing ${path.basename(dir)}`,
-        });
-
-        this.directoryBars.set(dir, dirBar);
 
         // Create output directory structure if needed
         if (options.batch.preserveStructure && options.common.outputDir) {
@@ -258,20 +252,22 @@ export default class BatchProcessor {
                 await this.processFile(file, dir, options);
             }
         }
-
-        // Remove directory progress bar
-        this.directoryBars.delete(dir);
     }
 
     private async processFile(file: string, dir: string, options: IBatchOptions): Promise<void> {
         const outputPath = this.getOutputPath(file, dir, options);
         const dirStats = this.stats.filesByDirectory[dir];
+        const fileName = path.basename(file);
 
         dirStats.total++;
+        this.currentFile = fileName;
+
+        // Update progress bar with current file
+        this.progressBar?.update({ status: this.truncateFileName(fileName, 40) });
 
         let attempts = 0;
         const retryCount = options.common.retryCount || 0;
-        const maxAttempts = retryCount + 1; // Initial attempt + retry count
+        const maxAttempts = retryCount + 1;
         const retryDelay = options.common.retryDelay || 1000;
 
         try {
@@ -290,19 +286,17 @@ export default class BatchProcessor {
                     dirStats.successful++;
                     this.stats.successful++;
 
-                    return; // Success - exit early
+                    return;
                 } catch (error) {
                     attempts++;
 
                     if (attempts < maxAttempts) {
-                        // Log retry attempt
-                        console.log(`🔄 Retrying ${file} (attempt ${attempts}/${retryCount})...`);
+                        this.progressBar?.update({ status: `Retrying ${fileName} (${attempts}/${retryCount})` });
                         await this.delay(retryDelay);
 
                         continue;
                     }
 
-                    // All retries exhausted
                     dirStats.failed++;
                     this.stats.failed++;
                     this.stats.errors.push({
@@ -317,10 +311,18 @@ export default class BatchProcessor {
                 }
             }
         } finally {
-            // Only increment progress bars once, after all retries are complete
-            this.mainProgressBar.increment();
-            this.directoryBars.get(dir)?.increment();
+            this.progressBar?.increment();
         }
+    }
+
+    private truncateFileName(fileName: string, maxLength: number): string {
+        if (fileName.length <= maxLength) return fileName;
+
+        const ext = path.extname(fileName);
+        const name = path.basename(fileName, ext);
+        const availableLength = maxLength - ext.length - 3; // 3 for "..."
+
+        return name.substring(0, availableLength) + '...' + ext;
     }
 
     private getOutputPath(file: string, dir: string, options: IBatchOptions): string | undefined {
@@ -362,31 +364,29 @@ export default class BatchProcessor {
     }
 
     private printSummary(): void {
-        console.log('\n📊 Batch Processing Summary:');
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log(`Total files processed: ${this.stats.total}`);
-        console.log(`Directories processed: ${this.stats.directoriesProcessed}`);
-        console.log(`✅ Successfully converted: ${this.stats.successful}`);
-        console.log(`❌ Failed: ${this.stats.failed}`);
-        console.log(`⏭️  Skipped: ${this.stats.skipped}`);
-        console.log(`⏱️  Total time: ${this.stats.timeTaken.toFixed(2)}s`);
-        console.log(`⚡ Average time per file: ${this.stats.averageTimePerFile.toFixed(2)}s`);
+        console.log('\n');
+        console.log('📊 Batch Processing Summary');
+        console.log('───────────────────────────');
+        console.log(`   Total:     ${this.stats.total} files in ${this.stats.directoriesProcessed} directories`);
+        console.log(`   ✓ Success: ${this.stats.successful}`);
 
-        console.log('\n📂 Directory Statistics:');
-        console.log('━━━━━━━━━━━━━━━━━━━━');
-        // Object.entries(this.stats.filesByDirectory).forEach(([dir, stats]) => {
-        //     console.log(`\n${dir}:`);
-        //     console.log(`  Total: ${stats.total}`);
-        //     console.log(`  ✅ Success: ${stats.successful}`);
-        //     console.log(`  ❌ Failed: ${stats.failed}`);
-        //     console.log(`  ⏭️  Skipped: ${stats.skipped}`);
-        // });
+        if (this.stats.failed > 0) {
+            console.log(`   ✗ Failed:  ${this.stats.failed}`);
+        }
+
+        if (this.stats.skipped > 0) {
+            console.log(`   ⊘ Skipped: ${this.stats.skipped}`);
+        }
+
+        console.log(
+            `   ⏱ Time:    ${this.stats.timeTaken.toFixed(2)}s (${this.stats.averageTimePerFile.toFixed(2)}s/file)`,
+        );
 
         if (this.stats.errors.length > 0) {
             console.log('\n❌ Errors:');
-            console.log('━━━━━━━━━');
+            console.log('───────────────────────────');
             this.stats.errors.forEach(({ file, error }) => {
-                console.log(`${file}: ${error}`);
+                console.log(`   ${path.basename(file)}: ${error}`);
             });
         }
     }

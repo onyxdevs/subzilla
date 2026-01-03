@@ -337,8 +337,6 @@ Test subtitle content
                 expect(stats.successful).toBe(1);
                 expect(stats.failed).toBe(0);
                 expect(attemptCount).toBe(3); // Initial + 2 retries
-                // Console should show retry attempts
-                expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Retrying'));
             });
 
             it('should use custom retry delay', async () => {
