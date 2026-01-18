@@ -257,7 +257,7 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(basicClean.bidiControl).toBe(true);
         });
 
-        it('should have Deep Clean preset with more aggressive stripping', () => {
+        it('should have Deep Clean preset with safe stripping options (no punctuation/brackets to prevent file corruption)', () => {
             const presets = configMapper.getFormattingPresets();
             const deepClean = presets['Deep Clean'];
 
@@ -265,8 +265,12 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(deepClean.colors).toBe(true);
             expect(deepClean.styles).toBe(true);
             expect(deepClean.urls).toBe(true);
-            expect(deepClean.punctuation).toBe(true);
-            expect(deepClean.brackets).toBe(true);
+            // These must be false to prevent SRT file corruption
+            expect(deepClean.timestamps).toBe(false);
+            expect(deepClean.numbers).toBe(false);
+            expect(deepClean.punctuation).toBe(false);
+            expect(deepClean.brackets).toBe(false);
+            expect(deepClean.bidiControl).toBe(true);
         });
 
         it('should have Arabic Optimized preset with RTL support', () => {
@@ -278,7 +282,7 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(arabicOptimized.punctuation).toBe(false);
         });
 
-        it('should have Maximum Clean preset with safe options enabled (no timestamps/numbers to prevent file corruption)', () => {
+        it('should have Maximum Clean preset with safe options enabled (no timestamps/numbers/punctuation/brackets to prevent file corruption)', () => {
             const presets = configMapper.getFormattingPresets();
             const maxClean = presets['Maximum Clean'];
 
@@ -289,9 +293,9 @@ describe('ConfigMapper - Preferences Management', () => {
             // These must be false to prevent SRT file corruption
             expect(maxClean.timestamps).toBe(false);
             expect(maxClean.numbers).toBe(false);
-            expect(maxClean.punctuation).toBe(true);
+            expect(maxClean.punctuation).toBe(false);
             expect(maxClean.emojis).toBe(true);
-            expect(maxClean.brackets).toBe(true);
+            expect(maxClean.brackets).toBe(false);
             expect(maxClean.bidiControl).toBe(true);
         });
     });

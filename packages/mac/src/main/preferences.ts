@@ -109,17 +109,17 @@ export class ConfigMapper {
     }
 
     /**
-     * Load configuration from .subzillarc files (home directory and current working directory)
+     * Load configuration from .subzillarc files
+     * Search order: cwd < app resources directory < home directory
      * This follows the same precedence as the CLI: defaults < file config < env vars < app preferences
      */
     private async loadRcConfig(): Promise<void> {
-        console.log('🔍 Loading RC configuration from root/home directory...');
+        console.log('🔍 Loading RC configuration...');
 
-        // Try to load from ConfigManager (which searches cwd and respects env vars)
-        const coreConfig = (await ConfigManager.loadConfig()).config;
+        const fs = await import('fs/promises');
+        const yaml = await import('yaml');
+        const { app } = await import('electron');
 
-        // Also check home directory for global config
-        const homeDir = os.homedir();
         const rcFiles = [
             '.subzillarc',
             '.subzilla.yml',
@@ -128,32 +128,84 @@ export class ConfigMapper {
             'subzilla.config.yaml',
         ];
 
-        let homeConfig: IConfig | null = null;
+        // Directories to search for RC files (in order of precedence - later overrides earlier)
+        const searchDirs = [
+            os.homedir(), // Global user config
+            app.isPackaged ? app.getPath('userData') : process.cwd(), // App data or dev cwd
+        ];
 
-        for (const rcFile of rcFiles) {
-            try {
-                const homeRcPath = path.join(homeDir, rcFile);
-                const fs = await import('fs/promises');
+        // In development mode, also check the project root (parent dirs)
+        if (!app.isPackaged) {
+            // Walk up from the current directory to find project root (where package.json is)
+            let currentDir = process.cwd();
 
-                await fs.access(homeRcPath);
+            for (let i = 0; i < 5; i++) {
+                // Check up to 5 parent directories
+                try {
+                    await fs.access(path.join(currentDir, 'package.json'));
+                    searchDirs.push(currentDir);
+                    console.log(`📂 Found project root: ${currentDir}`);
 
-                const yaml = await import('yaml');
-                const content = await fs.readFile(homeRcPath, 'utf8');
+                    break;
+                } catch {
+                    const parentDir = path.dirname(currentDir);
 
-                homeConfig = yaml.parse(content);
-                console.log(`✅ Loaded RC config from ${homeRcPath}`);
+                    if (parentDir === currentDir) break; // Reached filesystem root
 
-                break;
-            } catch {
-                // Continue to next file
-                continue;
+                    currentDir = parentDir;
+                }
             }
         }
 
-        // Merge: coreConfig (from ConfigManager) is already merged with defaults and env vars
-        // If we found a home config, it becomes our base RC config
-        this.rcConfig = homeConfig || coreConfig;
-        console.log('✅ RC configuration loaded successfully');
+        let foundConfig: IConfig | null = null;
+        let foundPath: string | null = null;
+
+        // Search in all directories (later dirs override earlier)
+        for (const dir of searchDirs) {
+            for (const rcFile of rcFiles) {
+                try {
+                    const rcPath = path.join(dir, rcFile);
+
+                    await fs.access(rcPath);
+
+                    const content = await fs.readFile(rcPath, 'utf8');
+                    const config = yaml.parse(content);
+
+                    foundConfig = config;
+                    foundPath = rcPath;
+                    console.log(`✅ Loaded RC config from ${rcPath}`);
+                } catch {
+                    // Continue to next file
+                    continue;
+                }
+            }
+        }
+
+        // Also try ConfigManager for env vars support
+        try {
+            const coreConfigResult = await ConfigManager.loadConfig();
+
+            if (coreConfigResult.source === 'file' && coreConfigResult.filePath) {
+                console.log(`✅ ConfigManager found config at: ${coreConfigResult.filePath}`);
+
+                // If ConfigManager found a file we didn't find, use it
+                if (!foundConfig) {
+                    foundConfig = coreConfigResult.config;
+                    foundPath = coreConfigResult.filePath;
+                }
+            }
+        } catch {
+            // Continue without ConfigManager config
+        }
+
+        if (foundConfig) {
+            this.rcConfig = foundConfig;
+            console.log(`✅ Using RC config from: ${foundPath}`);
+        } else {
+            console.log('ℹ️ No RC config file found, using defaults');
+        }
+
+        console.log('✅ RC configuration loading complete');
     }
 
     private getDefaultConfig(): IConfig & { app: IMacAppPreferences } {
@@ -360,11 +412,11 @@ export class ConfigMapper {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: false,
-                numbers: false,
-                punctuation: true,
+                timestamps: false, // NEVER strip - corrupts SRT structure
+                numbers: false, // NEVER strip - corrupts SRT sequence numbers
+                punctuation: false, // NEVER strip - removes : , --> from timestamps
                 emojis: false,
-                brackets: true,
+                brackets: false, // NEVER strip - could affect subtitle structure
                 bidiControl: true,
             },
             'Arabic Optimized': {
@@ -384,11 +436,11 @@ export class ConfigMapper {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: false, // NEVER strip timestamps - corrupts SRT structure
-                numbers: false, // NEVER strip numbers - corrupts SRT sequence numbers
-                punctuation: true,
+                timestamps: false, // NEVER strip - corrupts SRT structure
+                numbers: false, // NEVER strip - corrupts SRT sequence numbers
+                punctuation: false, // NEVER strip - removes : , --> from timestamps
                 emojis: true,
-                brackets: true,
+                brackets: false, // NEVER strip - could affect subtitle structure
                 bidiControl: true,
             },
         };

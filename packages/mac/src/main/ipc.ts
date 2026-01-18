@@ -95,6 +95,9 @@ export function setupIPC(appInstance: {
             const processOptions: IConvertOptions = {
                 ...config.output,
                 ...(config.strip && { strip: config.strip }),
+                // Map config field names to processor option names
+                backupOriginal: config.output?.createBackup ?? false,
+                overwriteBackup: config.output?.overwriteBackup ?? true,
                 ...options,
             };
 
@@ -127,6 +130,9 @@ export function setupIPC(appInstance: {
                 common: {
                     ...config.output,
                     ...(config.strip && { strip: config.strip }),
+                    // Map config field names to processor option names
+                    backupOriginal: config.output?.createBackup ?? false,
+                    overwriteBackup: config.output?.overwriteBackup ?? true,
                     ...options,
                 },
                 batch: {

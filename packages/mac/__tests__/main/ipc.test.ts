@@ -295,6 +295,63 @@ describe('IPC Handlers', () => {
                 }),
             );
         });
+
+        it('should map createBackup config field to backupOriginal processor option', async () => {
+            const { setupIPC } = await import('../../src/main/ipc');
+
+            setupIPC(mockAppInstance);
+
+            mockConfigMapper.getConfig.mockResolvedValue({
+                output: { encoding: 'utf8', createBackup: true, overwriteBackup: true },
+                strip: { html: true },
+            });
+
+            mockSubtitleProcessor.processFile.mockResolvedValue({
+                outputPath: '/path/to/output.srt',
+                backupPath: '/path/to/backup.srt',
+            });
+
+            const handler = getHandler('process-file');
+
+            await handler({}, '/path/to/input.srt');
+
+            expect(mockSubtitleProcessor.processFile).toHaveBeenCalledWith(
+                '/path/to/input.srt',
+                undefined,
+                expect.objectContaining({
+                    backupOriginal: true,
+                    overwriteBackup: true,
+                }),
+            );
+        });
+
+        it('should pass overwriteBackup option to processor', async () => {
+            const { setupIPC } = await import('../../src/main/ipc');
+
+            setupIPC(mockAppInstance);
+
+            mockConfigMapper.getConfig.mockResolvedValue({
+                output: { encoding: 'utf8', createBackup: false, overwriteBackup: false },
+                strip: { html: false },
+            });
+
+            mockSubtitleProcessor.processFile.mockResolvedValue({
+                outputPath: '/path/to/output.srt',
+            });
+
+            const handler = getHandler('process-file');
+
+            await handler({}, '/path/to/input.srt');
+
+            expect(mockSubtitleProcessor.processFile).toHaveBeenCalledWith(
+                '/path/to/input.srt',
+                undefined,
+                expect.objectContaining({
+                    backupOriginal: false,
+                    overwriteBackup: false,
+                }),
+            );
+        });
     });
 
     describe('Batch Processing', () => {
@@ -398,6 +455,86 @@ describe('IPC Handlers', () => {
                     common: expect.objectContaining({
                         backupOriginal: true,
                         encoding: 'utf8',
+                    }),
+                }),
+            );
+        });
+
+        it('should map createBackup config field to backupOriginal for batch processing', async () => {
+            const { setupIPC } = await import('../../src/main/ipc');
+
+            setupIPC(mockAppInstance);
+
+            mockConfigMapper.getConfig.mockResolvedValue({
+                output: { encoding: 'utf8', createBackup: true, overwriteBackup: true },
+                batch: { parallel: true, chunkSize: 5 },
+            });
+
+            mockBatchProcessor.processBatch.mockResolvedValue({
+                successful: 2,
+                failed: 0,
+                total: 2,
+                skipped: 0,
+                errors: [],
+                timeTaken: 1,
+                averageTimePerFile: 0.5,
+                directoriesProcessed: 1,
+                filesByDirectory: {},
+                startTime: 0,
+                endTime: 1000,
+            });
+
+            const mockEvent = { sender: { send: jest.fn() } };
+            const handler = getHandler('process-files-batch');
+
+            await handler(mockEvent, ['/file1.srt', '/file2.srt']);
+
+            expect(mockBatchProcessor.processBatch).toHaveBeenCalledWith(
+                '/file1.srt,/file2.srt',
+                expect.objectContaining({
+                    common: expect.objectContaining({
+                        backupOriginal: true,
+                        overwriteBackup: true,
+                    }),
+                }),
+            );
+        });
+
+        it('should pass overwriteBackup option to batch processor', async () => {
+            const { setupIPC } = await import('../../src/main/ipc');
+
+            setupIPC(mockAppInstance);
+
+            mockConfigMapper.getConfig.mockResolvedValue({
+                output: { encoding: 'utf8', createBackup: false, overwriteBackup: false },
+                batch: { parallel: false },
+            });
+
+            mockBatchProcessor.processBatch.mockResolvedValue({
+                successful: 1,
+                failed: 0,
+                total: 1,
+                skipped: 0,
+                errors: [],
+                timeTaken: 0.5,
+                averageTimePerFile: 0.5,
+                directoriesProcessed: 1,
+                filesByDirectory: {},
+                startTime: 0,
+                endTime: 500,
+            });
+
+            const mockEvent = { sender: { send: jest.fn() } };
+            const handler = getHandler('process-files-batch');
+
+            await handler(mockEvent, ['/file1.srt']);
+
+            expect(mockBatchProcessor.processBatch).toHaveBeenCalledWith(
+                '/file1.srt',
+                expect.objectContaining({
+                    common: expect.objectContaining({
+                        backupOriginal: false,
+                        overwriteBackup: false,
                     }),
                 }),
             );
