@@ -19,6 +19,10 @@ const LINE_ENDINGS = {
 export default class SubtitleProcessor {
     private formattingStripper: FormattingStripper;
 
+    // Regex to detect corrupted timestamps (punctuation stripped)
+    // Matches patterns like "000000039  000035039" which was "00:00:00,039 --> 00:00:35,039"
+    private corruptedTimestampRegex = /^(\d{9})\s+(\d{9})$/;
+
     constructor() {
         this.formattingStripper = new FormattingStripper();
     }
@@ -61,12 +65,22 @@ export default class SubtitleProcessor {
                 utf8Content = utf8Content.slice(1);
             }
 
+            // Auto-recover corrupted timestamps (from previous punctuation stripping bug)
+            // This fixes files where "00:00:00,039 --> 00:00:35,039" became "000000039  000035039"
+            if (this.hasCorruptedTimestamps(utf8Content)) {
+                console.log('⚠️ Detected corrupted timestamps, attempting recovery...');
+                utf8Content = this.recoverCorruptedTimestamps(utf8Content);
+            }
+
             if (options.strip) {
-                // Prevent corrupting SRT file structure by never stripping timestamps or sequence numbers
+                // Prevent corrupting SRT file structure by blocking dangerous strip options
+                // These options would destroy the SRT format completely
                 const safeStripOptions = {
                     ...options.strip,
                     timestamps: false, // NEVER strip timestamps - corrupts SRT structure
                     numbers: false, // NEVER strip numbers - corrupts SRT sequence numbers
+                    punctuation: false, // NEVER strip punctuation - removes : , --> from timestamps
+                    brackets: false, // NEVER strip brackets - could affect subtitle structure
                 };
 
                 utf8Content = this.formattingStripper.stripFormatting(utf8Content, safeStripOptions);
@@ -191,5 +205,87 @@ export default class SubtitleProcessor {
                 return `${number}\n${timestamp}\n${subtitleText}`;
             })
             .join('\n\n'); // Double line break between subtitle blocks is standard for SRT files
+    }
+
+    /**
+     * Detect if the content has corrupted timestamps (from punctuation stripping)
+     * Corrupted format: "000000039  000035039" instead of "00:00:00,039 --> 00:00:35,039"
+     */
+    private hasCorruptedTimestamps(content: string): boolean {
+        const lines = content.split(/\r?\n/);
+
+        for (const line of lines) {
+            const trimmed = line.trim();
+
+            // Skip empty lines and subtitle text
+            if (!trimmed || /^\d+$/.test(trimmed)) continue;
+
+            // Check if this looks like a corrupted timestamp
+            if (this.corruptedTimestampRegex.test(trimmed)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Recover corrupted timestamps in SRT content
+     * Converts "000000039  000035039" back to "00:00:00,039 --> 00:00:35,039"
+     */
+    private recoverCorruptedTimestamps(content: string): string {
+        const lines = content.split(/\r?\n/);
+        let recoveredCount = 0;
+
+        const recoveredLines = lines.map((line) => {
+            const trimmed = line.trim();
+            const match = trimmed.match(this.corruptedTimestampRegex);
+
+            if (match) {
+                const [, startRaw, endRaw] = match;
+                const startTimestamp = this.parseCorruptedTimestamp(startRaw);
+                const endTimestamp = this.parseCorruptedTimestamp(endRaw);
+
+                if (startTimestamp && endTimestamp) {
+                    recoveredCount++;
+
+                    return `${startTimestamp} --> ${endTimestamp}`;
+                }
+            }
+
+            return line;
+        });
+
+        if (recoveredCount > 0) {
+            console.log(`🔧 Recovered ${recoveredCount} corrupted timestamps`);
+        }
+
+        return recoveredLines.join('\n');
+    }
+
+    /**
+     * Parse a 9-digit corrupted timestamp back to SRT format
+     * "000000039" -> "00:00:00,039"
+     */
+    private parseCorruptedTimestamp(raw: string): string | null {
+        if (raw.length !== 9) return null;
+
+        // Format: HHMMSSMMM (hours, minutes, seconds, milliseconds)
+        const hours = raw.substring(0, 2);
+        const minutes = raw.substring(2, 4);
+        const seconds = raw.substring(4, 6);
+        const millis = raw.substring(6, 9);
+
+        // Validate ranges
+        const h = parseInt(hours, 10);
+        const m = parseInt(minutes, 10);
+        const s = parseInt(seconds, 10);
+        const ms = parseInt(millis, 10);
+
+        if (h > 99 || m > 59 || s > 59 || ms > 999) {
+            return null;
+        }
+
+        return `${hours}:${minutes}:${seconds},${millis}`;
     }
 }

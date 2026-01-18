@@ -211,18 +211,27 @@ class SubzillaApp {
         if (this.isProcessing) return;
 
         this.isProcessing = true;
-        const fileArray = Array.from(this.files.values());
 
-        console.log(`🔄 Starting processing of ${fileArray.length} files...`);
-        this.updateStatus(`Processing ${fileArray.length} files...`);
+        // Only process files that are pending (not already processed)
+        const pendingFiles = Array.from(this.files.values()).filter((f) => f.status === 'pending');
+
+        if (pendingFiles.length === 0) {
+            console.log('ℹ️ No pending files to process');
+            this.isProcessing = false;
+            return;
+        }
+
+        console.log(`🔄 Starting processing of ${pendingFiles.length} pending files...`);
+        this.updateStatus(`Processing ${pendingFiles.length} files...`);
 
         // Use the FileProcessingManager for individual file processing with UI updates
         if (window.fileProcessingManager) {
-            await window.fileProcessingManager.processFiles(fileArray);
+            await window.fileProcessingManager.processFiles(pendingFiles);
 
-            // Calculate final stats
-            const completed = fileArray.filter((f) => f.status === 'completed').length;
-            const failed = fileArray.filter((f) => f.status === 'error').length;
+            // Calculate final stats from ALL files (not just pending)
+            const allFiles = Array.from(this.files.values());
+            const completed = allFiles.filter((f) => f.status === 'completed').length;
+            const failed = allFiles.filter((f) => f.status === 'error').length;
 
             this.updateStatus(`✓ ${completed} converted, ${failed} failed`);
         }

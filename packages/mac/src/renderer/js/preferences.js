@@ -295,11 +295,11 @@ class PreferencesApp {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: false,
-                numbers: false,
-                punctuation: true,
+                timestamps: false, // NEVER strip - corrupts SRT structure
+                numbers: false, // NEVER strip - corrupts SRT sequence numbers
+                punctuation: false, // NEVER strip - removes : , --> from timestamps
                 emojis: false,
-                brackets: true,
+                brackets: false, // NEVER strip - could affect subtitle structure
                 bidiControl: true,
             },
             'Arabic Optimized': {
@@ -319,11 +319,11 @@ class PreferencesApp {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: true,
-                numbers: true,
-                punctuation: true,
+                timestamps: false, // NEVER strip - corrupts SRT structure
+                numbers: false, // NEVER strip - corrupts SRT sequence numbers
+                punctuation: false, // NEVER strip - removes : , --> from timestamps
                 emojis: true,
-                brackets: true,
+                brackets: false, // NEVER strip - could affect subtitle structure
                 bidiControl: true,
             },
         };
@@ -399,9 +399,9 @@ class PreferencesApp {
                 urls: true,
                 timestamps: false,
                 numbers: false,
-                punctuation: true,
+                punctuation: false,
                 emojis: false,
-                brackets: true,
+                brackets: false,
                 bidiControl: true,
             },
             'Arabic Optimized': {
@@ -421,11 +421,11 @@ class PreferencesApp {
                 colors: true,
                 styles: true,
                 urls: true,
-                timestamps: true,
-                numbers: true,
-                punctuation: true,
+                timestamps: false,
+                numbers: false,
+                punctuation: false,
                 emojis: true,
-                brackets: true,
+                brackets: false,
                 bidiControl: true,
             },
         };
