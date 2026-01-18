@@ -9,6 +9,7 @@ A powerful subtitle file converter that ensures proper UTF-8 encoding with robus
 - Supports multiple subtitle formats (`.srt`, `.sub`, `.txt`).
 - Strong support for Arabic and other non-Latin scripts.
 - Simple command-line interface.
+- Native macOS desktop application with drag-and-drop.
 - Batch processing with glob pattern support.
 - Parallel processing for better performance.
 - Preserves original file formatting.
@@ -291,6 +292,49 @@ subzilla convert --help
 subzilla batch --help
 ```
 
+## Mac App 🖥️
+
+SubZilla includes a native macOS desktop application built with Electron, featuring a drag-and-drop interface for easy subtitle conversion.
+
+### Running the Mac App
+
+**Development Mode:**
+
+```bash
+# Build all packages first
+yarn build
+
+# Run the Mac app in development mode
+yarn workspace @subzilla/mac dev
+```
+
+**Building for Distribution:**
+
+```bash
+# Build the Mac app (creates DMG and ZIP)
+yarn workspace @subzilla/mac build
+
+# Output files are in packages/mac/dist-electron/
+# - Subzilla-<version>-arm64.dmg (Apple Silicon)
+# - Subzilla-<version>-arm64-mac.zip (Portable)
+```
+
+### Features
+
+- **Drag and Drop**: Simply drag subtitle files onto the app window
+- **File Selection Dialog**: Click to browse and select files
+- **Preferences Window**: Configure conversion settings
+- **Auto-Updates**: Automatic updates via GitHub releases
+- **Native macOS Integration**: Menu bar, dock icon, and system notifications
+
+### App Structure
+
+The Mac app is located in `packages/mac/` and includes:
+
+- `src/main/` - Electron main process (window management, IPC handlers)
+- `src/preload/` - Secure context bridge
+- `src/renderer/` - User interface (HTML/CSS/JS)
+
 ## Configuration 🔧
 
 SubZilla supports flexible configuration through YAML files and environment variables. All settings are optional with sensible defaults.
@@ -467,15 +511,16 @@ SubZilla follows a modular monorepo architecture with clear separation of concer
 ### Package Dependencies
 
 ```
-@subzilla/cli
-    ├── @subzilla/core
-    │   └── @subzilla/types
-    └── @subzilla/types
+@subzilla/cli              @subzilla/mac
+    ├── @subzilla/core         ├── @subzilla/core
+    │   └── @subzilla/types    │   └── @subzilla/types
+    └── @subzilla/types        └── @subzilla/types
 ```
 
 - **@subzilla/types**: Foundation package with no dependencies
 - **@subzilla/core**: Depends on types, provides core functionality
-- **@subzilla/cli**: Depends on both core and types, provides user interface
+- **@subzilla/cli**: Depends on both core and types, provides command-line interface
+- **@subzilla/mac**: Depends on both core and types, provides macOS desktop application
 
 ### Key Design Principles
 
@@ -497,7 +542,7 @@ The monorepo uses TypeScript project references for:
 
 ### Project Structure
 
-SubZilla is organized as a Yarn Workspaces monorepo with three main packages:
+SubZilla is organized as a Yarn Workspaces monorepo with four main packages:
 
 ```
 subzilla/
@@ -515,6 +560,12 @@ subzilla/
 │   │   │   ├── utils/    # Output strategies
 │   │   │   ├── *.ts      # Core services and processors
 │   │   │   └── index.ts  # Package exports
+│   │   └── package.json
+│   ├── mac/              # @subzilla/mac - macOS desktop application
+│   │   ├── src/
+│   │   │   ├── main/     # Electron main process
+│   │   │   ├── preload/  # Context bridge
+│   │   │   └── renderer/ # UI (HTML/CSS/JS)
 │   │   └── package.json
 │   └── types/            # @subzilla/types - TypeScript definitions
 │       ├── src/
