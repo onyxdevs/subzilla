@@ -72,6 +72,12 @@ export default class SubtitleProcessor {
                 utf8Content = this.recoverCorruptedTimestamps(utf8Content);
             }
 
+            // Convert inline line-break markers (<br>, ASS \N) to real newlines
+            // BEFORE stripping, so a stripped break can never glue two words
+            // together. Must run before the strip step (which would otherwise
+            // delete <br> outright) and before ensureProperLineBreaks.
+            utf8Content = this.normalizeHardLineBreaks(utf8Content);
+
             if (options.strip) {
                 // Prevent corrupting SRT file structure by blocking dangerous strip options
                 // These options would destroy the SRT format completely
@@ -124,6 +130,28 @@ export default class SubtitleProcessor {
 
     private normalizeLineEndings(content: string, lineEnding: 'lf' | 'crlf' | 'auto'): string {
         return content.replace(/\r\n|\r|\n/g, LINE_ENDINGS[lineEnding]);
+    }
+
+    /**
+     * Convert inline hard line-break markers into real newlines.
+     *
+     * Subtitle sources often encode a line break inside a single physical line
+     * using HTML <br> (any case / self-closing) or the ASS/SSA forced break \N.
+     * If those are simply deleted, the words on either side collapse together —
+     * very visible in Arabic/RTL where two words read as one. Each run of such
+     * markers becomes exactly ONE newline.
+     *
+     * We also absorb at most one neighbouring newline on each side of the run so
+     * that a marker hugging an existing newline (or a doubled <br><br>) never
+     * manufactures a blank line, which ensureProperLineBreaks() would otherwise
+     * mistake for a cue boundary. A genuine cue boundary keeps its second,
+     * un-absorbed newline and survives intact.
+     */
+    private normalizeHardLineBreaks(content: string): string {
+        const breakRun =
+            /(?:\r\n|\r|\n)?[^\S\r\n]*(?:<[bB][rR]\s*\/?>|\\N)(?:[^\S\r\n]*(?:<[bB][rR]\s*\/?>|\\N))*[^\S\r\n]*(?:\r\n|\r|\n)?/g;
+
+        return content.replace(breakRun, '\n');
     }
 
     private async createBackup(filePath: string, overwriteBackup = true): Promise<string> {

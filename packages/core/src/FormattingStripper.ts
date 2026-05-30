@@ -2,6 +2,10 @@ import { IStripOptions } from '@subzilla/types';
 
 export default class FormattingStripper {
     private htmlTagRegex = /<[^>]+>/g;
+    // Line-break tags (<br>, <br/>, <BR ...>) collapse a run — plus any inline
+    // spaces hugging it — into a single real newline. Critical for RTL/Arabic:
+    // dropping <br> with no separator glues two words into one nonsense word.
+    private lineBreakTagRegex = /[^\S\r\n]*(?:<[bB][rR]\s*\/?>[^\S\r\n]*)+/g;
     private srtColorRegex = /{\\\c&H[0-9A-Fa-f]{6}&}/g;
     private assColorRegex = /\{\\c&H[0-9A-Fa-f]{6}&\}/g;
     private srtStyleRegex = /{\\\w+\d*}/g;
@@ -66,6 +70,11 @@ export default class FormattingStripper {
     }
 
     private stripHtmlTags(content: string): string {
+        // Line breaks carry meaning: turn <br> into a real newline BEFORE the
+        // blanket tag removal below, otherwise it vanishes and the surrounding
+        // words touch (e.g. Arabic "مرحبا<br>بالعالم" -> "مرحبابالعالم").
+        content = content.replace(this.lineBreakTagRegex, '\n');
+
         // First, handle specific rich text tags with their content if needed
         this.richTextTags.forEach((tag) => {
             const tagRegex = new RegExp(`<${tag}[^>]*>.*?</${tag}>`, 'gi');
