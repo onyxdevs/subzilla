@@ -56,6 +56,22 @@ yarn dist
 
 - `index.ts` - Secure context bridge for IPC communication
 
+## App Icon
+
+The icon source of truth is `assets/icon.svg` — two white "subtitle bars" on a gecko-green
+field (a nod to the 🦎 mascot). It's regenerated from a single dependency-free script:
+
+```bash
+yarn icon   # node scripts/gen-icon.mjs
+```
+
+`scripts/gen-icon.mjs` rasterizes the SVG geometry into a full-bleed, opaque `assets/icon.png`
+(1024², no transparent margin — deliberate for macOS Tahoe's rounded-mask "icon jail") using a
+self-contained PNG writer, then, on macOS, builds the multi-resolution `assets/icon.icns` from
+it via `sips` + `iconutil`. `icon.icns` is what `electron-builder` ships in the `.app` and DMG;
+in dev, the main process points the dock at `icon.png`. To restyle the icon, edit the geometry
+in both `icon.svg` and the `BASE`/`BARS` constants in the script, then re-run `yarn icon`.
+
 ## Integration
 
 The Mac app directly uses:

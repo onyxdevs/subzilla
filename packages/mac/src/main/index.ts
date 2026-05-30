@@ -11,6 +11,11 @@ import { AutoUpdater } from './updater';
 const isDev = process.env.NODE_ENV === 'development';
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Dev parity for the dock icon. In packaged builds electron-builder embeds icon.icns into the
+// .app and macOS picks it up directly; in dev (`yarn dev` → bare `electron .`) the running
+// Electron binary shows its own default icon unless we override the dock explicitly.
+const devIconPath = !app.isPackaged ? path.join(__dirname, '../../assets/icon.png') : null;
+
 class SubzillaApp {
     private mainWindow: BrowserWindow | null = null;
     private preferencesWindow: BrowserWindow | null = null;
@@ -25,6 +30,17 @@ class SubzillaApp {
         // Handle app ready
         app.whenReady().then(() => {
             console.log('🚀 App ready, creating main window...');
+
+            // setIcon throws on a missing/unreadable file; the dev dock icon is cosmetic chrome,
+            // so never let it block window creation — guard it and carry on.
+            if (devIconPath && process.platform === 'darwin') {
+                try {
+                    app.dock?.setIcon(devIconPath);
+                } catch (err) {
+                    console.warn('[dock] dev icon load failed (non-fatal)', err);
+                }
+            }
+
             this.createMainWindow();
             this.setupMenu();
             this.setupIPC();

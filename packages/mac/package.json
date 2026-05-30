@@ -8,6 +8,7 @@
         "dev": "tsc && yarn run copy-renderer && electron .",
         "start": "electron dist/main/index.js",
         "copy-renderer": "mkdir -p dist/renderer && cp -r src/renderer/* dist/renderer/",
+        "icon": "node scripts/gen-icon.mjs",
         "dist": "electron-builder",
         "type-check": "tsc --noEmit",
         "lint": "eslint . --ext .ts",
