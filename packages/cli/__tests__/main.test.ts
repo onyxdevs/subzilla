@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import path from 'path';
 
 import { describe, it, expect, beforeEach, afterEach, jest } from '@jest/globals';
@@ -58,7 +58,7 @@ describe('CLI Main Entry Point', () => {
     describe('CLI Help and Version', () => {
         it('should display help when --help is passed', () => {
             try {
-                const output = execSync(`node ${cliPath} --help`, {
+                const output = execFileSync(process.execPath, [cliPath, '--help'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
@@ -69,7 +69,7 @@ describe('CLI Main Entry Point', () => {
                 expect(output).toContain('convert');
                 expect(output).toContain('batch');
             } catch (error: unknown) {
-                // Help command exits with code 0, but execSync might throw
+                // Help command exits with code 0, but execFileSync might throw
                 const execError = error as { status?: number; stdout?: string };
 
                 if (execError.status === 0) {
@@ -82,14 +82,14 @@ describe('CLI Main Entry Point', () => {
 
         it('should display version when --version is passed', () => {
             try {
-                const output = execSync(`node ${cliPath} --version`, {
+                const output = execFileSync(process.execPath, [cliPath, '--version'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
 
                 expect(output).toMatch(/\d+\.\d+\.\d+/); // Version pattern
             } catch (error: unknown) {
-                // Version command exits with code 0, but execSync might throw
+                // Version command exits with code 0, but execFileSync might throw
                 const execError = error as { status?: number; stdout?: string };
 
                 if (execError.status === 0) {
@@ -104,7 +104,7 @@ describe('CLI Main Entry Point', () => {
     describe('Command Registration', () => {
         it('should show convert command in help', () => {
             try {
-                const output = execSync(`node ${cliPath} convert --help`, {
+                const output = execFileSync(process.execPath, [cliPath, 'convert', '--help'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
@@ -124,7 +124,7 @@ describe('CLI Main Entry Point', () => {
 
         it('should show batch command in help', () => {
             try {
-                const output = execSync(`node ${cliPath} batch --help`, {
+                const output = execFileSync(process.execPath, [cliPath, 'batch', '--help'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
@@ -144,7 +144,7 @@ describe('CLI Main Entry Point', () => {
 
         it('should show init command in help', () => {
             try {
-                const output = execSync(`node ${cliPath} init --help`, {
+                const output = execFileSync(process.execPath, [cliPath, 'init', '--help'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
@@ -163,7 +163,7 @@ describe('CLI Main Entry Point', () => {
 
         it('should show info command in help', () => {
             try {
-                const output = execSync(`node ${cliPath} info --help`, {
+                const output = execFileSync(process.execPath, [cliPath, 'info', '--help'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
@@ -184,7 +184,7 @@ describe('CLI Main Entry Point', () => {
     describe('Error Handling', () => {
         it('should show error for unknown command', () => {
             try {
-                execSync(`node ${cliPath} unknown-command`, {
+                execFileSync(process.execPath, [cliPath, 'unknown-command'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
@@ -201,7 +201,7 @@ describe('CLI Main Entry Point', () => {
 
         it('should handle missing required arguments gracefully', () => {
             try {
-                execSync(`node ${cliPath} convert`, {
+                execFileSync(process.execPath, [cliPath, 'convert'], {
                     encoding: 'utf8',
                     timeout: 5000,
                 });
