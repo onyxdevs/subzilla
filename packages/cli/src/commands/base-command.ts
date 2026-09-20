@@ -9,9 +9,9 @@ import {
 /**
  * Base class for command creators
  */
-export abstract class BaseCommandCreator<TOptions = IConvertCommandOptions | IBatchCommandOptions>
-    implements ICommandCreator
-{
+export abstract class BaseCommandCreator<
+    TOptions = IConvertCommandOptions | IBatchCommandOptions,
+> implements ICommandCreator {
     protected abstract getDefinition(): ICommandDefinition<TOptions>;
 
     public createCommand(context: ICommandContext): void {
