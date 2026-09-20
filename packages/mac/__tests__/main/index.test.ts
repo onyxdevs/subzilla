@@ -58,8 +58,7 @@ describe('SubzillaApp - Main Application', () => {
     let windowAllClosedCallback: (() => void) | undefined;
     let openFileCallback: ((event: { preventDefault: () => void }, filePath: string) => void) | undefined;
     let webContentsCreatedCallback:
-        | ((event: unknown, webContents: { setWindowOpenHandler: jest.Mock }) => void)
-        | undefined;
+        ((event: unknown, webContents: { setWindowOpenHandler: jest.Mock }) => void) | undefined;
 
     beforeEach(() => {
         // Setup mock BrowserWindow first

@@ -278,8 +278,7 @@ describe('Preload Script - Context Bridge', () => {
 
             // Simulate event
             const registeredCallback = mockIpcRenderer.on.mock.calls.find((call) => call[0] === 'file-opened')?.[1] as
-                | ((...args: unknown[]) => void)
-                | undefined;
+                ((...args: unknown[]) => void) | undefined;
 
             if (!registeredCallback) throw new Error('Callback not found');
 
