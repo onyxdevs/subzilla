@@ -9,9 +9,24 @@ updates:
           # One PR for routine bumps instead of one per package
           minor-and-patch:
               update-types: [minor, patch]
+          # ESLint and its companions only work when upgraded together; separate
+          # PRs for "eslint" and "@eslint/js" each fail on their own
+          eslint-major:
+              patterns: ['eslint', '@eslint/*', 'eslint-*', '@typescript-eslint/*']
+              update-types: [major]
       ignore:
           # Electron majors need a deliberate migration (renderer/preload APIs change)
           - dependency-name: electron
+            update-types: [version-update:semver-major]
+          # Type definitions must match the OLDEST supported Node (see "engines"),
+          # not the newest: bump this by hand when the minimum Node version changes
+          - dependency-name: '@types/node'
+            update-types: [version-update:semver-major]
+          # Held at 9: eslint-plugin-import (latest 2.32.0) does not support ESLint 10.
+          # Remove these two entries once it does.
+          - dependency-name: eslint
+            update-types: [version-update:semver-major]
+          - dependency-name: '@eslint/js'
             update-types: [version-update:semver-major]
 
     - package-ecosystem: github-actions
