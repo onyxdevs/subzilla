@@ -2,6 +2,15 @@
 node_modules/
 yarn-error.log
 
+# Yarn (we use node_modules, not zero-installs: only the lockfile is shared)
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
 # Build output
 dist/
 dist-*/
