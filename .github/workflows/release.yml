@@ -1,0 +1,102 @@
+name: Release (macOS app)
+
+# Tag "v1.2.3" -> builds the Intel + Apple Silicon app and attaches it to a DRAFT
+# GitHub release for review. Pull requests that touch the Mac app (or this file)
+# run the same build without publishing, as a packaging smoke test.
+on:
+    push:
+        tags: ['v*']
+    pull_request:
+        branches: [main]
+        paths:
+            - 'packages/mac/**'
+            - 'packages/core/**'
+            - 'packages/types/**'
+            - '.github/workflows/release.yml'
+    workflow_dispatch:
+
+concurrency:
+    group: release-${{ github.ref }}
+    cancel-in-progress: true
+
+permissions:
+    contents: read
+
+jobs:
+    package:
+        name: Package macOS app
+        runs-on: macos-latest
+        timeout-minutes: 30
+        permissions:
+            contents: write # create the draft release and upload assets
+
+        env:
+            # The app is not code-signed (that needs a paid Apple Developer ID).
+            # To sign later: add CSC_LINK / CSC_KEY_PASSWORD secrets and drop this.
+            CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v7
+
+            - name: Enable Corepack
+              run: corepack enable
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v7
+              with:
+                  node-version: 22.x
+                  cache: yarn
+
+            - name: Install dependencies
+              run: yarn install --immutable
+
+            - name: Check the tag matches the app version
+              if: startsWith(github.ref, 'refs/tags/v')
+              run: |
+                  app_version="$(node -p "require('./packages/mac/package.json').version")"
+                  if [ "v${app_version}" != "${GITHUB_REF_NAME}" ]; then
+                    echo "::error::Tag ${GITHUB_REF_NAME} does not match packages/mac version ${app_version}. Bump the version first."
+                    exit 1
+                  fi
+
+            - name: Build libraries
+              run: |
+                  yarn workspace @subzilla/types run build
+                  yarn workspace @subzilla/core run build
+
+            - name: Compile the app
+              working-directory: packages/mac
+              run: yarn tsc && yarn run copy-renderer
+
+            - name: Package (no publish)
+              if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+              working-directory: packages/mac
+              run: yarn electron-builder --publish never
+
+            - name: Package and publish draft release
+              if: startsWith(github.ref, 'refs/tags/v')
+              working-directory: packages/mac
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: yarn electron-builder --publish always
+
+            - name: Verify the bundles
+              working-directory: packages/mac/dist-electron
+              run: |
+                  ls -lh
+                  for artifact in Subzilla-*.dmg Subzilla-*-mac.zip latest-mac.yml; do
+                    test -s "$artifact" || { echo "::error::missing $artifact"; exit 1; }
+                  done
+                  test "$(ls Subzilla-*.dmg | wc -l | tr -d ' ')" = "2" || { echo "::error::expected an Intel and an Apple Silicon dmg"; exit 1; }
+
+            - name: Upload build artifacts
+              if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+              uses: actions/upload-artifact@v7
+              with:
+                  name: subzilla-macos
+                  path: |
+                      packages/mac/dist-electron/*.dmg
+                      packages/mac/dist-electron/*.zip
+                  retention-days: 7
+                  if-no-files-found: error

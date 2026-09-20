@@ -34,3 +34,7 @@ dmg:
           path: /Applications
 publish:
     provider: github
+    owner: onyxdevs
+    repo: subzilla
+    # Releases are created as drafts so they can be reviewed before going public
+    releaseType: draft

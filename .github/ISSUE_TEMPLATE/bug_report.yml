@@ -1,0 +1,49 @@
+name: Bug report
+description: A subtitle came out wrong, or something crashed
+labels: [bug]
+body:
+    - type: markdown
+      attributes:
+          value: |
+              **Please attach the subtitle file** (or a 3–5 cue excerpt saved as a file). Pasting the text into this form converts it to UTF-8 and drops invisible characters — which is usually the bug itself.
+    - type: textarea
+      id: what-happened
+      attributes:
+          label: What happened, and what did you expect?
+          placeholder: 'Two Arabic words are joined together in cue 12: "مرحبابالعالم" instead of "مرحبا بالعالم".'
+      validations:
+          required: true
+    - type: textarea
+      id: sample
+      attributes:
+          label: Sample file
+          description: Drag the original (unconverted) file here. Zip it if GitHub rejects the extension.
+      validations:
+          required: true
+    - type: dropdown
+      id: surface
+      attributes:
+          label: Where did you run it?
+          options:
+              - macOS app
+              - CLI
+              - '@subzilla/core as a library'
+      validations:
+          required: true
+    - type: textarea
+      id: settings
+      attributes:
+          label: Command or settings used
+          description: The CLI command, your `.subzillarc`, or which options are ticked in Preferences → Formatting.
+          render: shell
+    - type: input
+      id: version
+      attributes:
+          label: Version / OS
+          placeholder: Subzilla 1.0.0, macOS 15.2, Node 22
+    - type: input
+      id: player
+      attributes:
+          label: Where does the result look wrong?
+          description: If the converted file only looks wrong in a specific player or TV, say which.
+          placeholder: Samsung TV (2022), VLC 3.0.21, Plex on Apple TV …
