@@ -40,6 +40,7 @@ yarn dist
 
 - `index.ts` - Application entry point and window management
 - `ipc.ts` - IPC handlers for renderer communication
+- `files.ts` - Expands dropped/selected files and folders into subtitle files (recursive; skips hidden entries, symlinks, `.subzilla.` outputs, VobSub `.sub`/`.idx` pairs, and `.txt` inside folders)
 - `menu.ts` - Native macOS menu bar
 - `preferences.ts` - Configuration management with electron-store
 - `updater.ts` - Auto-update functionality
