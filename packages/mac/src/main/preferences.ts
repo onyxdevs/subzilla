@@ -425,19 +425,6 @@ export class ConfigMapper {
                 brackets: false, // NEVER strip - could affect subtitle structure
                 bidiControl: true,
             },
-            'Arabic Optimized': {
-                html: true,
-                markdown: true,
-                colors: true,
-                styles: true,
-                urls: true,
-                timestamps: false,
-                numbers: false,
-                punctuation: false,
-                emojis: false,
-                brackets: false,
-                bidiControl: true,
-            },
             'Maximum Clean': {
                 html: true,
                 markdown: true,

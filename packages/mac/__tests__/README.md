@@ -43,7 +43,7 @@ __tests__/
 
 - **Initialization**: Store setup, default configuration
 - **Configuration Management**: Get/save config, app preferences
-- **Formatting Presets**: None, Basic Clean, Deep Clean, Arabic Optimized, Maximum Clean
+- **Formatting Presets**: None, Basic Clean, Deep Clean, Maximum Clean
 - **Schema Validation**: Type checking for all configuration sections
 - **Default Values**: Correct defaults for input, output, strip, batch, and app settings
 

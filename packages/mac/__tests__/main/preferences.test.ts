@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 
 import { IConfig, IStripOptions } from '@subzilla/types';
@@ -231,7 +234,6 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(presets).toHaveProperty('None');
             expect(presets).toHaveProperty('Basic Clean');
             expect(presets).toHaveProperty('Deep Clean');
-            expect(presets).toHaveProperty('Arabic Optimized');
             expect(presets).toHaveProperty('Maximum Clean');
         });
 
@@ -273,13 +275,26 @@ describe('ConfigMapper - Preferences Management', () => {
             expect(deepClean.bidiControl).toBe(true);
         });
 
-        it('should have Arabic Optimized preset with RTL support', () => {
+        it('has no two presets with identical options (a duplicate can never be shown as selected)', () => {
             const presets = configMapper.getFormattingPresets();
-            const arabicOptimized = presets['Arabic Optimized'];
+            const signatures = Object.values(presets).map((preset) =>
+                JSON.stringify(Object.entries(preset).sort(([a], [b]) => a.localeCompare(b))),
+            );
 
-            expect(arabicOptimized.html).toBe(true);
-            expect(arabicOptimized.bidiControl).toBe(true);
-            expect(arabicOptimized.punctuation).toBe(false);
+            expect(new Set(signatures).size).toBe(Object.keys(presets).length);
+        });
+
+        it('offers exactly the presets the preferences window has buttons for', () => {
+            const html = fs.readFileSync(path.join(__dirname, '../../src/renderer/preferences.html'), 'utf8');
+            const buttons = [...html.matchAll(/data-preset="([^"]+)"/g)].map((match) => match[1]);
+
+            expect(buttons).toEqual(Object.keys(configMapper.getFormattingPresets()));
+
+            // The renderer keeps its own copy of the preset table (twice): same names, same order
+            const renderer = fs.readFileSync(path.join(__dirname, '../../src/renderer/js/preferences.js'), 'utf8');
+            const rendererNames = [...renderer.matchAll(/^ {12}'?([A-Z][A-Za-z ]+)'?: \{$/gm)].map((match) => match[1]);
+
+            expect(rendererNames).toEqual([...buttons, ...buttons]);
         });
 
         it('should have Maximum Clean preset with safe options enabled (no timestamps/numbers/punctuation/brackets to prevent file corruption)', () => {
