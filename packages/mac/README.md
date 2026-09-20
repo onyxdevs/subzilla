@@ -4,7 +4,7 @@ A minimalist Mac desktop application for subtitle conversion, built with Electro
 
 ## Features
 
-- 🦎 **Simple Interface**: Drag-and-drop subtitle files for instant conversion
+- 🦎 **Simple Interface**: Drag-and-drop subtitle files or entire folders (scanned recursively) for instant conversion
 - ⚡ **Fast Processing**: Leverages `@subzilla/core` for efficient batch processing
 - 🎛️ **Full Control**: Complete preferences window with all configuration options
 - 🍎 **Native macOS**: Feels like a native Mac application

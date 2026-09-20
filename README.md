@@ -161,7 +161,8 @@ Options:
 - `--preserve-structure`: Preserve directory structure in output.
 - `-b, --backup`: Create backup of original files.
 - `--no-overwrite-backup`: Create numbered backups instead of overwriting existing backup.
-- `--strip-html`: Strip HTML tags.
+- `--strip-html`: Strip HTML tags (block tags and `<br>` become line breaks, entities like `&nbsp;` are decoded).
+- `--strip-markdown`: Strip Markdown formatting (`**bold**`, `*italic*`, `~~strike~~`, `` `code` ``, `[text](url)`, `## headings`). Subtitle conventions that merely look like Markdown — dialogue dashes, `# song lyrics #`, `f**k`, `>> Speaker:` — are left alone.
 - `--strip-colors`: Strip color codes.
 - `--strip-styles`: Strip style tags.
 - `--strip-urls`: Replace URLs with [URL].
@@ -321,7 +322,7 @@ yarn workspace @subzilla/mac build
 
 ### Features
 
-- **Drag and Drop**: Simply drag subtitle files onto the app window
+- **Drag and Drop**: Simply drag subtitle files — or whole folders — onto the app window. Folders are scanned recursively for `.srt`, `.sub`, `.ass` and `.ssa` files (hidden folders, already-converted `.subzilla.` files and VobSub `.sub`/`.idx` pairs are skipped)
 - **File Selection Dialog**: Click to browse and select files
 - **Preferences Window**: Configure conversion settings
 - **Auto-Updates**: Automatic updates via GitHub releases
@@ -386,6 +387,7 @@ Several example configurations are provided in the `examples/config` directory:
 
     strip:
         html: true
+        markdown: true
         colors: true
         styles: true
 

@@ -83,6 +83,7 @@ subzilla convert input.srt \
 - `--line-endings <type>`: Line endings (lf, crlf, auto)
 - `--overwrite-existing`: Overwrite existing output file
 - `--strip-html`: Remove HTML tags
+- `--strip-markdown`: Remove Markdown formatting (`**bold**`, `*italic*`, `[text](url)`, ...)
 - `--strip-colors`: Remove color codes
 - `--strip-styles`: Remove style tags
 - `--strip-urls`: Replace URLs with [URL]
