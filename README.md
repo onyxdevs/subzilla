@@ -1,5 +1,9 @@
 # SubZilla 🦎
 
+[![CI](https://github.com/onyxdevs/subzilla/actions/workflows/ci.yml/badge.svg)](https://github.com/onyxdevs/subzilla/actions/workflows/ci.yml)
+[![License: ISC](https://img.shields.io/badge/license-ISC-blue.svg)](LICENSE)
+[![Latest release](https://img.shields.io/github/v/release/onyxdevs/subzilla?include_prereleases&label=download)](https://github.com/onyxdevs/subzilla/releases/latest)
+
 A powerful subtitle file converter that ensures proper UTF-8 encoding with robust support for Arabic and other languages. SubZilla automatically detects the input file encoding and converts it to UTF-8, making it perfect for fixing subtitle encoding issues. Built with SOLID, YAGNI, KISS, and DRY principles in mind.
 
 ## Features ✨
@@ -299,6 +303,12 @@ subzilla batch --help
 
 SubZilla includes a native macOS desktop application built with Electron, featuring a drag-and-drop interface for easy subtitle conversion.
 
+### Download
+
+Grab the latest `.dmg` from the [releases page](https://github.com/onyxdevs/subzilla/releases/latest): `Subzilla-<version>-arm64.dmg` for Apple Silicon, `Subzilla-<version>.dmg` for Intel.
+
+The app is not signed with an Apple Developer ID, so macOS blocks it on first launch. Open it once via **System Settings → Privacy & Security → Open Anyway** (or run `xattr -cr /Applications/Subzilla.app`). For the same reason the built-in auto-updater cannot install updates on its own; download new versions from the releases page.
+
 ### Running the Mac App
 
 **Development Mode:**
@@ -318,8 +328,8 @@ yarn workspace @subzilla/mac dev
 yarn workspace @subzilla/mac build
 
 # Output files are in packages/mac/dist-electron/
-# - Subzilla-<version>-arm64.dmg (Apple Silicon)
-# - Subzilla-<version>-arm64-mac.zip (Portable)
+# - Subzilla-<version>-arm64.dmg / -arm64-mac.zip (Apple Silicon)
+# - Subzilla-<version>.dmg / -mac.zip (Intel)
 ```
 
 ### Features
@@ -674,6 +684,8 @@ The workspace structure provides several advantages:
 - **Simplified Development**: Single `yarn install` and `yarn build` for the entire project
 
 ### Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, testing expectations and commit conventions. In short:
 
 1. **Fork the repository**
 2. **Clone your fork and install dependencies**
