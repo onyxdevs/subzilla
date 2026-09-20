@@ -1453,8 +1453,8 @@ __metadata:
     "@subzilla/types": "workspace:*"
     "@types/commander": "npm:^2.12.5"
     "@types/module-alias": "npm:^2.0.4"
-    "@types/node": "npm:^24.3.0"
-    commander: "npm:^14.0.0"
+    "@types/node": "npm:^22.12.0"
+    commander: "npm:^15.0.0"
     module-alias: "npm:^2.3.4"
     typescript: "npm:^5.9.2"
   bin:
@@ -1471,7 +1471,7 @@ __metadata:
     "@types/cli-progress": "npm:^3.11.6"
     "@types/glob": "npm:^9.0.0"
     "@types/iconv-lite": "npm:^0.0.1"
-    "@types/node": "npm:^24.3.0"
+    "@types/node": "npm:^22.12.0"
     chardet: "npm:^2.2.0"
     cli-progress: "npm:^3.12.0"
     glob: "npm:^11.0.3"
@@ -1487,7 +1487,7 @@ __metadata:
   dependencies:
     "@subzilla/core": "workspace:*"
     "@subzilla/types": "workspace:*"
-    "@types/node": "npm:^24.3.0"
+    "@types/node": "npm:^22.12.0"
     electron: "npm:31.7.7"
     electron-builder: "npm:^24.0.0"
     electron-store: "npm:^8.1.0"
@@ -1501,7 +1501,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@subzilla/types@workspace:packages/types"
   dependencies:
-    "@types/node": "npm:^24.3.0"
+    "@types/node": "npm:^22.12.0"
     typescript: "npm:^5.9.2"
     zod: "npm:^4.6.5"
   languageName: unknown
@@ -1743,7 +1743,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:^24.3.0":
+"@types/node@npm:*":
   version: 24.3.0
   resolution: "@types/node@npm:24.3.0"
   dependencies:
@@ -1758,6 +1758,15 @@ __metadata:
   dependencies:
     undici-types: "npm:~6.21.0"
   checksum: 10c0/25fba13d50c4f18ac56a50d4491502e7d095f09e44c17c0c6887aa5e4e6122e961e92fc3b682ed8c053ab87a05ce10f501345d23d96fdfba8002ecce6c8ced51
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.12.0":
+  version: 22.20.4
+  resolution: "@types/node@npm:22.20.4"
+  dependencies:
+    undici-types: "npm:~6.21.0"
+  checksum: 10c0/3a17e19f7b7b7a6d6c695ef8b0a34b70f84829a1539f57d338487bc3b51ddd4ca86ffbcbcc4f1307a41de83d02c1b7dfbb16e8cb6a9c3a8360b4306ccf9ead2d
   languageName: node
   linkType: hard
 
@@ -3182,7 +3191,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"commander@npm:*, commander@npm:^14.0.0":
+"commander@npm:*":
   version: 14.0.0
   resolution: "commander@npm:14.0.0"
   checksum: 10c0/73c4babfa558077868d84522b11ef56834165d472b9e86a634cd4c3ae7fc72d59af6377d8878e06bd570fe8f3161eced3cbe383c38f7093272bb65bd242b595b
@@ -3193,6 +3202,13 @@ __metadata:
   version: 14.0.2
   resolution: "commander@npm:14.0.2"
   checksum: 10c0/245abd1349dbad5414cb6517b7b5c584895c02c4f7836ff5395f301192b8566f9796c82d7bd6c92d07eba8775fe4df86602fca5d86d8d10bcc2aded1e21c2aeb
+  languageName: node
+  linkType: hard
+
+"commander@npm:^15.0.0":
+  version: 15.0.0
+  resolution: "commander@npm:15.0.0"
+  checksum: 10c0/539229c171914ea1ccd45ee5f10d924289a12a684ea3a7a44147abe54003c35ed6de9ae4ad198d88c29fdf403dca0428451a388234e6dc01b6faa978fb207206
   languageName: node
   linkType: hard
 
@@ -7864,7 +7880,7 @@ __metadata:
     "@eslint/js": "npm:^9.34.0"
     "@jest/globals": "npm:^30.5.1"
     "@types/jest": "npm:^30.0.0"
-    "@types/node": "npm:^24.3.0"
+    "@types/node": "npm:^22.12.0"
     "@typescript-eslint/eslint-plugin": "npm:^8.70.0"
     "@typescript-eslint/parser": "npm:^8.70.0"
     eslint: "npm:^9.34.0"
