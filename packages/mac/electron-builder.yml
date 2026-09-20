@@ -2,6 +2,9 @@ appId: net.onyxdev.subzilla
 productName: Subzilla
 directories:
     output: dist-electron
+# No Developer ID certificate: re-sign ad hoc so the bundle's signature is valid
+# (see scripts/adhoc-sign.js for why this matters)
+afterPack: scripts/adhoc-sign.js
 files:
     - dist/**/*
     - assets/**/*
