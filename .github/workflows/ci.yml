@@ -28,9 +28,9 @@ jobs:
 
             - name: Build packages
               run: |
-                yarn workspace @subzilla/types run build
-                yarn workspace @subzilla/core run build
-                yarn workspace @subzilla/cli run build
+                  yarn workspace @subzilla/types run build
+                  yarn workspace @subzilla/core run build
+                  yarn workspace @subzilla/cli run build
 
             - name: Run type checking
               run: yarn type-check

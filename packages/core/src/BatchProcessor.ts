@@ -51,6 +51,7 @@ export default class BatchProcessor {
             }
 
             this.stats.total = files.length;
+
             const dirCount = this.countDirectories(files);
 
             console.log(`🔍 Found ${files.length} files in ${dirCount} directories\n`);
