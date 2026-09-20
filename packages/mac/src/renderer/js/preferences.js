@@ -66,7 +66,7 @@ class PreferencesApp {
         this.reportIssueLink = document.getElementById('report-issue-link');
 
         // Actions
-        this.restoreDefaults = document.getElementById('restore-defaults');
+        this.restoreDefaultsButton = document.getElementById('restore-defaults');
         this.cancelButton = document.getElementById('cancel-button');
         this.saveButton = document.getElementById('save-button');
     }
@@ -125,7 +125,7 @@ class PreferencesApp {
         this.resetConfigButton.addEventListener('click', () => this.resetConfiguration());
         this.githubLink.addEventListener('click', () => this.openGitHub());
         this.reportIssueLink.addEventListener('click', () => this.openIssueTracker());
-        this.restoreDefaults.addEventListener('click', () => this.restoreDefaults());
+        this.restoreDefaultsButton.addEventListener('click', () => this.restoreDefaults());
         this.cancelButton.addEventListener('click', () => this.cancel());
         this.saveButton.addEventListener('click', () => this.save());
 
@@ -504,10 +504,9 @@ class PreferencesApp {
     }
 
     async restoreDefaults() {
-        const confirmed = confirm('Restore all settings to defaults?');
-        if (confirmed) {
-            await this.resetConfiguration();
-        }
+        // resetConfiguration() asks for confirmation itself; asking here too
+        // meant two dialogs in a row for one click
+        await this.resetConfiguration();
     }
 
     async save() {
