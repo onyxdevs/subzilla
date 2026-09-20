@@ -102,7 +102,8 @@ class SubzillaApp {
     setupIPC() {
         // File opened from system
         window.subzilla.onFileOpened((filePath) => {
-            this.addFile(filePath);
+            // Same path as a drop: validates, expands folders and starts processing
+            this.addFiles([filePath]);
         });
 
         // Menu actions
@@ -147,7 +148,7 @@ class SubzillaApp {
 
     async handleFileSelection(event) {
         const files = Array.from(event.target.files);
-        const filePaths = files.map((file) => file.path);
+        const filePaths = files.map((file) => window.subzilla.getPathForFile(file)).filter(Boolean);
         this.addFiles(filePaths);
 
         // Reset file input
@@ -155,25 +156,37 @@ class SubzillaApp {
     }
 
     async handleDroppedFiles(files) {
-        const filePaths = files.map((file) => file.path || file.name);
-        console.log(`📁 Handling ${files.length} dropped files:`, filePaths);
+        // Works for folders too: a dropped directory arrives as a File whose
+        // path is the directory; the main process expands it recursively.
+        const filePaths = files.map((file) => window.subzilla.getPathForFile(file)).filter(Boolean);
+        console.log(`📁 Handling ${files.length} dropped items:`, filePaths);
         this.addFiles(filePaths);
     }
 
     async addFiles(filePaths) {
         try {
-            console.log(`📁 Adding ${filePaths.length} files...`);
+            console.log(`📁 Adding ${filePaths.length} items...`);
 
-            // Validate files
+            // Validate files (folders are expanded into the subtitles inside them)
             const validation = await window.subzilla.validateFiles(filePaths);
 
             if (validation.invalidFiles.length > 0) {
                 this.showError(`${validation.invalidFiles.length} files skipped (unsupported format)`);
+            } else if (validation.validFiles.length === 0 && validation.scannedDirectories > 0) {
+                this.showError('No subtitle files found in the dropped folder');
             }
 
-            // Add valid files
+            // Add valid files, ignoring ones already waiting in the queue
+            const queued = new Set(
+                Array.from(this.files.values())
+                    .filter((f) => f.status === 'pending' || f.status === 'processing')
+                    .map((f) => f.filePath),
+            );
+
             for (const filePath of validation.validFiles) {
-                this.addFile(filePath);
+                if (!queued.has(filePath)) {
+                    this.addFile(filePath);
+                }
             }
 
             // Switch to processing state if we have files
@@ -277,7 +290,7 @@ class SubzillaApp {
         const statusText = this.getStatusText(file.status);
 
         element.innerHTML = `
-            <div class="file-name" title="${file.filePath}">${file.fileName}</div>
+            <div class="file-name"></div>
             <div class="file-status status-${file.status}">
                 <span class="status-icon">${statusIcon}</span>
                 <span>${statusText}</span>
@@ -285,6 +298,13 @@ class SubzillaApp {
             <div class="encoding-info">${file.originalEncoding || '—'}</div>
             <div class="encoding-info">${file.resultEncoding || '—'}</div>
         `;
+
+        // File names are untrusted text (they may contain <, >, quotes): never
+        // interpolate them into markup
+        const nameElement = element.querySelector('.file-name');
+
+        nameElement.textContent = file.fileName;
+        nameElement.title = file.filePath;
 
         // Add click handler for completed files
         if (file.status === 'completed') {

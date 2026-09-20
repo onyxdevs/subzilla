@@ -138,12 +138,12 @@ describe('IPC Handlers', () => {
             const result = (await handler({}, {})) as { canceled: boolean; filePaths: string[] };
 
             expect(dialog.showOpenDialog).toHaveBeenCalledWith({
-                title: 'Select Subtitle Files',
+                title: 'Select Subtitle Files or Folders',
                 filters: [
                     { name: 'Subtitle Files', extensions: ['srt', 'sub', 'ass', 'ssa', 'txt'] },
                     { name: 'All Files', extensions: ['*'] },
                 ],
-                properties: ['openFile', 'multiSelections'],
+                properties: ['openFile', 'openDirectory', 'multiSelections'],
             });
             expect(result).toEqual(mockResult);
         });
