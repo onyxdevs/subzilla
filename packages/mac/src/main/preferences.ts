@@ -60,6 +60,7 @@ export class ConfigMapper {
                     type: 'object',
                     properties: {
                         html: { type: 'boolean' },
+                        markdown: { type: 'boolean' },
                         colors: { type: 'boolean' },
                         styles: { type: 'boolean' },
                         urls: { type: 'boolean' },
@@ -225,6 +226,7 @@ export class ConfigMapper {
             },
             strip: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -273,6 +275,7 @@ export class ConfigMapper {
             },
             strip: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -385,6 +388,7 @@ export class ConfigMapper {
         return {
             None: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -397,6 +401,7 @@ export class ConfigMapper {
             },
             'Basic Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: false,
@@ -409,6 +414,7 @@ export class ConfigMapper {
             },
             'Deep Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -421,6 +427,7 @@ export class ConfigMapper {
             },
             'Arabic Optimized': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -433,6 +440,7 @@ export class ConfigMapper {
             },
             'Maximum Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,

@@ -4,6 +4,7 @@ export function createStripOptions(options: IStripCommandOptions, config: IConfi
     const stripOptions: IStripOptions = options.stripAll
         ? {
               html: true,
+              markdown: true,
               colors: true,
               styles: true,
               urls: true,
@@ -16,6 +17,7 @@ export function createStripOptions(options: IStripCommandOptions, config: IConfi
           }
         : {
               html: options.stripHtml || config.strip?.html || false,
+              markdown: options.stripMarkdown || config.strip?.markdown || false,
               colors: options.stripColors || config.strip?.colors || false,
               styles: options.stripStyles || config.strip?.styles || false,
               urls: options.stripUrls || config.strip?.urls || false,

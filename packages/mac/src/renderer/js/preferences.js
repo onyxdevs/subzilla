@@ -31,6 +31,7 @@ class PreferencesApp {
         // Formatting tab
         this.presetButtons = document.querySelectorAll('.preset-button');
         this.stripHtml = document.getElementById('strip-html');
+        this.stripMarkdown = document.getElementById('strip-markdown');
         this.stripColors = document.getElementById('strip-colors');
         this.stripStyles = document.getElementById('strip-styles');
         this.stripUrls = document.getElementById('strip-urls');
@@ -91,6 +92,7 @@ class PreferencesApp {
             this.overwriteBackup,
             this.overwriteInput,
             this.stripHtml,
+            this.stripMarkdown,
             this.stripColors,
             this.stripStyles,
             this.stripUrls,
@@ -191,6 +193,7 @@ class PreferencesApp {
         // Formatting tab - strip options
         if (this.config.strip) {
             this.stripHtml.checked = this.config.strip.html ?? false;
+            this.stripMarkdown.checked = this.config.strip.markdown ?? false;
             this.stripColors.checked = this.config.strip.colors ?? false;
             this.stripStyles.checked = this.config.strip.styles ?? false;
             this.stripUrls.checked = this.config.strip.urls ?? false;
@@ -237,6 +240,7 @@ class PreferencesApp {
             },
             strip: {
                 html: this.stripHtml.checked,
+                markdown: this.stripMarkdown.checked,
                 colors: this.stripColors.checked,
                 styles: this.stripStyles.checked,
                 urls: this.stripUrls.checked,
@@ -268,6 +272,7 @@ class PreferencesApp {
         const presets = {
             None: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -280,6 +285,7 @@ class PreferencesApp {
             },
             'Basic Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: false,
@@ -292,6 +298,7 @@ class PreferencesApp {
             },
             'Deep Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -304,6 +311,7 @@ class PreferencesApp {
             },
             'Arabic Optimized': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -316,6 +324,7 @@ class PreferencesApp {
             },
             'Maximum Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -332,6 +341,7 @@ class PreferencesApp {
         if (preset) {
             // Apply preset to checkboxes
             this.stripHtml.checked = preset.html;
+            this.stripMarkdown.checked = preset.markdown;
             this.stripColors.checked = preset.colors;
             this.stripStyles.checked = preset.styles;
             this.stripUrls.checked = preset.urls;
@@ -350,6 +360,7 @@ class PreferencesApp {
     updatePresetButtons() {
         const currentStrip = {
             html: this.stripHtml.checked,
+            markdown: this.stripMarkdown.checked,
             colors: this.stripColors.checked,
             styles: this.stripStyles.checked,
             urls: this.stripUrls.checked,
@@ -370,6 +381,7 @@ class PreferencesApp {
         const presets = {
             None: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -382,6 +394,7 @@ class PreferencesApp {
             },
             'Basic Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: false,
@@ -394,6 +407,7 @@ class PreferencesApp {
             },
             'Deep Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -406,6 +420,7 @@ class PreferencesApp {
             },
             'Arabic Optimized': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -418,6 +433,7 @@ class PreferencesApp {
             },
             'Maximum Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,

@@ -57,6 +57,11 @@ export default class FormattingStripper {
             result = this.stripHtmlTags(result);
         }
 
+        // Before urls, so [text](https://…) keeps its text instead of "[URL]"
+        if (options.markdown) {
+            result = this.stripMarkdown(result);
+        }
+
         // After html, so bidi marks written as entities (&rlm;) are caught too
         if (options.bidiControl) {
             result = this.stripBidiControls(result);
@@ -131,6 +136,58 @@ export default class FormattingStripper {
             // &#160; is &nbsp; — same plain space
             return codePoint === 0xa0 ? ' ' : String.fromCodePoint(codePoint);
         });
+    }
+
+    /**
+     * Strip inline Markdown — what machine-translated / LLM-produced subtitles
+     * tend to carry: **bold**, *italic*, __bold__, _italic_, ~~strike~~, `code`,
+     * [text](url), ## headings.
+     *
+     * Deliberately conservative, because subtitles use the same characters for
+     * other things. Left alone on purpose:
+     *   - "- text"      dialogue dashes, not list bullets
+     *   - "# la la #"   song lyrics, not a heading (only ##+ counts as heading)
+     *   - "f**k", "f***" censoring (delimiters must not be glued inside a word)
+     *   - "* sighs *", "2 * 3 * 4" (delimiters must hug the text they wrap)
+     *   - "snake_case_names", "[MUSIC](laughs)" (link target must be a URL)
+     *   - ">> Speaker:" caption speaker markers, not blockquotes
+     */
+    private stripMarkdown(content: string): string {
+        // One blank-line-delimited block (= one cue) at a time, so a delimiter
+        // can never pair with another one several cues further down.
+        return content
+            .split(/((?:\r\n|\r|\n)[^\S\r\n]*(?:\r\n|\r|\n))/)
+            .map((part, index) => (index % 2 === 1 ? part : this.stripMarkdownBlock(part)))
+            .join('');
+    }
+
+    private stripMarkdownBlock(block: string): string {
+        const unwrap = (match: string, _delimiter: string, text: string): string =>
+            text.includes('-->') ? match : text;
+
+        let result = block
+            // ![alt](url) and [text](url) -> alt / text
+            .replace(/!?\[([^[\]\r\n]*)\]\((?:https?:\/\/|www\.|mailto:)[^()\s]*(?:\s+"[^"\r\n]*")?\)/gi, '$1')
+            // `code`
+            .replace(/(?<!\\)(`)(?=[^\s`])([^`\r\n]+?)(?<=[^\s`])`/g, unwrap)
+            // ~~strike~~
+            .replace(/(?<!\\)(~~)(?=[^\s~])([^~]+?)(?<=[^\s~])~~(?!~)/g, unwrap)
+            // ## Heading (2+ hashes only — a single "#" marks song lyrics)
+            .replace(/^[^\S\r\n]*#{2,6}[^\S\r\n]+(?=\S)/gm, '');
+
+        // Emphasis, innermost first: "**bold *italic* bold**" needs a second pass
+        for (let pass = 0; pass < 3; pass++) {
+            const previous = result;
+
+            result = result
+                .replace(/(?<![\p{L}\p{N}*\\])(\*{1,3})(?=[^\s*])([^*]+?)(?<=[^\s*])\1(?![\p{L}\p{N}*])/gu, unwrap)
+                .replace(/(?<![\p{L}\p{N}_\\])(_{1,3})(?=[^\s_])([^_]+?)(?<=[^\s_])\1(?![\p{L}\p{N}_])/gu, unwrap);
+
+            if (result === previous) break;
+        }
+
+        // Backslash escapes: \* -> *
+        return result.replace(/\\([*_`~])/g, '$1');
     }
 
     private stripColors(content: string): string {

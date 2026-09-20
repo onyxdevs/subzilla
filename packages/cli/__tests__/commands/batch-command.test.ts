@@ -135,6 +135,7 @@ describe('BatchCommandCreator', () => {
 
             // Strip options
             expect(optionFlags).toContain('--strip-html');
+            expect(optionFlags).toContain('--strip-markdown');
             expect(optionFlags).toContain('--strip-colors');
             expect(optionFlags).toContain('--strip-styles');
             expect(optionFlags).toContain('--strip-urls');

@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const stripOptionsSchema = z.object({
     html: z.boolean().default(false),
+    markdown: z.boolean().optional(),
     colors: z.boolean().default(false),
     styles: z.boolean().default(false),
     urls: z.boolean().default(false),

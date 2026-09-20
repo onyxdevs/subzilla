@@ -40,6 +40,7 @@ export default class ConfigManager {
         },
         strip: {
             html: 'html',
+            markdown: 'markdown',
             colors: 'colors',
             styles: 'styles',
             urls: 'urls',
