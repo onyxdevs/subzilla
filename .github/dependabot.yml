@@ -1,0 +1,20 @@
+version: 2
+updates:
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+      open-pull-requests-limit: 5
+      groups:
+          # One PR for routine bumps instead of one per package
+          minor-and-patch:
+              update-types: [minor, patch]
+      ignore:
+          # Electron majors need a deliberate migration (renderer/preload APIs change)
+          - dependency-name: electron
+            update-types: [version-update:semver-major]
+
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: monthly
