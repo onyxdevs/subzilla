@@ -3,6 +3,7 @@
  */
 export interface IStripOptions {
     html?: boolean;
+    markdown?: boolean;
     colors?: boolean;
     styles?: boolean;
     urls?: boolean;

@@ -162,6 +162,14 @@ const buffer = await fs.readFile('subtitle.srt');
 const encoding = EncodingDetectionService.detectEncodingFromBuffer(buffer);
 ```
 
+**How detection works:**
+
+1. A BOM, or the NUL pattern of BOM-less UTF-16, decides immediately.
+2. Anything that decodes as strict UTF-8 is UTF-8.
+3. Otherwise chardet runs on the dialogue text only: tags, ASS overrides, cue numbers and timestamps are removed first, because that ASCII noise used to out-vote the real text (a windows-1256 file with `<font>` on every line was read as ISO-8859-1).
+4. Short windows-1256 files that chardet reads as Hebrew are corrected structurally (only Arabic uses the 0xC0–0xDF byte range).
+5. ISO-8859-1/-9 are decoded with their Windows supersets, as browsers do.
+
 **Supported Encodings:**
 
 - UTF-8, UTF-16LE, UTF-16BE
@@ -177,11 +185,9 @@ Robust character encoding conversion with error handling.
 ```typescript
 import { EncodingConversionService } from '@subzilla/core';
 
-// Convert encoding
-const utf8Content = await EncodingConversionService.convertToUtf8('subtitle.srt', 'windows-1256');
-
-// Convert with custom options
-const converted = await EncodingConversionService.convertEncoding(buffer, 'windows-1256', 'utf8');
+// Decode a buffer in its original encoding into a (UTF-8) string
+const buffer = await fs.readFile('subtitle.srt');
+const utf8Content = EncodingConversionService.convertToUtf8(buffer, 'windows-1256');
 ```
 
 ### FormattingStripper
@@ -195,7 +201,9 @@ import { IStripOptions } from '@subzilla/types';
 const stripper = new FormattingStripper();
 
 const options: IStripOptions = {
-    html: true, // Remove <b>, <i>, <u> tags
+    html: true, // Remove tags; <br>/<p>/<div> become line breaks, entities are decoded
+    markdown: true, // Remove **bold**, *italic*, [text](url), ...
+    bidiControl: true, // Remove invisible RLM/LRM/ALM/embedding characters
     colors: true, // Remove color codes
     styles: true, // Remove style attributes
     urls: true, // Replace URLs with [URL]
@@ -209,14 +217,17 @@ const cleanContent = stripper.stripFormatting(content, options);
 
 **Stripping Capabilities:**
 
-- HTML tags (`<b>`, `<i>`, `<u>`, `<font>`, etc.)
+- HTML tags (`<b>`, `<i>`, `<u>`, `<font>`, etc.). Only real, single-line tags are matched, so text like `5 < 6` or `<<quoted>>` is preserved. `<br>` and block-level tags become line breaks instead of vanishing (which would glue the neighbouring words together), and HTML entities are decoded.
+- Markdown (`**bold**`, `*italic*`, `__bold__`, `_italic_`, `~~strike~~`, `` `code` ``, `[text](url)`, `## headings`). Conservative by design: dialogue dashes, `# song lyrics #`, censoring like `f**k`, `* sighs *`, `snake_case` and `>> Speaker:` are left alone, and delimiters never pair across cues.
+- Bidirectional control characters (RLM, LRM, ALM, embeddings, overrides, isolates). ZWNJ/ZWJ are kept because they affect how Arabic/Persian words are shaped.
 - Color codes (`{c:$FFFFFF}`, `<font color="#FF0000">`)
 - Style attributes and CSS
 - URLs (replaced with `[URL]`)
 - Timestamps (replaced with `[TIMESTAMP]`)
 - Emojis (replaced with `[EMOJI]`)
 - Brackets and parentheses
-- Excessive whitespace normalization
+
+**Cue safety (`SubtitleProcessor`):** the file is split into cues on its original blank lines first, and each cue is cleaned on its own. A blank line inside a cue ends the cue for every SRT reader, so lines emptied by stripping (e.g. a lone `<i>`) are dropped rather than left behind, and no transformation can create a new cue boundary. Inline break markers (`<br>`, ASS `\N`, NEL/VT/FF/LS/PS) become real newlines; ASS `\n`/`\h` become spaces when the file carries ASS markup. `timestamps`, `numbers`, `punctuation` and `brackets` are always disabled during file processing.
 
 ## Output Strategies
 

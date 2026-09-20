@@ -68,9 +68,11 @@ interface IConvertCommandOptions {
     backup?: boolean;
     noOverwriteBackup?: boolean;
     stripHtml?: boolean;
+    stripMarkdown?: boolean;
     stripColors?: boolean;
     stripStyles?: boolean;
     stripUrls?: boolean;
+    stripBidiControl?: boolean;
     stripAll?: boolean;
 }
 
@@ -215,6 +217,7 @@ export const configSchema = z.object({
     }),
     strip: z.object({
         html: z.boolean(),
+        markdown: z.boolean().optional(),
         colors: z.boolean(),
         styles: z.boolean(),
         urls: z.boolean(),
@@ -223,6 +226,7 @@ export const configSchema = z.object({
         punctuation: z.boolean(),
         emojis: z.boolean(),
         brackets: z.boolean(),
+        bidiControl: z.boolean().optional(),
     }),
     batch: z.object({
         recursive: z.boolean(),

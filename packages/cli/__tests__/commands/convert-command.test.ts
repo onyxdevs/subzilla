@@ -16,9 +16,12 @@ jest.mock('@subzilla/core', () => ({
     },
 }));
 
+type TProcessFile = (...args: unknown[]) => Promise<{ outputPath: string; backupPath?: string }>;
+
 describe('ConvertCommandCreator', () => {
     let commandCreator: ConvertCommandCreator;
     let tempDir: string;
+    let mockProcessFile: jest.Mock<TProcessFile>;
     let mockConsoleLog: jest.MockedFunction<typeof console.log>;
     let mockConsoleError: jest.MockedFunction<typeof console.error>;
     let mockProcessExit: jest.MockedFunction<typeof process.exit>;
@@ -37,7 +40,8 @@ describe('ConvertCommandCreator', () => {
 
         // Setup mocks
         const { SubtitleProcessor, ConfigManager } = require('@subzilla/core');
-        const mockProcessFile = jest.fn<() => Promise<{ outputPath: string; backupPath: string }>>().mockResolvedValue({
+
+        mockProcessFile = jest.fn<TProcessFile>().mockResolvedValue({
             outputPath: '/mock/output.srt',
             backupPath: '/mock/backup.srt',
         });
@@ -111,35 +115,43 @@ describe('ConvertCommandCreator', () => {
             expect(mockConsoleLog).toHaveBeenCalledWith(`Input file: ${testFilePath}`);
         });
 
-        it('should use custom output path when provided', async () => {
+        it('reports the output path the processor actually wrote', async () => {
             const outputPath = path.join(tempDir, 'custom-output.srt');
-            const options: IConvertCommandOptions = {
-                output: outputPath,
-            };
 
-            await definition.action(testFilePath, options);
+            mockProcessFile.mockResolvedValueOnce({ outputPath });
 
+            await definition.action(testFilePath, { output: outputPath });
+
+            expect(mockProcessFile).toHaveBeenCalledWith(testFilePath, outputPath, expect.any(Object));
             expect(mockConsoleLog).toHaveBeenCalledWith(`Output file: ${outputPath}`);
         });
 
-        it('should use default output path when not provided', async () => {
-            const options: IConvertCommandOptions = {};
+        it('reports the INPUT path as output when the file was overwritten in place (not a guessed .subzilla path)', async () => {
+            mockProcessFile.mockResolvedValueOnce({ outputPath: testFilePath });
 
-            await definition.action(testFilePath, options);
+            await definition.action(testFilePath, { overwriteInput: true });
 
-            const expectedOutput = `${path.join(path.dirname(testFilePath), 'test')}.subzilla.srt`;
-
-            expect(mockConsoleLog).toHaveBeenCalledWith(`Output file: ${expectedOutput}`);
+            expect(mockConsoleLog).toHaveBeenCalledWith(`Output file: ${testFilePath}`);
+            expect(mockConsoleLog).not.toHaveBeenCalledWith(expect.stringContaining('.subzilla.'));
         });
 
-        it('should show backup message when backup is enabled', async () => {
-            const options: IConvertCommandOptions = {
-                backup: true,
-            };
+        it('reports the real backup path, e.g. a numbered one', async () => {
+            mockProcessFile.mockResolvedValueOnce({
+                outputPath: testFilePath,
+                backupPath: `${testFilePath}.bak.2`,
+            });
 
-            await definition.action(testFilePath, options);
+            await definition.action(testFilePath, { backup: true });
 
-            expect(mockConsoleLog).toHaveBeenCalledWith(`Backup file: ${testFilePath}.bak`);
+            expect(mockConsoleLog).toHaveBeenCalledWith(`Backup file: ${testFilePath}.bak.2`);
+        });
+
+        it('prints no backup line when the processor made no backup', async () => {
+            mockProcessFile.mockResolvedValueOnce({ outputPath: testFilePath });
+
+            await definition.action(testFilePath, {});
+
+            expect(mockConsoleLog).not.toHaveBeenCalledWith(expect.stringContaining('Backup file:'));
         });
 
         it('should handle strip options correctly', async () => {

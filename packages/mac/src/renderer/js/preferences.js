@@ -31,6 +31,7 @@ class PreferencesApp {
         // Formatting tab
         this.presetButtons = document.querySelectorAll('.preset-button');
         this.stripHtml = document.getElementById('strip-html');
+        this.stripMarkdown = document.getElementById('strip-markdown');
         this.stripColors = document.getElementById('strip-colors');
         this.stripStyles = document.getElementById('strip-styles');
         this.stripUrls = document.getElementById('strip-urls');
@@ -65,7 +66,7 @@ class PreferencesApp {
         this.reportIssueLink = document.getElementById('report-issue-link');
 
         // Actions
-        this.restoreDefaults = document.getElementById('restore-defaults');
+        this.restoreDefaultsButton = document.getElementById('restore-defaults');
         this.cancelButton = document.getElementById('cancel-button');
         this.saveButton = document.getElementById('save-button');
     }
@@ -91,6 +92,7 @@ class PreferencesApp {
             this.overwriteBackup,
             this.overwriteInput,
             this.stripHtml,
+            this.stripMarkdown,
             this.stripColors,
             this.stripStyles,
             this.stripUrls,
@@ -123,7 +125,7 @@ class PreferencesApp {
         this.resetConfigButton.addEventListener('click', () => this.resetConfiguration());
         this.githubLink.addEventListener('click', () => this.openGitHub());
         this.reportIssueLink.addEventListener('click', () => this.openIssueTracker());
-        this.restoreDefaults.addEventListener('click', () => this.restoreDefaults());
+        this.restoreDefaultsButton.addEventListener('click', () => this.restoreDefaults());
         this.cancelButton.addEventListener('click', () => this.cancel());
         this.saveButton.addEventListener('click', () => this.save());
 
@@ -191,6 +193,7 @@ class PreferencesApp {
         // Formatting tab - strip options
         if (this.config.strip) {
             this.stripHtml.checked = this.config.strip.html ?? false;
+            this.stripMarkdown.checked = this.config.strip.markdown ?? false;
             this.stripColors.checked = this.config.strip.colors ?? false;
             this.stripStyles.checked = this.config.strip.styles ?? false;
             this.stripUrls.checked = this.config.strip.urls ?? false;
@@ -237,6 +240,7 @@ class PreferencesApp {
             },
             strip: {
                 html: this.stripHtml.checked,
+                markdown: this.stripMarkdown.checked,
                 colors: this.stripColors.checked,
                 styles: this.stripStyles.checked,
                 urls: this.stripUrls.checked,
@@ -268,6 +272,7 @@ class PreferencesApp {
         const presets = {
             None: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -280,6 +285,7 @@ class PreferencesApp {
             },
             'Basic Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: false,
@@ -292,6 +298,7 @@ class PreferencesApp {
             },
             'Deep Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -302,20 +309,9 @@ class PreferencesApp {
                 brackets: false, // NEVER strip - could affect subtitle structure
                 bidiControl: true,
             },
-            'Arabic Optimized': {
-                html: true,
-                colors: true,
-                styles: true,
-                urls: true,
-                timestamps: false,
-                numbers: false,
-                punctuation: false,
-                emojis: false,
-                brackets: false,
-                bidiControl: true,
-            },
             'Maximum Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -332,6 +328,7 @@ class PreferencesApp {
         if (preset) {
             // Apply preset to checkboxes
             this.stripHtml.checked = preset.html;
+            this.stripMarkdown.checked = preset.markdown;
             this.stripColors.checked = preset.colors;
             this.stripStyles.checked = preset.styles;
             this.stripUrls.checked = preset.urls;
@@ -350,6 +347,7 @@ class PreferencesApp {
     updatePresetButtons() {
         const currentStrip = {
             html: this.stripHtml.checked,
+            markdown: this.stripMarkdown.checked,
             colors: this.stripColors.checked,
             styles: this.stripStyles.checked,
             urls: this.stripUrls.checked,
@@ -370,6 +368,7 @@ class PreferencesApp {
         const presets = {
             None: {
                 html: false,
+                markdown: false,
                 colors: false,
                 styles: false,
                 urls: false,
@@ -382,6 +381,7 @@ class PreferencesApp {
             },
             'Basic Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: false,
@@ -394,18 +394,7 @@ class PreferencesApp {
             },
             'Deep Clean': {
                 html: true,
-                colors: true,
-                styles: true,
-                urls: true,
-                timestamps: false,
-                numbers: false,
-                punctuation: false,
-                emojis: false,
-                brackets: false,
-                bidiControl: true,
-            },
-            'Arabic Optimized': {
-                html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -418,6 +407,7 @@ class PreferencesApp {
             },
             'Maximum Clean': {
                 html: true,
+                markdown: true,
                 colors: true,
                 styles: true,
                 urls: true,
@@ -488,10 +478,9 @@ class PreferencesApp {
     }
 
     async restoreDefaults() {
-        const confirmed = confirm('Restore all settings to defaults?');
-        if (confirmed) {
-            await this.resetConfiguration();
-        }
+        // resetConfiguration() asks for confirmation itself; asking here too
+        // meant two dialogs in a row for one click
+        await this.resetConfiguration();
     }
 
     async save() {

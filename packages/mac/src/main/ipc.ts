@@ -5,6 +5,7 @@ import { ipcMain, dialog, shell, app } from 'electron';
 import { SubtitleProcessor, BatchProcessor } from '@subzilla/core';
 import { IConfig, IConvertOptions, IBatchStats } from '@subzilla/types';
 
+import { expandPaths, SUPPORTED_EXTENSIONS } from './files';
 import { ConfigMapper } from './preferences';
 
 export interface IFileProcessingItem {
@@ -37,12 +38,13 @@ export function setupIPC(appInstance: {
     // File dialog handlers
     ipcMain.handle('show-open-dialog', async () => {
         const result = await dialog.showOpenDialog({
-            title: 'Select Subtitle Files',
+            title: 'Select Subtitle Files or Folders',
             filters: [
-                { name: 'Subtitle Files', extensions: ['srt', 'sub', 'ass', 'ssa', 'txt'] },
+                { name: 'Subtitle Files', extensions: SUPPORTED_EXTENSIONS.map((ext) => ext.slice(1)) },
                 { name: 'All Files', extensions: ['*'] },
             ],
-            properties: ['openFile', 'multiSelections'],
+            // macOS lets one dialog pick files and folders alike
+            properties: ['openFile', 'openDirectory', 'multiSelections'],
         });
 
         return result;
@@ -50,28 +52,8 @@ export function setupIPC(appInstance: {
 
     // File validation
     ipcMain.handle('validate-files', async (_, filePaths: string[]) => {
-        const validFiles: string[] = [];
-        const invalidFiles: string[] = [];
-
-        for (const filePath of filePaths) {
-            const ext = path.extname(filePath).toLowerCase();
-            const fileName = path.basename(filePath);
-
-            // Check if it's a supported file type
-            if (['.srt', '.sub', '.ass', '.ssa', '.txt'].includes(ext)) {
-                // Skip files that are already processed (contain .subzilla. in the name)
-                if (fileName.includes('.subzilla.')) {
-                    console.log(`⏭️ Skipping already processed file: ${fileName}`);
-                    invalidFiles.push(filePath);
-                } else {
-                    validFiles.push(filePath);
-                }
-            } else {
-                invalidFiles.push(filePath);
-            }
-        }
-
-        return { validFiles, invalidFiles };
+        // Folders are expanded recursively into the subtitle files they contain
+        return expandPaths(filePaths);
     });
 
     // Single file processing

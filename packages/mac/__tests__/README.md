@@ -9,11 +9,14 @@ __tests__/
 ├── main/                          # Main process tests
 │   ├── index.test.ts             # Application initialization and lifecycle
 │   ├── ipc.test.ts               # IPC handlers and communication
+│   ├── files.test.ts             # Folder drop: recursive expansion on a real directory tree
 │   ├── preferences.test.ts       # Configuration and settings management
 │   ├── menu.test.ts              # Application menu bar
 │   └── updater.test.ts           # Auto-updater functionality
 ├── preload/                       # Preload script tests
 │   └── index.test.ts             # Context bridge and security
+├── renderer/                      # Renderer tests (real script run against a stub DOM)
+│   └── preferences.test.ts       # Restore/Reset Defaults buttons
 ├── integration.test.ts           # Integration tests across components
 ├── setup.ts                      # Test utilities and helpers
 └── README.md                     # This file
@@ -43,7 +46,7 @@ __tests__/
 
 - **Initialization**: Store setup, default configuration
 - **Configuration Management**: Get/save config, app preferences
-- **Formatting Presets**: None, Basic Clean, Deep Clean, Arabic Optimized, Maximum Clean
+- **Formatting Presets**: None, Basic Clean, Deep Clean, Maximum Clean
 - **Schema Validation**: Type checking for all configuration sections
 - **Default Values**: Correct defaults for input, output, strip, batch, and app settings
 

@@ -4,12 +4,13 @@ A powerful subtitle file converter that ensures proper UTF-8 encoding with robus
 
 ## Features ✨
 
-- Automatic encoding detection.
+- Automatic encoding detection that stays accurate on markup-heavy files (detection runs on the dialogue text only, so `<font>` tags and timestamps cannot out-vote a windows-1256 Arabic payload).
 - Converts subtitle files to UTF-8.
-- Supports multiple subtitle formats (`.srt`, `.sub`, `.txt`).
-- Strong support for Arabic and other non-Latin scripts.
+- Supports multiple subtitle formats (`.srt`, `.sub`, `.ass`, `.ssa`, `.txt`).
+- Strong support for Arabic and other non-Latin scripts: removing formatting never glues two words together (`<br>`, `<p>`/`<div>`, `&nbsp;`, ASS `\N` and exotic Unicode line breaks all become real separators) and never splits a cue.
+- Strips HTML, Markdown, ASS/SSA styles and colors, and bidirectional control characters.
 - Simple command-line interface.
-- Native macOS desktop application with drag-and-drop.
+- Native macOS desktop application with drag-and-drop for files and whole folders.
 - Batch processing with glob pattern support.
 - Parallel processing for better performance.
 - Preserves original file formatting.
@@ -161,7 +162,8 @@ Options:
 - `--preserve-structure`: Preserve directory structure in output.
 - `-b, --backup`: Create backup of original files.
 - `--no-overwrite-backup`: Create numbered backups instead of overwriting existing backup.
-- `--strip-html`: Strip HTML tags.
+- `--strip-html`: Strip HTML tags (block tags and `<br>` become line breaks, entities like `&nbsp;` are decoded).
+- `--strip-markdown`: Strip Markdown formatting (`**bold**`, `*italic*`, `~~strike~~`, `` `code` ``, `[text](url)`, `## headings`). Subtitle conventions that merely look like Markdown — dialogue dashes, `# song lyrics #`, `f**k`, `>> Speaker:` — are left alone.
 - `--strip-colors`: Strip color codes.
 - `--strip-styles`: Strip style tags.
 - `--strip-urls`: Replace URLs with [URL].
@@ -179,6 +181,7 @@ Features:
 - Directory structure preservation.
 - Directory filtering and depth control.
 - HTML tag stripping.
+- Markdown stripping.
 - Color code removal.
 - Style tag removal.
 - URL replacement.
@@ -321,7 +324,7 @@ yarn workspace @subzilla/mac build
 
 ### Features
 
-- **Drag and Drop**: Simply drag subtitle files onto the app window
+- **Drag and Drop**: Simply drag subtitle files — or whole folders — onto the app window. Folders are scanned recursively for `.srt`, `.sub`, `.ass` and `.ssa` files (hidden folders, already-converted `.subzilla.` files and VobSub `.sub`/`.idx` pairs are skipped)
 - **File Selection Dialog**: Click to browse and select files
 - **Preferences Window**: Configure conversion settings
 - **Auto-Updates**: Automatic updates via GitHub releases
@@ -386,6 +389,7 @@ Several example configurations are provided in the `examples/config` directory:
 
     strip:
         html: true
+        markdown: true
         colors: true
         styles: true
 
@@ -480,7 +484,8 @@ Settings are merged in the following order (later ones override earlier ones):
 
 #### Strip Options
 
-- `html`: Remove HTML tags.
+- `html`: Remove HTML tags. `<br>` and block tags (`<p>`, `<div>`, `<li>`, ...) become line breaks, and entities (`&nbsp;`, `&amp;`, `&#160;`, ...) are decoded.
+- `markdown`: Remove Markdown formatting (`**bold**`, `*italic*`, `~~strike~~`, `` `code` ``, `[text](url)`, `## headings`), leaving subtitle conventions such as dialogue dashes and `# song lyrics #` alone.
 - `colors`: Remove color codes.
 - `styles`: Remove style tags.
 - `urls`: Replace URLs with `[URL]`.
@@ -489,6 +494,9 @@ Settings are merged in the following order (later ones override earlier ones):
 - `punctuation`: Remove punctuation.
 - `emojis`: Replace emojis with `[EMOJI]`.
 - `brackets`: Remove brackets.
+- `bidiControl`: Remove invisible bidirectional control characters (RLM, LRM, ALM, embeddings, isolates). Recommended for Arabic.
+
+> `timestamps`, `numbers`, `punctuation` and `brackets` are ignored when converting subtitle files, because they would destroy the cue numbers and timing lines. They only take effect when `FormattingStripper` is used directly on plain text.
 
 #### Batch Options
 
@@ -589,7 +597,7 @@ Each package has comprehensive documentation:
 
 ### Testing 🧪
 
-SubZilla includes a comprehensive **Jest testing framework** with **83 passing tests** across all packages:
+SubZilla includes a comprehensive **Jest testing framework** with **680 passing tests** across all packages:
 
 ```bash
 # Run all tests
@@ -599,13 +607,24 @@ yarn test
 yarn workspace @subzilla/core test
 yarn workspace @subzilla/cli test
 yarn workspace @subzilla/types test
+yarn workspace @subzilla/mac test
 ```
+
+> The CLI integration tests run the compiled CLI, so build first (`npx tsc --build`).
 
 **Test Coverage:**
 
-- **@subzilla/types** (13 tests): Zod schema validation, configuration validation
-- **@subzilla/core** (57 tests): Encoding detection/conversion, formatting stripping, end-to-end processing
-- **@subzilla/cli** (13 tests): Command registration, CLI parsing, error handling
+- **@subzilla/types** (14 tests): Zod schema validation, configuration validation
+- **@subzilla/core** (368 tests): Encoding detection/conversion, formatting stripping, batch processing, end-to-end processing
+- **@subzilla/cli** (107 tests): Command registration, CLI parsing, option mapping, error handling
+- **@subzilla/mac** (191 tests): IPC handlers, folder expansion, preferences, menu, updater, preload bridge, renderer preferences window
+
+**Adversarial suites** (`packages/core/__tests__/*.adversarial.test.ts`) run the real pipeline on real bytes and assert exact output:
+
+- `WordBoundary`: every known way formatting removal can glue two Arabic words or split a cue, plus a seeded generative test (400 random files) asserting each cue keeps the same words in the same order.
+- `EncodingDetection`: decoded text must round-trip across 9 legacy encodings × 4 markup styles, including tiny files and BOM-less UTF-16.
+- `MarkdownStrip`: what must be stripped, and the subtitle conventions that must be left alone.
+- `LineBreakCollapse`: inline `<br>` / ASS `\N` handling.
 
 **Key Features:**
 
@@ -757,8 +776,8 @@ Planned improvements and feature additions:
     - [x] Interactive CLI mode with comprehensive commands
     - [x] Progress bars for batch operations
     - [ ] Create a web interface for browser-based conversion
-    - [ ] Build a native macOS app using Electron
-    - [ ] Add drag-and-drop GUI interface
+    - [x] Build a native macOS app using Electron
+    - [x] Add drag-and-drop GUI interface (files and folders)
     - [ ] Implement real-time encoding preview
 
 3. **Performance & Reliability**
@@ -773,7 +792,7 @@ Planned improvements and feature additions:
 
 4. **Advanced Features**
     - [x] Comprehensive subtitle validation with Zod schemas
-    - [x] Extensive formatting stripping (HTML, colors, styles, emojis)
+    - [x] Extensive formatting stripping (HTML, Markdown, colors, styles, emojis, bidi controls)
     - [ ] Subtitle timing adjustment and synchronization
     - [ ] Subtitle merging and splitting
     - [ ] Character encoding preview and detection confidence
@@ -782,11 +801,11 @@ Planned improvements and feature additions:
     - [ ] Subtitle quality analysis and scoring
 
 5. **Developer Experience & Infrastructure**
-    - [x] Comprehensive test suite (83 tests across all packages)
+    - [x] Comprehensive test suite (680 tests across all packages, including adversarial suites)
     - [x] TypeScript monorepo with project references
     - [x] Detailed API documentation for all packages
     - [x] Configuration examples and templates
-    - [ ] GitHub Actions CI/CD workflow
+    - [x] GitHub Actions CI workflow
     - [ ] Automated release management
     - [ ] Performance regression testing
     - [ ] Docker containerization

@@ -36,13 +36,19 @@ export class ConvertCommandCreator extends BaseCommandCreator<IConvertCommandOpt
 
                     const processor = new SubtitleProcessor();
 
-                    await processor.processFile(inputFile, options.output, outputOptions);
+                    const result = await processor.processFile(inputFile, options.output, outputOptions);
 
+                    // Report what the processor actually did: with overwriteInput the
+                    // output IS the input, and numbered backups are not always ".bak"
                     console.log('✨ Conversion successful!');
                     console.log(`Input file: ${inputFile}`);
-                    console.log(`Output file: ${options.output || this.getDefaultOutputPath(inputFile)}`);
+                    console.log(
+                        `Output file: ${result?.outputPath ?? options.output ?? this.getDefaultOutputPath(inputFile)}`,
+                    );
 
-                    if (options.backup || config.output?.createBackup) {
+                    if (result?.backupPath) {
+                        console.log(`Backup file: ${result.backupPath}`);
+                    } else if (!result && (options.backup || config.output?.createBackup)) {
                         console.log(`Backup file: ${inputFile}.bak`);
                     }
                 } catch (error) {

@@ -17,6 +17,7 @@ output:
 
 strip:
   html: true
+  markdown: true
   colors: true
   styles: true
   urls: true

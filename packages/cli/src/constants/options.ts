@@ -32,6 +32,10 @@ export const BASE_OPTIONS = [
         description: 'strip HTML tags',
     },
     {
+        flags: '--strip-markdown',
+        description: 'strip Markdown formatting (**bold**, *italic*, [text](url), ...)',
+    },
+    {
         flags: '--strip-colors',
         description: 'strip color codes',
     },

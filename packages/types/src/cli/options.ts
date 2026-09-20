@@ -5,6 +5,7 @@ import { IConfig } from '../core/config';
  */
 export interface IStripCommandOptions {
     stripHtml?: boolean;
+    stripMarkdown?: boolean;
     stripColors?: boolean;
     stripStyles?: boolean;
     stripUrls?: boolean;

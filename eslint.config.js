@@ -29,6 +29,8 @@ module.exports = [
                 clearTimeout: 'readonly',
                 setInterval: 'readonly',
                 clearInterval: 'readonly',
+                // DOM type used by the Electron preload script (runs in the renderer)
+                File: 'readonly',
                 // Jest globals for test files
                 describe: 'readonly',
                 it: 'readonly',

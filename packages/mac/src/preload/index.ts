@@ -1,11 +1,14 @@
-import Electron, { contextBridge, ipcRenderer } from 'electron';
+import Electron, { contextBridge, ipcRenderer, webUtils } from 'electron';
 
 import { IConfig, IConvertOptions, IBatchStats } from '@subzilla/types';
 
 export interface ISubzillaAPI {
     // File operations
     showOpenDialog: () => Promise<Electron.OpenDialogReturnValue>;
-    validateFiles: (filePaths: string[]) => Promise<{ validFiles: string[]; invalidFiles: string[] }>;
+    getPathForFile: (file: File) => string;
+    validateFiles: (
+        filePaths: string[],
+    ) => Promise<{ validFiles: string[]; invalidFiles: string[]; scannedDirectories: number }>;
     processFile: (
         filePath: string,
         options?: IConvertOptions,
@@ -54,6 +57,9 @@ export interface ISubzillaAPI {
 const api: ISubzillaAPI = {
     // File operations
     showOpenDialog: () => ipcRenderer.invoke('show-open-dialog'),
+    // File.path is gone in newer Electron; webUtils is the supported way to map
+    // a dropped File (or folder) to its real path
+    getPathForFile: (file: File) => webUtils?.getPathForFile(file) ?? (file as File & { path?: string }).path ?? '',
     validateFiles: (filePaths: string[]) => ipcRenderer.invoke('validate-files', filePaths),
     processFile: (filePath: string, options?: IConvertOptions) => ipcRenderer.invoke('process-file', filePath, options),
     processFilesBatch: (filePaths: string[], options?: IConvertOptions) =>
