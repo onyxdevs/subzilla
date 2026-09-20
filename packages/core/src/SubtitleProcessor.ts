@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 
-import { IConvertOptions } from '@subzilla/types';
+import { IConvertOptions, IStripOptions } from '@subzilla/types';
 
 import EncodingConversionService from './EncodingConversionService';
 import EncodingDetectionService from './EncodingDetectionService';
@@ -56,8 +56,8 @@ export default class SubtitleProcessor {
             await this.handleExistingFile(finalOutputPath, options);
 
             // Process content
-            const detectedEncoding = await EncodingDetectionService.detectEncoding(inputFilePath);
             const fileBuffer = await fs.readFile(inputFilePath);
+            const detectedEncoding = EncodingDetectionService.detectEncodingFromBuffer(fileBuffer);
             let utf8Content = EncodingConversionService.convertToUtf8(fileBuffer, detectedEncoding);
 
             // Strip any existing BOM to prevent double BOM when adding a new one
@@ -72,27 +72,16 @@ export default class SubtitleProcessor {
                 utf8Content = this.recoverCorruptedTimestamps(utf8Content);
             }
 
-            // Convert inline line-break markers (<br>, ASS \N) to real newlines
-            // BEFORE stripping, so a stripped break can never glue two words
-            // together. Must run before the strip step (which would otherwise
-            // delete <br> outright) and before ensureProperLineBreaks.
-            utf8Content = this.normalizeHardLineBreaks(utf8Content);
+            // Never let a strip option destroy the SRT structure itself
+            const safeStripOptions = options.strip && {
+                ...options.strip,
+                timestamps: false, // NEVER strip timestamps - corrupts SRT structure
+                numbers: false, // NEVER strip numbers - corrupts SRT sequence numbers
+                punctuation: false, // NEVER strip punctuation - removes : , --> from timestamps
+                brackets: false, // NEVER strip brackets - could affect subtitle structure
+            };
 
-            if (options.strip) {
-                // Prevent corrupting SRT file structure by blocking dangerous strip options
-                // These options would destroy the SRT format completely
-                const safeStripOptions = {
-                    ...options.strip,
-                    timestamps: false, // NEVER strip timestamps - corrupts SRT structure
-                    numbers: false, // NEVER strip numbers - corrupts SRT sequence numbers
-                    punctuation: false, // NEVER strip punctuation - removes : , --> from timestamps
-                    brackets: false, // NEVER strip brackets - could affect subtitle structure
-                };
-
-                utf8Content = this.formattingStripper.stripFormatting(utf8Content, safeStripOptions);
-            }
-
-            utf8Content = this.ensureProperLineBreaks(utf8Content);
+            utf8Content = this.processCues(utf8Content, safeStripOptions);
 
             if (options.lineEndings) {
                 utf8Content = this.normalizeLineEndings(utf8Content, options.lineEndings);
@@ -133,25 +122,61 @@ export default class SubtitleProcessor {
     }
 
     /**
+     * Clean the subtitle text one cue at a time.
+     *
+     * The file is split into cues on its ORIGINAL blank lines first; only then
+     * is each cue transformed (break markers -> newlines, formatting stripped)
+     * and its emptied lines dropped. Doing it in this order is what makes the
+     * pipeline safe: a blank line inside a cue ends the cue for every SRT
+     * reader, silently hiding the rest of its text — and stripping is very good
+     * at producing blank lines ("<i>" alone on a line, "<br>" next to a real
+     * newline, a line holding only "{\\an8}"). Since cue boundaries are fixed
+     * before anything is removed, no transformation can invent a new one.
+     */
+    private processCues(content: string, strip?: IStripOptions): string {
+        // ASS also has \n (soft break) and \h (hard space). Lowercase is
+        // ambiguous with plain text ("C:\new"), so only trust it when the file
+        // clearly carries ASS markup somewhere.
+        const hasAssMarkup = /\\N|\{\\[a-zA-Z]/.test(content);
+
+        const cues = content
+            .replace(/\r\n|\r/g, '\n')
+            .trim()
+            .split(/\n\s*\n/)
+            .map((block) => {
+                let cue = this.normalizeHardLineBreaks(block, hasAssMarkup);
+
+                if (strip) {
+                    cue = this.formattingStripper.stripFormatting(cue, strip);
+                }
+
+                return this.formatCue(cue);
+            })
+            .join('\n\n'); // Double line break between subtitle blocks is standard for SRT files
+
+        // Text files end with a newline; some players drop a last cue that doesn't
+        return cues.length > 0 ? `${cues}\n` : cues;
+    }
+
+    /**
      * Convert inline hard line-break markers into real newlines.
      *
      * Subtitle sources often encode a line break inside a single physical line
-     * using HTML <br> (any case / self-closing) or the ASS/SSA forced break \N.
-     * If those are simply deleted, the words on either side collapse together —
-     * very visible in Arabic/RTL where two words read as one. Each run of such
-     * markers becomes exactly ONE newline.
-     *
-     * We also absorb at most one neighbouring newline on each side of the run so
-     * that a marker hugging an existing newline (or a doubled <br><br>) never
-     * manufactures a blank line, which ensureProperLineBreaks() would otherwise
-     * mistake for a cue boundary. A genuine cue boundary keeps its second,
-     * un-absorbed newline and survives intact.
+     * using HTML <br> (any case / self-closing), the ASS/SSA forced break \N, or
+     * an exotic Unicode/control line break (NEL, VT, FF, LS, PS) that players
+     * render as nothing at all. If those are simply deleted or ignored, the
+     * words on either side collapse together — very visible in Arabic/RTL where
+     * two words read as one. Any empty line this leaves behind is dropped by
+     * formatCue(), so a marker can never split a cue.
      */
-    private normalizeHardLineBreaks(content: string): string {
-        const breakRun =
-            /(?:\r\n|\r|\n)?[^\S\r\n]*(?:<[bB][rR]\s*\/?>|\\N)(?:[^\S\r\n]*(?:<[bB][rR]\s*\/?>|\\N))*[^\S\r\n]*(?:\r\n|\r|\n)?/g;
+    private normalizeHardLineBreaks(cue: string, hasAssMarkup: boolean): string {
+        if (hasAssMarkup) {
+            // Both are a word separator on screen: printing them verbatim or
+            // dropping them makes the neighbouring words touch.
+            cue = cue.replace(/[^\S\n]*(?:\\[nh])+[^\S\n]*/g, ' ');
+        }
 
-        return content.replace(breakRun, '\n');
+        return cue.replace(/[^\S\n]*(?:<[bB][rR]\s*\/?>|\\N|[\v\f\u0085\u2028\u2029])[^\S\n]*/g, '\n');
     }
 
     private async createBackup(filePath: string, overwriteBackup = true): Promise<string> {
@@ -204,35 +229,27 @@ export default class SubtitleProcessor {
         }
     }
 
-    private ensureProperLineBreaks(content: string): string {
-        const blocks = content.split(/\n\s*\n/);
+    private formatCue(block: string): string {
+        const lines = block.split('\n');
 
-        return blocks
-            .map((block) => {
-                const lines = block.split('\n');
+        if (lines.length < 2) return block; // Skip invalid blocks
 
-                if (lines.length < 2) return block; // Skip invalid blocks
+        // First line is the number
+        // Second line is the timestamp
+        // Rest are subtitle text that should be single-spaced
+        const number = lines[0].trim();
+        const timestamp = lines[1].trim();
 
-                // First line is the number
-                // Second line is the timestamp
-                // Rest are subtitle text that should be single-spaced
-                const number = lines[0].trim();
-                const timestamp = lines[1].trim();
+        // Filter out empty lines and join subtitle text with a single line break
+        // TV/Media players expect exactly one line break between subtitle lines,
+        // and no empty lines within a subtitle block
+        const subtitleText = lines
+            .slice(2)
+            .map((line) => line.trim())
+            .filter((line) => line.length > 0)
+            .join('\n');
 
-                // Filter out empty lines and join subtitle text with a single line break
-                // TV/Media players expect exactly one line break between subtitle lines
-                const subtitleText = lines
-                    .slice(2)
-                    .map((line) => line.trim())
-                    .filter((line) => line.length > 0)
-                    .join('\n');
-
-                // Ensure proper spacing:
-                // - One empty line between subtitle blocks (handled by join('\n\n') at the end)
-                // - No empty lines within a subtitle block
-                return `${number}\n${timestamp}\n${subtitleText}`;
-            })
-            .join('\n\n'); // Double line break between subtitle blocks is standard for SRT files
+        return `${number}\n${timestamp}\n${subtitleText}`;
     }
 
     /**
