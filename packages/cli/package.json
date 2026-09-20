@@ -36,7 +36,7 @@
     "dependencies": {
         "@subzilla/core": "workspace:*",
         "@subzilla/types": "workspace:*",
-        "commander": "^14.0.0",
+        "commander": "^15.0.0",
         "module-alias": "^2.2.3"
     },
     "devDependencies": {
