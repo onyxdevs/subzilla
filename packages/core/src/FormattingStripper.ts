@@ -12,8 +12,14 @@ export default class FormattingStripper {
     // separator ("<p>مرحبا</p><p>بالعالم</p>") glues two words into one nonsense
     // word. Absorbing the neighbouring newline keeps us from manufacturing a
     // blank line, which SRT readers treat as the end of the cue.
+    //
+    // Performance: a match may only START at a newline or at the first character
+    // of a whitespace run (the lookbehind). Without that, every space in a long
+    // run of spaces re-scans the rest of the run — quadratic, ~13 minutes for a
+    // 1 MB line. For the same reason the gap between two tags is written as
+    // "ws* (newline ws*)?" rather than two adjacent "ws*".
     private lineBreakTagRegex =
-        /(?:\r\n|\r|\n)?[^\S\r\n]*<\/?(?:br|p|div|li|tr|h[1-6])(?:\s[^<>\r\n]*)?\/?>(?:[^\S\r\n]*(?:\r\n|\r|\n)?[^\S\r\n]*<\/?(?:br|p|div|li|tr|h[1-6])(?:\s[^<>\r\n]*)?\/?>)*[^\S\r\n]*(?:\r\n|\r|\n)?/gi;
+        /(?:(?:\r\n|\r|\n)|(?<![^\S\r\n]))[^\S\r\n]*<\/?(?:br|p|div|li|tr|h[1-6])(?:\s[^<>\r\n]*)?\/?>(?:[^\S\r\n]*(?:(?:\r\n|\r|\n)[^\S\r\n]*)?<\/?(?:br|p|div|li|tr|h[1-6])(?:\s[^<>\r\n]*)?\/?>)*[^\S\r\n]*(?:\r\n|\r|\n)?/gi;
     private htmlEntityRegex = /&(?:#(\d{1,7})|#[xX]([0-9a-fA-F]{1,6})|([a-zA-Z][a-zA-Z0-9]{1,9}));/g;
     private htmlEntities: Record<string, string> = {
         // A plain space: &nbsp; is the classic "two words touching" culprit when
@@ -40,8 +46,11 @@ export default class FormattingStripper {
     };
     private srtColorRegex = /{\\\c&H[0-9A-Fa-f]{6}&}/g;
     private assColorRegex = /\{\\c&H[0-9A-Fa-f]{6}&\}/g;
-    private srtStyleRegex = /{\\\w+\d*}/g;
-    private assStyleRegex = /\{\\[^}]+\}/g;
+    // Both are written so a scan can never run past the next "{": an override
+    // block that is opened but never closed ("{\\a000000…", "{{\\{{\\…") used to
+    // make these quadratic. ("\\w+\\d*" was also ambiguous — \\d is part of \\w.)
+    private srtStyleRegex = /\{\\\w+\}/g;
+    private assStyleRegex = /\{\\[^{}]+\}/g;
     private urlRegex = /https?:\/\/[^\s<>"']+/g;
     private timestampRegex = /\d{2}:\d{2}:\d{2},\d{3} --> \d{2}:\d{2}:\d{2},\d{3}/g;
     private numbersRegex = /\d+/g;

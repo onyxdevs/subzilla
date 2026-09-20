@@ -173,10 +173,12 @@ export default class SubtitleProcessor {
         if (hasAssMarkup) {
             // Both are a word separator on screen: printing them verbatim or
             // dropping them makes the neighbouring words touch.
-            cue = cue.replace(/[^\S\n]*(?:\\[nh])+[^\S\n]*/g, ' ');
+            cue = cue.replace(/(?<![^\S\n])[^\S\n]*(?:\\[nh])+[^\S\n]*/g, ' ');
         }
 
-        return cue.replace(/[^\S\n]*(?:<[bB][rR]\s*\/?>|\\N|[\v\f\u0085\u2028\u2029])[^\S\n]*/g, '\n');
+        // The lookbehind pins a match to the START of a whitespace run; without it
+        // every space in a long run re-scans the rest of the run (quadratic).
+        return cue.replace(/(?<![^\S\n])[^\S\n]*(?:<[bB][rR]\s*\/?>|\\N|[\v\f\u0085\u2028\u2029])[^\S\n]*/g, '\n');
     }
 
     private async createBackup(filePath: string, overwriteBackup = true): Promise<string> {
