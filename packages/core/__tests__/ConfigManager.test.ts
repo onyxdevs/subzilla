@@ -243,6 +243,36 @@ input:
         });
 
         describe('loading from environment variables', () => {
+            it('cannot be used to write onto built-in objects (prototype pollution)', async () => {
+                // "constructor" is an INHERITED property of every object: walking into it
+                // lands on the global Object function. "__proto__" lands on Object.prototype.
+                process.env.SUBZILLA_CONSTRUCTOR_POLLUTED = 'yes';
+                process.env.SUBZILLA_CONSTRUCTOR_PROTOTYPE = '{"polluted":"yes"}';
+                process.env.SUBZILLA_TOSTRING_POLLUTED = 'yes';
+                process.env.SUBZILLA_HASOWNPROPERTY_POLLUTED = 'yes';
+                process.env['SUBZILLA___proto__'] = '{"polluted":"yes"}';
+                process.env.SUBZILLA_STRIP = '{"__proto__":{"polluted":"yes"},"html":true}';
+
+                try {
+                    const result = await ConfigManager.loadConfig();
+                    const probe: Record<string, unknown> = {};
+
+                    expect((Object as unknown as Record<string, unknown>).polluted).toBeUndefined();
+                    expect(probe.polluted).toBeUndefined();
+                    expect((Object.prototype.toString as unknown as Record<string, unknown>).polluted).toBeUndefined();
+                    expect(
+                        (Object.prototype.hasOwnProperty as unknown as Record<string, unknown>).polluted,
+                    ).toBeUndefined();
+
+                    // Legitimate sections still load next to the hostile ones
+                    expect(result.config.strip?.html).toBe(true);
+                    expect(Object.keys(result.config).sort()).toEqual(['batch', 'input', 'output', 'strip']);
+                } finally {
+                    delete (Object as unknown as Record<string, unknown>).polluted;
+                    delete (Object.prototype as unknown as Record<string, unknown>).polluted;
+                }
+            });
+
             it('should load configuration from environment variables', async () => {
                 process.env.SUBZILLA_INPUT_ENCODING = 'utf16be';
                 process.env.SUBZILLA_OUTPUT_CREATEBACKUP = 'true';

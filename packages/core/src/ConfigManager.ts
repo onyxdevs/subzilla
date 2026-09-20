@@ -241,7 +241,10 @@ export default class ConfigManager {
         const propertyKey = parts.slice(1).join('').toLowerCase();
 
         // Look up the correct camelCase property name
-        const correctPropertyName = this.KNOWN_PROPERTIES[section]?.[propertyKey] || propertyKey;
+        // Own properties only: a plain lookup would also find inherited ones such as
+        // KNOWN_PROPERTIES['constructor'] (the global Object function)
+        const knownSection = this.hasOwn(this.KNOWN_PROPERTIES, section) ? this.KNOWN_PROPERTIES[section] : {};
+        const correctPropertyName = this.hasOwn(knownSection, propertyKey) ? knownSection[propertyKey] : propertyKey;
 
         return [section, correctPropertyName];
     }
@@ -270,16 +273,29 @@ export default class ConfigManager {
         }
     }
 
+    // Object.hasOwn needs ES2022; the project targets ES2020
+    private static hasOwn(target: object, key: string): boolean {
+        return Object.prototype.hasOwnProperty.call(target, key);
+    }
+
     /**
      * 🎯 Set nested value in configuration object
      */
     private static setNestedValue(obj: Record<string, unknown>, path: string[], value: unknown): void {
+        // Environment variable names decide this path, so it must never be able to
+        // walk out of the config object: "constructor" and "__proto__" are reachable
+        // from every object and lead to the global Object / Object.prototype.
+        if (path.some((key) => key === '__proto__' || key === 'constructor' || key === 'prototype')) {
+            return;
+        }
+
         let current = obj;
 
         for (let i = 0; i < path.length - 1; i++) {
             const key = path[i];
 
-            if (!(key in current)) {
+            // hasOwn, not "in": inherited members (toString, hasOwnProperty, …) are not config sections
+            if (!this.hasOwn(current, key) || typeof current[key] !== 'object' || current[key] === null) {
                 current[key] = {};
             }
 
