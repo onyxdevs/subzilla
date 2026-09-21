@@ -294,6 +294,11 @@ export default class ConfigManager {
         for (let i = 0; i < path.length - 1; i++) {
             const key = path[i];
 
+            // Repeated per key on purpose: the check above keeps a rejected path from
+            // half-mutating the config, this one sits where the key is used, which is
+            // the form static analysis (CodeQL) can follow.
+            if (key === '__proto__' || key === 'constructor' || key === 'prototype') return;
+
             // hasOwn, not "in": inherited members (toString, hasOwnProperty, …) are not config sections
             if (!this.hasOwn(current, key) || typeof current[key] !== 'object' || current[key] === null) {
                 current[key] = {};
@@ -302,7 +307,11 @@ export default class ConfigManager {
             current = current[key] as Record<string, unknown>;
         }
 
-        current[path[path.length - 1]] = value;
+        const lastKey = path[path.length - 1];
+
+        if (lastKey === '__proto__' || lastKey === 'constructor' || lastKey === 'prototype') return;
+
+        current[lastKey] = value;
     }
 
     /**
