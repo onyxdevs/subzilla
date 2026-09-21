@@ -1,0 +1,38 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(npx tsc --build)",
+            "Bash(npx tsc --build:*)",
+            "Bash(yarn test:*)",
+            "Bash(npx jest:*)",
+            "Bash(yarn lint)",
+            "Bash(yarn lint:fix)",
+            "Bash(yarn format:check)",
+            "Bash(yarn type-check)",
+            "Bash(yarn clean)",
+            "Bash(git status:*)",
+            "Bash(git diff:*)",
+            "Bash(git log:*)",
+            "Bash(git show:*)",
+            "Bash(gh pr list:*)",
+            "Bash(gh pr view:*)",
+            "Bash(gh pr checks:*)",
+            "Bash(gh run list:*)",
+            "Bash(gh run view:*)",
+            "Bash(codesign --verify:*)",
+            "Bash(codesign -dv:*)",
+            "Bash(node .claude/skills/diagnosing-subtitle-files/scripts/inspect-subtitle.js:*)",
+            "Bash(.claude/skills/writing-adversarial-tests/scripts/mutation-check.sh:*)",
+            "Bash(.claude/skills/releasing-mac-app/scripts/verify-mac-bundle.sh:*)"
+        ],
+        "ask": [
+            "Bash(git push:*)",
+            "Bash(git tag:*)",
+            "Bash(gh release:*)",
+            "Bash(gh pr merge:*)",
+            "Bash(gh api -X:*)",
+            "Bash(yarn workspace @subzilla/mac build:*)"
+        ],
+        "deny": ["Read(./.env)", "Read(./.env.*)", "Read(./examples/config/.env)"]
+    }
+}

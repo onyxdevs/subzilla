@@ -1,0 +1,26 @@
+[
+    {
+        "query": "A user sent me this file, two Arabic words are stuck together in a few lines after converting. Can you look? ~/Downloads/movie.ar.srt",
+        "expected_behavior": [
+            "Runs inspect-subtitle.js on the file before proposing any code change",
+            "Reports the detected encoding and any invisible characters by code point (e.g. U+200F)",
+            "Distinguishes a source defect (words separated only by an invisible mark) from a pipeline bug (visible words changed)",
+            "Does not modify the user's file"
+        ]
+    },
+    {
+        "query": "The converted subtitle is all garbage like ãÑÍÈÇ, original looked fine in VLC",
+        "expected_behavior": [
+            "Recognises mojibake as an encoding-detection problem (windows-1256 read as windows-1252)",
+            "Asks for or inspects the ORIGINAL file, not the converted one",
+            "If reproducible, adds the case to EncodingDetection.adversarial.test.ts before fixing"
+        ]
+    },
+    {
+        "query": "here's the text of the subtitle that breaks: 1\\n00:00:01,000 --> 00:00:02,000\\nمرحبا بالعالم",
+        "expected_behavior": [
+            "Explains that pasted text loses the original bytes and invisible characters",
+            "Asks for the file itself instead of theorising from the pasted text"
+        ]
+    }
+]

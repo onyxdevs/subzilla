@@ -1,0 +1,26 @@
+[
+    {
+        "query": "Strip <span> tags that carry a lang attribute, some Arabic subs have them around every word",
+        "expected_behavior": [
+            "Writes a failing exact-output test in WordBoundary.adversarial before changing FormattingStripper",
+            "Includes a negative case (text that looks like the tag but must survive)",
+            "Adds the wrapper to the WRAPPERS list of the generative test",
+            "Runs mutation-check.sh and reports how many tests fail on the old code"
+        ]
+    },
+    {
+        "query": "I added a regex to remove {\\\\pos(x,y)} blocks, tests pass, can you review?",
+        "expected_behavior": [
+            "Checks the regex against the rules in .claude/rules/text-processing.md (bounded negated class, no cross-line match)",
+            "Adds a 200k-character hostile case to RegexPerformance.adversarial",
+            "Does not accept 'tests pass' without a mutation check"
+        ]
+    },
+    {
+        "query": "Add a test that the stripper doesn't crash on empty input",
+        "expected_behavior": [
+            "Asserts the exact output, not merely that no exception is thrown",
+            "Notes if the test passes on the old code too, rather than presenting it as new coverage"
+        ]
+    }
+]
