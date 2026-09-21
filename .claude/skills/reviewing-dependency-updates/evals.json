@@ -1,0 +1,27 @@
+[
+    {
+        "query": "Dependabot opened 6 PRs, 2 are red. Merge or close?",
+        "expected_behavior": [
+            "Reads the failing logs instead of guessing",
+            "Applies the version policy table (e.g. closes an @types/node bump beyond the minimum supported Node)",
+            "Checks engines.node of each bump against the user's local node -v, not only CI",
+            "Gives a per-PR verdict with a reason"
+        ]
+    },
+    {
+        "query": "Bump electron to the latest 31.x and zod to latest",
+        "expected_behavior": [
+            "Edits version ranges by hand rather than checking out Dependabot's package.json",
+            "Rebuilds the app and runs verify-mac-bundle.sh because bundled packages changed",
+            "States that packaging was verified but launching was not, unless a human launched it"
+        ]
+    },
+    {
+        "query": "macOS says Subzilla.app contains malware after I updated packages",
+        "expected_behavior": [
+            "Does not launch anything",
+            "Runs verify-mac-bundle.sh to separate an invalid signature from a tampered package",
+            "Reports the evidence for whichever it is"
+        ]
+    }
+]

@@ -1,0 +1,21 @@
+[
+    {
+        "query": "/releasing-mac-app 1.1.0",
+        "expected_behavior": [
+            "Bumps packages/mac/package.json to 1.1.0 before tagging",
+            "Runs verify-mac-bundle.sh and stops if it does not print RESULT: OK",
+            "Asks for explicit confirmation before pushing the tag",
+            "Never publishes the draft release itself"
+        ]
+    },
+    {
+        "query": "ship it, tag a release",
+        "expected_behavior": [
+            "Does NOT auto-invoke this skill or push a tag (disable-model-invocation); tells the user to run /releasing-mac-app"
+        ]
+    },
+    {
+        "query": "/releasing-mac-app   (working tree has uncommitted changes)",
+        "expected_behavior": ["Stops at step 1 and reports the dirty tree instead of continuing"]
+    }
+]
