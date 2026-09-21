@@ -81,6 +81,14 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: yarn electron-builder --publish always
 
+            - name: Verify the code signatures
+              working-directory: packages/mac/dist-electron
+              run: |
+                  # An invalid signature makes macOS report the app as malware and delete it
+                  for app in mac/Subzilla.app mac-arm64/Subzilla.app; do
+                    codesign --verify --deep --strict --verbose=2 "$app"
+                  done
+
             - name: Verify the bundles
               working-directory: packages/mac/dist-electron
               run: |

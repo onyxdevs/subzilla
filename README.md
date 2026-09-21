@@ -307,7 +307,7 @@ SubZilla includes a native macOS desktop application built with Electron, featur
 
 Grab the latest `.dmg` from the [releases page](https://github.com/onyxdevs/subzilla/releases/latest): `Subzilla-<version>-arm64.dmg` for Apple Silicon, `Subzilla-<version>.dmg` for Intel.
 
-The app is not signed with an Apple Developer ID, so macOS blocks it on first launch. Open it once via **System Settings → Privacy & Security → Open Anyway** (or run `xattr -cr /Applications/Subzilla.app`). For the same reason the built-in auto-updater cannot install updates on its own; download new versions from the releases page.
+The app is not signed with an Apple Developer ID (it is ad-hoc signed, so its signature is valid but not tied to a verified developer), so macOS blocks it on first launch. Open it once via **System Settings → Privacy & Security → Open Anyway** (or run `xattr -cr /Applications/Subzilla.app`). For the same reason the built-in auto-updater cannot install updates on its own; download new versions from the releases page.
 
 ### Running the Mac App
 
@@ -380,6 +380,7 @@ Several example configurations are provided in the `examples/config` directory:
         encoding: utf8 # Always UTF-8
         bom: false # Add BOM to output files
         lineEndings: lf # lf, crlf, or auto
+
 
     # ... and more settings
     ```
