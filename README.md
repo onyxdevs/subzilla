@@ -361,6 +361,8 @@ SubZilla looks for configuration files in the following order:
 3. `.subzilla.yml` or `.subzilla.yaml`
 4. `subzilla.config.yml` or `subzilla.config.yaml`
 
+The **Mac app** treats these files differently from the CLI: once you save the Preferences window, Preferences is the only source of settings and `.subzillarc` files are ignored. Before the first save (and again after _Reset to Defaults_) a `.subzillarc` in your home directory seeds the initial values over the built-in defaults, and the Preferences window shows them. Environment variables are not read by the app.
+
 ### Example Configurations
 
 Several example configurations are provided in the `examples/config` directory:

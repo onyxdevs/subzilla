@@ -48,7 +48,7 @@ yarn workspace @subzilla/mac build                               # package the a
 ## Gotchas
 
 - Adding a strip option touches ~10 places: `IStripOptions`, Zod schema, `ConfigManager` (`KNOWN_PROPERTIES` + defaults), CLI `options.ts` + `strip-options.ts` + `IStripCommandOptions`, mac `preferences.ts` (schema, defaults, presets), `preferences.html`, `preferences.js` (element, listener list, load, save, presets ×2), READMEs. `git grep -n bidiControl` lists them all.
-- In the mac app, electron-store defaults override `.subzillarc` values (open product question — do not "fix" silently).
+- Mac app config rule: once Preferences has been saved (`userSavedConfig` marker, or stored values differing from defaults), Preferences is the ONLY source; before that `.subzillarc` seeds values over the built-in defaults. electron-store materialises every default, so a plain "stored overrides RC" merge can never express this. Logic + rationale: `getConfig()` in `main/preferences.ts`.
 - `packages/mac/electron-builder.yml` is the only builder config. Never re-add a `"build"` field to `packages/mac/package.json`: it silently shadows the yml.
 - The app is ad-hoc signed by `scripts/adhoc-sign.js`. An invalid signature makes macOS report "contains malware" and delete the bundle. Before launching any build: `codesign --verify --deep --strict <app>`.
 - macOS has no `timeout` command. When checking that a launched process is alive, use its PID (`kill -0 $PID`); `pgrep -f <path>` matches your own shell command.

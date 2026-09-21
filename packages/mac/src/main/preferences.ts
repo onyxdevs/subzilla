@@ -3,8 +3,7 @@ import path from 'path';
 
 import Store from 'electron-store';
 
-import { ConfigManager } from '@subzilla/core';
-import { IConfig, IStripOptions } from '@subzilla/types';
+import { IConfig, IStripOptions, configSchema } from '@subzilla/types';
 
 export interface IMacAppPreferences {
     // Application-specific preferences
@@ -24,14 +23,21 @@ export interface IMacAppPreferences {
     };
 }
 
+// userSavedConfig: set once the Preferences window has been saved. From then on
+// Preferences is the only source of truth and .subzillarc files are ignored.
+type TStoredConfig = IConfig & { app: IMacAppPreferences; userSavedConfig?: boolean };
+
 export class ConfigMapper {
-    private store: Store<IConfig & { app: IMacAppPreferences }>;
+    private store: Store<TStoredConfig>;
     private rcConfig: IConfig | null = null;
+    // getConfig() awaits this, so the first conversion after launch can never run
+    // before the .subzillarc file has been read
+    private rcLoaded: Promise<void>;
 
     constructor() {
         console.log('⚙️ Initializing configuration store...');
 
-        this.store = new Store({
+        this.store = new Store<TStoredConfig>({
             name: 'preferences',
             defaults: this.getDefaultConfig(),
             schema: {
@@ -86,6 +92,7 @@ export class ConfigMapper {
                         failFast: { type: 'boolean' },
                     },
                 },
+                userSavedConfig: { type: 'boolean' },
                 app: {
                     type: 'object',
                     properties: {
@@ -102,32 +109,18 @@ export class ConfigMapper {
 
         console.log('✅ Configuration store initialized');
 
-        // Load RC config asynchronously (will be merged when getConfig() is called)
-        // We don't await this to avoid blocking the constructor
-        this.loadRcConfig().catch((err) => {
+        // Load RC config asynchronously; a constructor cannot await, getConfig() does
+        this.rcLoaded = this.loadRcConfig().catch((err) => {
             console.warn('⚠️ Failed to load RC config:', err);
         });
     }
 
     /**
-     * Load configuration from .subzillarc files
-     * Search order: cwd < app resources directory < home directory
-     * This follows the same precedence as the CLI: defaults < file config < env vars < app preferences
+     * Directories searched for RC files, in order of precedence (later overrides earlier)
      */
-    private async loadRcConfig(): Promise<void> {
-        console.log('🔍 Loading RC configuration...');
-
+    protected async getRcSearchDirs(): Promise<string[]> {
         const fs = await import('fs/promises');
-        const yaml = await import('yaml');
         const { app } = await import('electron');
-
-        const rcFiles = [
-            '.subzillarc',
-            '.subzilla.yml',
-            '.subzilla.yaml',
-            'subzilla.config.yml',
-            'subzilla.config.yaml',
-        ];
 
         // Directories to search for RC files (in order of precedence - later overrides earlier)
         const searchDirs = [
@@ -158,6 +151,30 @@ export class ConfigMapper {
             }
         }
 
+        return searchDirs;
+    }
+
+    /**
+     * Load configuration from .subzillarc files
+     * Later search directories override earlier ones (see getRcSearchDirs).
+     * How the result combines with stored Preferences is decided in getConfig().
+     */
+    private async loadRcConfig(): Promise<void> {
+        console.log('🔍 Loading RC configuration...');
+
+        const fs = await import('fs/promises');
+        const yaml = await import('yaml');
+
+        const rcFiles = [
+            '.subzillarc',
+            '.subzilla.yml',
+            '.subzilla.yaml',
+            'subzilla.config.yml',
+            'subzilla.config.yaml',
+        ];
+
+        const searchDirs = await this.getRcSearchDirs();
+
         let foundConfig: IConfig | null = null;
         let foundPath: string | null = null;
 
@@ -172,6 +189,18 @@ export class ConfigMapper {
                     const content = await fs.readFile(rcPath, 'utf8');
                     const config = yaml.parse(content);
 
+                    // Validate, but keep the RAW object: the schema fills in its own
+                    // defaults, which would override the app's defaults for keys the
+                    // file never mentioned. A file that fails validation is ignored
+                    // entirely rather than half-applied.
+                    if (!config || typeof config !== 'object' || Array.isArray(config)) continue;
+
+                    if (!configSchema.safeParse(config).success) {
+                        console.warn(`⚠️ Ignoring invalid RC config: ${rcPath}`);
+
+                        continue;
+                    }
+
                     foundConfig = config;
                     foundPath = rcPath;
                     console.log(`✅ Loaded RC config from ${rcPath}`);
@@ -180,23 +209,6 @@ export class ConfigMapper {
                     continue;
                 }
             }
-        }
-
-        // Also try ConfigManager for env vars support
-        try {
-            const coreConfigResult = await ConfigManager.loadConfig();
-
-            if (coreConfigResult.source === 'file' && coreConfigResult.filePath) {
-                console.log(`✅ ConfigManager found config at: ${coreConfigResult.filePath}`);
-
-                // If ConfigManager found a file we didn't find, use it
-                if (!foundConfig) {
-                    foundConfig = coreConfigResult.config;
-                    foundPath = coreConfigResult.filePath;
-                }
-            }
-        } catch {
-            // Continue without ConfigManager config
         }
 
         if (foundConfig) {
@@ -307,20 +319,62 @@ export class ConfigMapper {
         };
     }
 
+    /**
+     * The effective conversion settings.
+     *
+     * Rule: once the Preferences window has been saved, Preferences is the only
+     * source of truth. Until then, a .subzillarc file seeds the initial values over
+     * the built-in defaults (and is what the Preferences window shows, so saving
+     * locks those values in).
+     *
+     * "stored < RC" could never express this: electron-store materialises every
+     * default into the store, so stored values always "won" - except for the few
+     * keys without a default (output.directory, batch.maxDepth, ...), which leaked
+     * through from the file even after the user had saved their preferences.
+     */
     public async getConfig(): Promise<IConfig> {
-        const fullConfig = this.store.store;
+        await this.rcLoaded;
 
-        // Return only the IConfig part (without app preferences)
+        // Only the IConfig part: no app preferences, no bookkeeping
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { app, ...storedConfig } = fullConfig;
+        const { app, userSavedConfig, ...storedConfig } = this.store.store;
 
-        // Merge RC config (base) with stored preferences (override)
-        // Precedence: defaults < RC file config < stored app preferences
-        if (this.rcConfig) {
-            return this.mergeConfigs(this.rcConfig, storedConfig);
+        if (this.hasUserSavedConfig() || !this.rcConfig) {
+            return storedConfig;
         }
 
-        return storedConfig;
+        return this.mergeConfigs(storedConfig, this.rcConfig);
+    }
+
+    /**
+     * True once the user has saved Preferences. Installs that predate the marker
+     * count as saved when their stored values differ from the defaults, so an
+     * existing customised setup is never overridden by a .subzillarc file.
+     */
+    private hasUserSavedConfig(): boolean {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { app, userSavedConfig, ...storedConfig } = this.store.store;
+
+        if (userSavedConfig === true) return true;
+
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { app: defaultApp, ...defaultConfig } = this.getDefaultConfig();
+
+        return !this.isSameConfig(storedConfig, defaultConfig);
+    }
+
+    private isSameConfig(a: unknown, b: unknown): boolean {
+        const normalise = (value: unknown): unknown =>
+            value && typeof value === 'object' && !Array.isArray(value)
+                ? Object.fromEntries(
+                      Object.entries(value as Record<string, unknown>)
+                          .filter(([, entry]) => entry !== undefined)
+                          .sort(([x], [y]) => x.localeCompare(y))
+                          .map(([key, entry]) => [key, normalise(entry)]),
+                  )
+                : value;
+
+        return JSON.stringify(normalise(a)) === JSON.stringify(normalise(b));
     }
 
     /**
@@ -358,7 +412,8 @@ export class ConfigMapper {
         // Preserve app preferences while updating core config
         const currentApp = await this.getAppPreferences();
 
-        this.store.set({ ...config, app: currentApp });
+        // From here on Preferences wins over any .subzillarc file (see getConfig)
+        this.store.set({ ...config, app: currentApp, userSavedConfig: true });
 
         console.log('✅ Configuration saved');
     }
@@ -379,7 +434,7 @@ export class ConfigMapper {
         return this.store.path;
     }
 
-    public getStore(): Store<IConfig & { app: IMacAppPreferences }> {
+    public getStore(): Store<TStoredConfig> {
         return this.store;
     }
 
