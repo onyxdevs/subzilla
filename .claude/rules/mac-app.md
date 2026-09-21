@@ -12,5 +12,6 @@ paths:
 - Formatting presets exist in THREE places that must match in name and order: `getFormattingPresets()` in `main/preferences.ts`, and twice in `renderer/js/preferences.js` (`applyPreset`, `updatePresetButtons`), plus the buttons in `preferences.html`. A test enforces this, and that no two presets are identical (a duplicate can never show as selected).
 - Dropped paths come from `window.subzilla.getPathForFile(file)` (`File.path` is gone in newer Electron). Folder expansion lives in `main/files.ts`: skips hidden entries, symlinks, `.subzilla.` outputs, VobSub `.sub`+`.idx` pairs, and `.txt` inside folders.
 - Renderer behaviour is tested by executing the real script against a stub DOM (`__tests__/renderer/`), not by grepping source.
+- Launch the dev app only through `yarn workspace @subzilla/mac dev` / `start`: they run `scripts/sign-dev-electron.js` first. The stock dev binary gets flagged as malware and deleted by macOS (see CLAUDE.md).
 - Packaging: config is `electron-builder.yml` only; `scripts/adhoc-sign.js` must stay wired as `afterPack`. `electron-store` must stay < 9 (9+ is ESM-only; main is CommonJS) and `electron-builder` stays on 24 until migrated deliberately.
 - Releasing is a manual procedure: use the `/releasing-mac-app` skill.

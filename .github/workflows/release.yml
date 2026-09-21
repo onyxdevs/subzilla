@@ -84,9 +84,11 @@ jobs:
             - name: Verify the code signatures
               working-directory: packages/mac/dist-electron
               run: |
-                  # An invalid signature makes macOS report the app as malware and delete it
+                  # The bundle must be RE-SIGNED: one still carrying stock Electron's code hash
+                  # is reported by macOS as malware and deleted (see scripts/adhoc-sign.js)
                   for app in mac/Subzilla.app mac-arm64/Subzilla.app; do
                     codesign --verify --deep --strict --verbose=2 "$app"
+                    codesign -dv "$app" 2>&1 | grep -q '^Identifier=net.onyxdev.subzilla$' || { echo "::error::$app still has stock Electron's signature"; exit 1; }
                   done
 
             - name: Verify the bundles

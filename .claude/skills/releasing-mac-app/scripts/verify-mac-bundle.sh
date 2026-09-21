@@ -17,12 +17,14 @@ apps=(); for d in "$dist"/mac*/Subzilla.app; do [ -d "$d" ] && apps+=("$d"); don
 
 echo "== 1. code signatures"
 for app in "${apps[@]}"; do
-    if out="$(codesign --verify --deep --strict "$app" 2>&1)"; then
-        echo "  ok    ${app#$dist/}  ($(codesign -dv "$app" 2>&1 | sed -n 's/^Identifier=//p'))"
+    id="$(codesign -dv "$app" 2>&1 | sed -n 's/^Identifier=//p')"
+    if ! out="$(codesign --verify --deep --strict "$app" 2>&1)"; then
+        echo "  FAIL  ${app#$dist/}: $out"; fail=1
+    elif [ "$id" = "Electron" ]; then
+        # Stock Electron's code hash: macOS reports it as 'contains malware' and deletes the app
+        echo "  FAIL  ${app#$dist/}: still signed as stock Electron. Is scripts/adhoc-sign.js wired as afterPack?"; fail=1
     else
-        echo "  FAIL  ${app#$dist/}: $out"
-        echo "        macOS reports such a bundle as 'contains malware' and deletes it. Is scripts/adhoc-sign.js still wired as afterPack?"
-        fail=1
+        echo "  ok    ${app#$dist/}  ($id)"
     fi
 done
 
