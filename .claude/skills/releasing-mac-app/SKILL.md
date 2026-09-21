@@ -36,7 +36,7 @@ Copy this checklist and tick items as they complete. Stop and report at the firs
 
 ## Rules
 
-- Step 4 must print `RESULT: OK`. A bundle with an invalid signature is reported by macOS as "contains malware" and deleted on launch. Never publish or launch a build that fails it.
+- Step 4 must print `RESULT: OK`. A bundle that still carries stock Electron's signature (`Identifier=Electron`) is reported by macOS as "contains malware" and deleted on launch. Never publish or launch a build that fails it.
 - Steps 7 and 10 are outward-facing and hard to undo: get explicit confirmation each time. Never publish the draft yourself.
 - Do not claim the app "works" from packaging alone. Only step 5 (a human launching it) establishes that.
 - The app is ad-hoc signed, not notarized. Release notes must tell users to approve it once under System Settings → Privacy & Security, and that auto-update cannot install unsigned updates.

@@ -52,7 +52,9 @@ yarn workspace @subzilla/mac build
 
 It checks the code signature, the Electron download against Electron's official SHA-256, and every bundled package against its npm tarball, without launching anything. `RESULT: OK` is required before anyone launches the build.
 
-If macOS ever reports the app as malware: do not launch anything else. Run the script first. An invalid signature (not a compromised package) caused this once already; the script distinguishes the two.
+If macOS ever reports the app (or `Electron.app`) as malware: do not launch anything else, and run the script first. It has happened here, and it was NOT a compromised package: macOS flags anything still carrying stock Electron 31.7.7's code hash, and re-signing fixes it. The script tells the two apart (authentic download + identical-to-npm packages + `Identifier=Electron` means "not re-signed", not "tampered").
+
+An Electron version bump changes that stock hash. After one, confirm both the packaged app and `yarn workspace @subzilla/mac dev` still launch.
 
 ## 5. Report
 
