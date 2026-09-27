@@ -28,6 +28,15 @@ updates:
             update-types: [version-update:semver-major]
           - dependency-name: '@eslint/js'
             update-types: [version-update:semver-major]
+          # Held below 9: electron-store 9+ is ESM-only and the Mac main process is
+          # CommonJS. Remove once the main process is built as ESM.
+          - dependency-name: electron-store
+            update-types: [version-update:semver-major]
+          # Held at 24: a major changes @electron/osx-sign, which the ad hoc re-signing
+          # in scripts/adhoc-sign.js depends on. Upgrade by hand and re-verify the
+          # packaged app (verify-mac-bundle.sh, then launch) before removing this.
+          - dependency-name: electron-builder
+            update-types: [version-update:semver-major]
 
     - package-ecosystem: github-actions
       directory: /
