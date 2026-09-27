@@ -34,7 +34,7 @@
         "@subzilla/types": "workspace:*",
         "chardet": "^2.2.0",
         "cli-progress": "^3.12.0",
-        "glob": "^11.0.3",
+        "glob": "^13.0.6",
         "iconv-lite": "^0.7.3",
         "yaml": "^2.9.1"
     },
