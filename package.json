@@ -56,8 +56,8 @@
         "@jest/globals": "^30.5.2",
         "@types/jest": "^30.0.0",
         "@types/node": "^22.12.0",
-        "@typescript-eslint/eslint-plugin": "^8.70.1",
-        "@typescript-eslint/parser": "^8.70.1",
+        "@typescript-eslint/eslint-plugin": "^8.71.0",
+        "@typescript-eslint/parser": "^8.71.0",
         "eslint": "^9.34.0",
         "eslint-config-prettier": "^10.1.8",
         "eslint-import-resolver-typescript": "^4.4.5",
@@ -71,6 +71,6 @@
     },
     "dependencies": {
         "husky": "^9.1.7",
-        "lint-staged": "^17.5.1"
+        "lint-staged": "^17.6.0"
     }
 }
