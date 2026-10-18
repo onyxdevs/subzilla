@@ -30,10 +30,10 @@
         "node": ">=22.12.0"
     },
     "dependencies": {
-        "zod": "^4.6.5"
+        "zod": "^4.6.7"
     },
     "devDependencies": {
-        "@types/node": "^22.12.0",
+        "@types/node": "^22.20.5",
         "typescript": "^5.9.2"
     }
 }
