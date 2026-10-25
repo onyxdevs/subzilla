@@ -45,7 +45,7 @@
     "devDependencies": {
         "@types/commander": "^2.12.5",
         "@types/module-alias": "^2.0.4",
-        "@types/node": "^22.12.0",
+        "@types/node": "^22.20.5",
         "typescript": "^5.9.2"
     }
 }
