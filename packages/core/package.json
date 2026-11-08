@@ -43,7 +43,7 @@
         "@types/cli-progress": "^3.11.6",
         "@types/glob": "^9.0.0",
         "@types/iconv-lite": "^0.0.1",
-        "@types/node": "^22.12.0",
+        "@types/node": "^22.20.5",
         "typescript": "^5.9.2"
     }
 }
